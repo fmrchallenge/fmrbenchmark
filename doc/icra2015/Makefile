@@ -4,6 +4,8 @@ all: icra2015formalmethodschallenge
 
 icra2015formalmethodschallenge: icra2015formalmethodschallenge.tex
 	pdflatex -output-directory $(BUILDDIR) $<
+	bibtex $(BUILDDIR)$@
+	pdflatex -output-directory $(BUILDDIR) $<
 	pdflatex -output-directory $(BUILDDIR) $<
 
 date: icra2015formalmethodschallenge
