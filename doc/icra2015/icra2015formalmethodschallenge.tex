@@ -1,11 +1,15 @@
 \documentclass[12pt]{amsart}
 \usepackage{fullpage}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \DeclareMathOperator{\Galways}{\mathbf{G}}
 \DeclareMathOperator{\Feventually}{\mathbf{F}}
 \DeclareMathOperator{\Xnext}{\mathbf{X}}
 \DeclareMathOperator{\Uuntil}{\mathbf{U}}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}[section]
 
 
 \begin{document}
@@ -175,40 +179,41 @@ such as through Amazon Web Services (\url{http://aws.amazon.com/}).
 \section{Problem domain: Traffic network of Dubins cars}\label{sec:trafficdubins}
 
 This domain involves navigation in a small network of two-lane roads with
-vehicles that follow unicycle-like dynamics.  Unlike the ``scaling
+vehicles that follow unicycle-like/Dubins dynamics. Unlike the ``scaling
 double-integrators'' problem (cf.\ Section~\ref{sec:scalingdoubleinteg}), now
 there is an adversary that selects the motion of other cars.  The adversary is
 subject to assumptions such as obeying traffic rules and not parking unfairly at
 locations that must be eventually reached by the controller.
 
 \subsection{Dynamics and constraints}
+All cars including the controlled robot are assumed to have the same rigid body and to be subject to
+the same dynamics. Let $\mathcal I$ be the index set for the cars in the network, with $r$ denoting the index of the controlled robot; all cars indexed with $i \in {\mathcal I}\backslash\{r\}$ are regarded as a part of the (adversarial) environment. 
 
-The pose of the robot is specified by $(x,y,\theta)$, where $(x,y)\in
-\mathbb{R}^2$ is referred to as \textit{position}, and $\theta\in S^1$ is
-referred to as \textit{orientation}.  The robot body is a rectangle or a circle,
+The pose of each car $i \in {\mathcal I}$ is specified by $(x_i,y_i,\theta_i)$, where $(x_i,y_i)\in
+\mathbb{R}^2$ is referred to as \textit{position}, and $\theta_i \in S^1$ is
+referred to as \textit{orientation}.  The car's body is a rectangle or a circle,
 and the position is defined to be at the mean point (center of mass) of the
-body.  Let $w$ be the width of the robot.  The trajectories are solutions of
-\begin{align}
-\dot{x} &= u \cos \theta \\
-\dot{y} &= u \sin \theta \\
-\dot{\theta} &= \omega
-\end{align}
-where the control inputs are constrained as $u(t)\in \{0,u_{\mathrm{max}}\}$ and
-$\omega(t) \leq \omega_{\mathrm{max}}$.
+body.  Let $w$ be the width of the car -- this is identical for each $i \in {\mathcal I}$.  
 
-All other ``cars'' are assumed to have the same rigid body and to be subject to
-the same dynamics as the robot that is to be controlled.  These cars are
-regarded as a part of the (adversarial) environment.
+The trajectories of car $i$ are solutions of
+\begin{align*}
+\dot{x_i} &= u_i \cos \theta_i \\
+\dot{y_i} &= u_i \sin \theta_i \\
+\dot{\theta_i} &= \omega_i
+\end{align*}
+where the control inputs are constrained as $u_i(t)\in \{0,u_{\mathrm{max}}\}$ and
+$\omega_i(t) \leq \omega_{\mathrm{max}}$.
+
 
 The workspace is a randomly generated road network constructed as follows.
-Create a planar graph in which each vertex has at most degree 4 (i.e., at most 4
+Create a planar graph $G = (V,E)$ in which each vertex $v$ has degree $d_v \le 4$ (i.e., at most 4
 neighbors).  Embed this graph in the plane, and expand the edges to have width
 $4w$ (recall $w$ is the common vehicle width).
 
 For this aspect of the ``traffic network of Dubins cars'' problem domain, we are
 able to vary the bounds $u_{\mathrm{max}}$ and $\omega_{\mathrm{max}}$ on the
-permissible control inputs, the size and topology of the road network, and the
-number of other cars.
+permissible control inputs, the size ($|V|$) and topology ($|E|$) of the road network, and the
+number of other cars, i.e. $|\mathcal I|$.
 
 
 \subsection{Specifications}
@@ -234,11 +239,23 @@ $\varphi_{\mathrm{sys}}$ and include
 The other cars will be assumed to follow the same road rules as listed above.
 However, exceptions (violations) may occur, and thus additional fairness
 assumptions will be provided, e.g.,
-\begin{equation}\label{eq:freegoals}
+\begin{equation*}\label{eq:freegoals}
 \bigwedge_i \Galways \Feventually \tt{free}(\mathrm{goal}_i)
-\end{equation}
+\end{equation*}
 which provides that other cars will always eventually vacate the $i$-th goal
 region.
+
+\begin{figure}[h!]\label{fig:network}
+  \centering
+        \includegraphics[width=1.0\textwidth]{images/network}
+  \caption{An example road network and the graph from which it was generated. There are three cars, one of which is the robot (labeled with $r$)}.
+\end{figure}
+
+\begin{example}
+Consider the network depicted in Fig. \ref{fig:network}. There are three cars, one of which is the robot to be controlled. The road network graph is depicted, and shows the bidirectional connectivity between the four road segments $A$, $B$, $C$ and $D$. Note that each road has two lanes. At the intersection of each pair of roads, there is an overlap region.
+\end{example}
+
+TODO: what does the LTL specification look like for this problem?
 
 \subsection{Implementation plan for the challenge}
 
