@@ -4,10 +4,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="fmrchallenge.css" type="text/css" />
+<title>1st Challenge on Formal Methods for Robotics</title>
 </head>
 <body>
 <h1>The First Challenge on Formal Methods for Robotics</h1>
-<h2>Summary</h2>
+
+<h2 id="contact">Contact</h2>
+<div class="author">Scott C. Livingston  &lt;<a href="http://scottman.net">slivingston</a>@<a href="http://www.cds.caltech.edu">cds</a>.<a href="http://www.caltech.edu">Caltech</a>&gt;</div>
+<div class="author">Vasumathi Raman  &lt;<a href="http://users.cms.caltech.edu/~vasu/">vasu</a>@<a href="http://www.caltech.edu">Caltech</a>&gt;</div>
+
+<h2 id="summary">Summary</h2>
 <p>We present the first challenge on formal methods for robotics.  Formal
 methods refers broadly to techniques for the verification and automatic
 synthesis of transition systems that satisfy desirable properties exactly or
@@ -21,5 +28,54 @@ proposed robotics challenge seeks to motivate advancement of the state of the
 art toward practical realization.  The challenge is organized into three problem
 domains: arbitrary dimensional double integrators, roads with Dubins cars, and
 manipulation tasks on the assembly line.</p>
+
+<h2 id="problems">Problem Domains</h2>
+
+<ol>
+  <li><a href="#scalingdinterators">scaling double integrators</a></li>
+  <li><a href="#dubinstraffic">Dubins traffic</a></li>
+  <li><a href="#pickandplace">pick-and-place</a></li>
+</ol>
+
+<div class="psetting">
+<h3 id="scalingdintegrators">scaling double integrators</h3>
+<p>
+
+The <em>scaling double integrators</em> domain is the simplest in terms of
+dynamics, yet unlike the other domains, the system to be controlled can be
+scaled easily to arbitrarily many dimensions.  While this problem is abstract in
+the sense that it is not modeling a specific physical system, it is
+well-motivated because the double-integrator is just the basic force equation
+(F=ma) of Newtonian mechanics, up to a scaling factor.  In other words, this
+problem domain concerns acceleration of a point-mass in high-dimensional spaces
+so as to visit goal regions and avoid obstacles.
+
+</p>
+</div>
+
+<div class="psetting">
+<h3 id="dubinstraffic">Dubins traffic</h3>
+<p>
+
+The <em>Dubins traffic</em> domain involves navigation in a small network of
+two-lane roads with vehicles that have Dubins car dynamics.  There is an
+adversary that selects the motion of other cars.  The adversary is subject to
+assumptions such as obeying traffic rules and not parking unfairly at locations
+that must be eventually reached by the controller.
+
+</p>
+</div>
+
+<div class="psetting">
+<h3 id="#pickandplace">pick-and-place</h3>
+<p>
+
+The <em>pick-and-place</em> domain concerns dexterous manipulation tasks based
+on assembly line concerns.  pick and place tasks, expressed using LTL contracts,
+as described below. The key challenges explored in this problem domain will
+include uncertainty in the shape and dynamics of the end-effector, as well as
+objects that are being grasped, and collision-avoidance with moving obstacles
+that come into the workspace.  </p> </div>
+
 </body>
 </html>
