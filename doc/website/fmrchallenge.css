@@ -34,10 +34,15 @@ p {
 .psetting {
     float: left;
     margin: 1em;
-    width: 17em;
-    min-height: 30em;
+    width: 275px;
+    min-height: 40em;
     border-style: solid;
     padding: 0.5em;
+}
+
+.psetting h3 {
+    text-align: center;
+    border-bottom: 2px solid #000;
 }
 
 .psetting p {
