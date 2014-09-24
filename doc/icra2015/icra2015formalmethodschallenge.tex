@@ -1,5 +1,4 @@
-\documentclass[12pt]{amsart}
-\usepackage{fullpage}
+\documentclass{amsart}
 \usepackage{hyperref}
 \usepackage{graphicx}
 
@@ -14,8 +13,9 @@
 
 \begin{document}
 \title{Proposal for a robotics challenge on formal methods}
-\author{Scott C. Livingston \and Vasumathi Raman}
-\date{13 Sep 2014}
+\author{Scott C. Livingston}
+\author{Vasumathi Raman}
+\date{24 Sep 2014}
 \begin{abstract}
 This proposal describes the first challenge on formal methods for robotics.
 Formal methods refers broadly to techniques for the verification and automatic
@@ -179,14 +179,14 @@ such as through Amazon Web Services (\url{http://aws.amazon.com/}).
 \section{Problem domain: Traffic network of Dubins cars}\label{sec:trafficdubins}
 
 This domain involves navigation in a small network of two-lane roads with
-vehicles that follow unicycle-like/Dubins dynamics. Unlike the ``scaling
+vehicles that follow unicycle-like dynamics. Unlike the ``scaling
 double-integrators'' problem (cf.\ Section~\ref{sec:scalingdoubleinteg}), now
 there is an adversary that selects the motion of other cars.  The adversary is
 subject to assumptions such as obeying traffic rules and not parking unfairly at
 locations that must be eventually reached by the controller.
 
 \subsection{Dynamics and constraints}
-All cars including the controlled robot are assumed to have the same rigid body and to be subject to
+All cars including the controlled robot are assumed to have the same rigid body shape and to have
 the same dynamics. Let $\mathcal I$ be the index set for the cars in the network, with $r$ denoting the index of the controlled robot; all cars indexed with $i \in {\mathcal I}\backslash\{r\}$ are regarded as a part of the (adversarial) environment. 
 
 The pose of each car $i \in {\mathcal I}$ is specified by $(x_i,y_i,\theta_i)$, where $(x_i,y_i)\in
@@ -196,11 +196,11 @@ and the position is defined to be at the mean point (center of mass) of the
 body.  Let $w$ be the width of the car -- this is identical for each $i \in {\mathcal I}$.  
 
 The trajectories of car $i$ are solutions of
-\begin{align*}
+\begin{align}
 \dot{x_i} &= u_i \cos \theta_i \\
 \dot{y_i} &= u_i \sin \theta_i \\
 \dot{\theta_i} &= \omega_i
-\end{align*}
+\end{align}
 where the control inputs are constrained as $u_i(t)\in \{0,u_{\mathrm{max}}\}$ and
 $\omega_i(t) \leq \omega_{\mathrm{max}}$.
 
@@ -239,9 +239,9 @@ $\varphi_{\mathrm{sys}}$ and include
 The other cars will be assumed to follow the same road rules as listed above.
 However, exceptions (violations) may occur, and thus additional fairness
 assumptions will be provided, e.g.,
-\begin{equation*}\label{eq:freegoals}
+\begin{equation}\label{eq:freegoals}
 \bigwedge_i \Galways \Feventually \tt{free}(\mathrm{goal}_i)
-\end{equation*}
+\end{equation}
 which provides that other cars will always eventually vacate the $i$-th goal
 region.
 
