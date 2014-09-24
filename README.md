@@ -2,7 +2,7 @@ Summary of organization
 -----------------------
 
 - `doc/website/` : ICRA 2015 challenge website, which is released at
-  <http://www.fmrchallenge.org/>
+  <http://www.fmrchallenge.org>
 
 - `doc/icra2015/` : LaTeX sources for the document describing the ICRA 2015 challenge.
 
