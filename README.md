@@ -1,3 +1,6 @@
+Topical README files are provided in some directories.  For example,
+`domains/dubins_traffic/README.md`.
+
 Summary of organization
 -----------------------
 
