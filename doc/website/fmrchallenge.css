@@ -52,3 +52,7 @@ p {
 .psetting em {
     font-weight: bold;
 }
+
+div#news {
+    float: right;
+}
