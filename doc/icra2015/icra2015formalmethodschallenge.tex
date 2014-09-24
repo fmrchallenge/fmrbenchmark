@@ -17,19 +17,19 @@
 \author{Vasumathi Raman}
 \date{24 Sep 2014}
 \begin{abstract}
-This is the normative reference for the first challenge on formal methods for robotics.
-Formal methods refers broadly to techniques for the verification and automatic
-synthesis of transition systems that satisfy desirable properties exactly or
-within some statistical tolerance.  Though historically developed for concurrent
-software, recent work has brought these methods to bear on motion planning in
-robotics.  Challenges specific to robotics, such as uncertainty and real-time
-constraints, have motivated extensions to existing methods and entirely novel
-treatments.  However, compared to other areas within robotics research,
-demonstrations of formal methods have been surprisingly small-scale.  The
-proposed robotics challenge seeks to motivate advancement of the state of the
-art toward practical realization.  The challenge is organized into three problem
-domains: arbitrary dimensional double integrators, roads with Dubins cars, and
-manipulation tasks on the assembly line.
+This is the normative reference for the first challenge on formal methods for
+robotics.  Formal methods refers broadly to techniques for the verification and
+automatic synthesis of transition systems that satisfy desirable properties
+exactly or within some statistical tolerance.  Though historically developed for
+concurrent software, recent work has brought these methods to bear on motion
+planning in robotics.  Challenges specific to robotics, such as uncertainty and
+real-time constraints, have motivated extensions to existing methods and
+entirely novel treatments.  However, compared to other areas within robotics
+research, demonstrations of formal methods have been surprisingly small-scale.
+The proposed robotics challenge seeks to motivate advancement of the state of
+the art toward practical realization.  The challenge is organized into three
+problem domains: arbitrary dimensional double integrators, roads with Dubins
+cars, and manipulation tasks on the assembly line.
 \end{abstract}
 \maketitle
 
@@ -69,16 +69,16 @@ choose to do so.
 
 \section{Preliminaries}
 
-We briefly present basic concepts and notation
-that may not be widely known by potential participants at ICRA.  Linear
-temporal logic (LTL) is an extension of boolean (or propositional) logic that
-describes properties for countably infinite sequences of events.  Within this
-proposal, the most relevant is $\psi \Uuntil \varphi$, which informally requires
-that the formula $\psi$ holds until a state satisfying $\varphi$ is reached.
-The operator $\Galways$ is also used; informally, $\Galways \psi$ requires
-$\psi$ is satisfied by all states reached during an execution.  Intuitively the
-operator $\Feventually$ is dual to $\Galways$; informally, $\Feventually \psi$
-requires that a state satisfying $\psi$ occurs in finite time.
+We briefly present basic concepts and notation that may not be widely known by
+potential participants at ICRA.  Linear temporal logic (LTL) is an extension of
+boolean (or propositional) logic that describes properties for countably
+infinite sequences of events.  Within this proposal, the most relevant is $\psi
+\Uuntil \varphi$, which informally requires that the formula $\psi$ holds until
+a state satisfying $\varphi$ is reached.  The operator $\Galways$ is also used;
+informally, $\Galways \psi$ requires $\psi$ is satisfied by all states reached
+during an execution.  Intuitively the operator $\Feventually$ is dual to
+$\Galways$; informally, $\Feventually \psi$ requires that a state satisfying
+$\psi$ occurs in finite time.
 
 A convex polytope is a bounded region defined by the intersection of finitely
 many halfspaces, each of which is defined by a linear inequality.  There are
@@ -170,14 +170,14 @@ quickly the goal regions must be reached.
 
 \subsection{Implementation plan for the challenge}
 
-This problem domain will be evaluated entirely within a numerical simulation.  As
-such, competitors will submit controllers for this part of the challenge before
-the conference, and results will be obtained during live runs at ICRA.  After
-completion of each run in real-time, using software released as part of the
-problem domain source code, animations will be generated to depict results.  
-The main evaluation metric for this domain will be scalability of solutions to high dimensions and
-large problem sizes. As such, we are currently investigating feasibility 
-of running the trials for this domain on common compute hardware,
+This problem domain will be evaluated entirely within a numerical simulation.
+As such, competitors will submit controllers for this part of the challenge
+before the conference, and results will be obtained during live runs at ICRA.
+After completion of each run in real-time, using software released as part of
+the problem domain source code, animations will be generated to depict results.
+The main evaluation metric for this domain will be scalability of solutions to
+high dimensions and large problem sizes. As such, we are currently investigating
+feasibility of running the trials for this domain on common compute hardware,
 such as through Amazon Web Services (\url{http://aws.amazon.com/}).
 
 
@@ -191,14 +191,18 @@ subject to assumptions such as obeying traffic rules and not parking unfairly at
 locations that must be eventually reached by the controller.
 
 \subsection{Dynamics and constraints}
-All cars including the controlled robot are assumed to have the same rigid body shape and to have
-the same dynamics. Let $\mathcal I$ be the index set for the cars in the network, with $r$ denoting the index of the controlled robot; all cars indexed with $i \in {\mathcal I}\backslash\{r\}$ are regarded as a part of the (adversarial) environment. 
+All cars including the controlled robot are assumed to have the same rigid body
+shape and to have the same dynamics. Let $\mathcal I$ be the index set for the
+cars in the network, with $r$ denoting the index of the controlled robot; all
+cars indexed with $i \in {\mathcal I}\backslash\{r\}$ are regarded as a part of
+the (adversarial) environment.
 
-The pose of each car $i \in {\mathcal I}$ is specified by $(x_i,y_i,\theta_i)$, where $(x_i,y_i)\in
-\mathbb{R}^2$ is referred to as \textit{position}, and $\theta_i \in S^1$ is
-referred to as \textit{orientation}.  The car's body is a rectangle or a circle,
-and the position is defined to be at the mean point (center of mass) of the
-body.  Let $w$ be the width of the car -- this is identical for each $i \in {\mathcal I}$.  
+The pose of each car $i \in {\mathcal I}$ is specified by $(x_i,y_i,\theta_i)$,
+where $(x_i,y_i)\in \mathbb{R}^2$ is referred to as \textit{position}, and
+$\theta_i \in S^1$ is referred to as \textit{orientation}.  The car's body is a
+rectangle or a circle, and the position is defined to be at the mean point
+(center of mass) of the body.  Let $w$ be the width of the car -- this is
+identical for each $i \in {\mathcal I}$.
 
 The trajectories of car $i$ are solutions of
 \begin{align}
@@ -211,14 +215,14 @@ $\omega_i(t) \leq \omega_{\mathrm{max}}$.
 
 
 The workspace is a randomly generated road network constructed as follows.
-Create a planar graph $G = (V,E)$ in which each vertex $v$ has degree $d_v \le 4$ (i.e., at most 4
-neighbors).  Embed this graph in the plane, and expand the edges to have width
-$4w$ (recall $w$ is the common vehicle width).
+Create a planar graph $G = (V,E)$ in which each vertex $v$ has degree $d_v \le 4$
+(i.e., at most 4 neighbors).  Embed this graph in the plane, and expand the
+edges to have width $4w$ (recall $w$ is the common vehicle width).
 
 For this aspect of the ``traffic network of Dubins cars'' problem domain, we are
 able to vary the bounds $u_{\mathrm{max}}$ and $\omega_{\mathrm{max}}$ on the
-permissible control inputs, the size ($|V|$) and topology ($|E|$) of the road network, and the
-number of other cars, i.e. $|\mathcal I|$.
+permissible control inputs, the size ($|V|$) and topology ($|E|$) of the road
+network, and the number of other cars, i.e. $|\mathcal I|$.
 
 
 \subsection{Specifications}
@@ -257,7 +261,11 @@ region.
 \end{figure}
 
 \begin{example}
-Consider the network depicted in Fig. \ref{fig:network}. There are three cars, one of which is the robot to be controlled. The road network graph is depicted, and shows the bidirectional connectivity between the four road segments $A$, $B$, $C$ and $D$. Note that each road has two lanes. At the intersection of each pair of roads, there is an overlap region.
+Consider the network depicted in Fig. \ref{fig:network}. There are three cars,
+one of which is the robot to be controlled. The road network graph is depicted,
+and shows the bidirectional connectivity between the four road segments $A$,
+$B$, $C$ and $D$. Note that each road has two lanes. At the intersection of each
+pair of roads, there is an overlap region.
 \end{example}
 
 TODO: what does the LTL specification look like for this problem?
