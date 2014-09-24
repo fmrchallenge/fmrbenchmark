@@ -55,3 +55,11 @@ p {
 div#news {
     float: right;
 }
+
+div#banner {
+    text-align: center;
+    background: white;
+    color: red;
+    font-style: italic;
+    font-size: 24pt;
+}
