@@ -2,21 +2,13 @@
 \usepackage{hyperref}
 \usepackage{graphicx}
 
-\DeclareMathOperator{\Galways}{\mathbf{G}}
-\DeclareMathOperator{\Feventually}{\mathbf{F}}
-\DeclareMathOperator{\Xnext}{\mathbf{X}}
-\DeclareMathOperator{\Uuntil}{\mathbf{U}}
-
-\theoremstyle{definition}
-\newtheorem{example}{Example}[section]
-
 
 \begin{document}
 \title{Workshop on Formal Methods For Robotics: Benchmarks and Evaluation Metrics}
-\author{Scott C. Livingston$^{1}$}
-\author{Vasumathi Raman$^{2}$}
-\thanks{$^{1}$S. C. Livingston is with the Department of Control and Dynamical Systems, California Institute of Technology, Pasadena CA 91125 (phone: TODO, e-mail: scl@caltech.edu, url: TODO).}%
-\thanks{$^{2}$V. Raman is with the Department of Computing and Mathematical Sciences, California Institute of Technology, Pasadena CA 91125 (phone: +1 (607) 216-8623, e-mail: vasu@caltech.edu, url: \url{www.cms.caltech.edu/~vasu/}).}%
+\author[Scott C. Livingston]{Scott C. Livingston$^{1}$}
+\author[Vasumathi Raman]{Vasumathi Raman$^{2}$}
+\thanks{$^{1}$\textbf{primary contact:} S. C. Livingston is with the Control and Dynamical Systems program, California Institute of Technology, Pasadena CA 91125, USA (phone: +1 626 395 3531, email: \href{mailto:slivingston@cds.caltech.edu}{slivingston@cds.caltech.edu}, url: \url{http://scottman.net}).}%
+\thanks{$^{2}$V. Raman is with the Department of Computing and Mathematical Sciences, California Institute of Technology, Pasadena CA 91125, USA (phone: +1 607 216 8623, email: \href{mailto:vasu@caltech.edu}{vasu@caltech.edu}, url: \url{http://www.cms.caltech.edu/~vasu/}).}%
 
 \begin{abstract} %200 words on the money
 The term ``formal methods'' refers broadly to techniques for the verification and automatic synthesis of systems that satisfy desirable properties exactly or within some statistical tolerance.  Historically developed for concurrent software, recent work has brought these methods to bear on motion planning in robotics. Challenges specific to robotics, such as uncertainty and
@@ -28,43 +20,97 @@ This half-day workshop will bring together leading researchers in robotics, form
 \maketitle
 
 
-\section{Tentative Schedule}
-We anticipate the following decomposition of a 3.5-hour workshop (9am-12:30pm):
+\section{Type and duration}
+
+We propose a half-day workshop.
+
+Because some of the discussion will concern results of the First Challenge on
+Formal Methods for Robotics (\url{http://www.fmrchallenge.org}), which is
+scheduled for 26--28 May at ICRA, it is best that the workshop occur on the
+later day of workshops, 30 May 2015.
+
+\section{URL}
+
+We plan to host a page about the workshop at \url{http://www.fmrchallenge.org/icra2015workshop}.   It is not active at the time of proposal submission.
+
+
+\section{Content}
+
+This workshop follows a series of workshops focusing on formal methods and
+robotics that have been held at various conferences in recent years:
+\href{http://verifiablerobotics.com/ICRA09/index.html}{ICRA 2009},
+\href{http://verifiablerobotics.com/ICRA10/index.html}{2010},
+\href{http://verifiablerobotics.com/CAV11/index.html}{CAV 2011} (Computer-Aided
+Verification), and \href{http://verifiablerobotics.com/RSS13/index.html}{RSS
+  2013}, \href{http://verifiablerobotics.com/RSS14/index.html}{2014} (Robotics:
+Science and Systems).  These previous events have tended toward broad inclusion
+of relevant work, motivated in part by the nascency of the field.  We propose to
+focus this manifestation at ICRA~2015 on benchmarks and metrics for evaluation.
+Our motivation is twofold.  First, a relevant robotics challenge at ICRA has
+been conditionally accepted, and a venue for discussing preparations and results
+will be of broad interest since the challenge will be the first of its kind.
+Second, a common criticism of formal methods for robotics is unremarkable
+demonstrations and unclear potential for large, practical applications, and a
+workshop focused on benchmarks and evaluation metrics will directly address this
+by creating a venue for discussion by active researchers in the field.
+
+\subsection{Tentative schedule}
+We anticipate the following decomposition of a 3.5-hour workshop (e.g., during 09:00--12:30):
 \begin{itemize}
-\item 2 x 20 minutes review the state of the art in formal methods by invited speakers 
-\item 1 x 20 minute presentation from Formal Methods for Robotics Challenge organizers on the use of benchmarks and evaluation metrics for the challenge 
+\item 3 $\times$ 20 minutes review the state of the art, describe open problems, and suggest future directions of formal methods for robotics by invited speakers (listed below)
+\item 1 $\times$ 20 minute presentation from Formal Methods for Robotics Challenge organizers on the use of benchmarks and evaluation metrics for the challenge 
 \item 10 minute break
-\item 6 x 10 minute presentations from Formal Methods for Robotics Challenge participants
+\item 6 $\times$ 10 minute presentations from Formal Methods for Robotics Challenge participants
 \item 10 minute break
-\item 60 minutes of open discussion
+\item 50 minutes of open discussion
+\end{itemize}
+We are also considering shortening the ``open discussion'' and preceding it
+with a question-and-answer panel of the invited speakers.
+
+\subsection{Invited speakers}
+\begin{itemize}
+\item Julia Badger (Braman) (NASA Johnson Space Center)
+\item Lydia E. Kavraki (Rice U.)
+\item George J. Pappas (U.~Penn)
+\end{itemize}
+All of the above are still pending.  In case those already invited cannot do it,
+additional people to invite include the following:
+\begin{itemize}
+\item Jonathan P. How (MIT)
+\item Paulo Tabuada (UCLA)
+\item Sertac Karaman (MIT)
 \end{itemize}
 
+\section{Plan to solicit participation}
+We will solicit participation through common venues, such as the
+robotics-worldwide mailing list, as well as by directly contacting research
+groups whose work is relevant to this workshop. Moreover, we expect most
+participating teams in the Formal Methods for Robotics Challenge to attend and
+contribute to this workshop.
 
-[TODO: List of invited speakers]
-
-
-\section{Participation}
-We will solicit participation through common venues, such as the robotics-worldwide mailing list. In addition, we will contact directly research groups whose work is relevant to this workshop. Moreover, we expect most participating teams in the Formal Methods for Robotics Challenge to attend and contribute to this workshop. 
+Since this workshop will be framed in part as a continuation of a series, we
+expect the workshop title to be easily recognized by many potential
+participants, whether or not they are involved in the challenge.  Private
+communication with Kress-Gazit, one of the organizers of previous ``formal
+methods for robotics'' workshops, estimates there were about 50 participants at
+RSS~2014 and 30 at RSS~2013.  We will seek lists of email addresses of attendees
+from these as another medium for solicitation.
 
 In addition to academic participation, we anticipate continued participation from industry, including Rethink Robotics and Toyota Research, who participated in the workshop at RSS 2014. 
 
-[TODO: Estimate the number of participants that you expect, and provide a 
-basis for this estimate, such as attendance at similar events in past years. If you have organized similar 
-events in the past, list them and provide the estimated attendance at each. -- 500 WORD MAXIMUM]
 
-\section{Plan for interaction among participants}
-We expect that the FMR Challenge will provide ample fodder for discussion, both among challenge participants and outsiders. We see as a concrete goal of this workshop a collection of opinions on the successes and failures of the various benchmark problems proposed the the challenge, and suggestions for improving them. We also hope to incite participants to leave the workshop determined to construct more suitable benchmarks and evaluation metrics based on these discussions.
+\section{Plan to encourage interaction among participants}
+We expect that the First Challenge on Formal Methods for Robotics will provide ample fodder for discussion.  To ensure accessibility to a broad ICRA audience, the presentation by the challenge organizers will provide an overview about it.  We see as a concrete goal of this workshop a collection of opinions on the successes and failures of the various benchmark problems proposed in the challenge, and suggestions for improving them. We also hope to incite participants to leave the workshop determined to construct more suitable benchmarks and evaluation metrics based on these discussions.
 
-Discussion
-[TODO: Describe how you will promote active discussion. Steps that result in participants staying for the entire
-event and that increase the level of interaction between established experts and early-career researchers 
-are particularly welcome. -- 500 WORD MAXIMUM]
+
 
 \section{Equipment}
 We do not foresee any requirements other than a projector setup.
+%% chalkboard
 
+\section{Support of an IEEE RAS Technical Committee}
 
-\bibliographystyle{abbrv}
-\bibliography{fmrchallenge.bib}
+(none)
+
 
 \end{document}
