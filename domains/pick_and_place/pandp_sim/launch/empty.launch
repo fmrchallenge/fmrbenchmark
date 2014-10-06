@@ -1,0 +1,29 @@
+<!-- SCL; 6 Oct 2014 -->
+<launch>
+  <arg name="namespace" default="baxter0" />
+  <arg name="init_pose" default="-x 0 -y -1 -z .7 -Y 1.5" />
+
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find pandp_sim)/models/empty.world" />
+    <arg name="headless" value="false" />
+    <arg name="gui" value="true" />
+  </include>
+
+  <param name="robot_description" textfile="$(find baxter_description)/urdf/baxter.urdf" />
+
+  <node name="$(anon spawn_baxter_model)"
+        pkg="gazebo_ros" type="spawn_model"
+        args="$(arg init_pose) -urdf -param robot_description -model $(arg namespace) -robot_namespace $(arg namespace)"
+        output="screen" />
+
+  <node name="$(anon spawn_table_model)"
+        pkg="gazebo_ros" type="spawn_model"
+        args="-sdf -file $(find pandp_sim)/extern/table/model-1_4.sdf -model table"
+        output="log" />
+
+  <node name="$(anon robot_state_publisher)"
+        pkg="robot_state_publisher" type="robot_state_publisher">
+    <param name="tf_prefix" value="$(arg namespace)" />
+    <remap from="joint_states" to="$(arg namespace)/joint_states" />
+  </node>
+</launch>

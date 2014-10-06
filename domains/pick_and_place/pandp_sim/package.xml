@@ -1,0 +1,13 @@
+<package>
+  <name>pandp_sim</name>
+  <version>0.0.0</version>
+  <description>
+  </description>
+  <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
+  <license>BSD</license>
+
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>baxter_description</run_depend>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
