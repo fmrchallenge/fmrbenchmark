@@ -40,7 +40,7 @@ The purpose of this document is to describe in detail the Challenge, including
 the problem domains, rules, and scoring procedures.  Unless explicitly stated
 otherwise, the description herein is normative.
 
-\section{Summary}
+\section{Summary (not normative)}
 
 The challenge will consist of three problem domains that touch on a diversity of
 difficulties one would need to address in a practical deployment.  These problem
@@ -64,11 +64,11 @@ execution framework, and give teams something on which to build, should they
 choose to do so.
 
 
-\section{Preliminaries}
+\section{Preliminaries (not normative)}
 
 We briefly present basic concepts and notation that may not be widely known by
 potential participants at ICRA.  Linear temporal logic (LTL) is an extension of
-boolean (or propositional) logic that describes properties for countably
+Boolean (or propositional) logic that describes properties for countably
 infinite sequences of events.  Within this proposal, the most relevant is $\psi
 \Uuntil \varphi$, which informally requires that the formula $\psi$ holds until
 a state satisfying $\varphi$ is reached.  The operator $\Galways$ is also used;
@@ -87,6 +87,40 @@ continuous dynamical systems as follows.  Suppose a state space contains
 finitely many polytopes, and each polytope is regarded as labeled.  A trajectory
 through this space is labeled with the sequence of polytopes with which it
 intersects.
+
+
+\section{Terminology}
+
+A \textit{team} is the basic entity that can compete and, depending on
+performance, receive rankings in the Challenge.  A team must have a name by
+which it will be referred to during the Challenge.
+
+There are three \textit{problem domains}, which are described in
+Sections~\ref{sec:scalingdoubleinteg}, \ref{sec:trafficdubins}, and
+\ref{sec:dexterousmanip} (one per section).  Within a problem domain, a problem
+\textit{instance} is a particular workspace, arrangement of obstacles, labeling
+of the workspace, selection of parameters for the robot dynamics, and a task
+formula.
+
+Each problem domain may have one or more \textit{variants}, which concern
+different manners of implementation or random instance generation.  E.g., the
+traffic of Dubins cars domain (cf.\ Section~\ref{sec:trafficdubins}) has a
+simulation variant, which relies on Gazebo, and a physical variant, which
+involves a real testbed of several Kobuki bases as well as an overhead pose
+tracking system.
+
+A \textit{controller} is the basic entity that a team submits for the Challenge
+within a particular problem domain.  Each controller is scored and ranked, and
+the score of a team is simply the maximum score of any controller belonging to
+that team.
+
+
+\section{Procedure}
+
+The scaling double-integrators (Section~\ref{sec:scalingdoubleinteg}) domain
+will proceed entirely in simulation.  The other two domains (described in
+Sections~\ref{sec:trafficdubins} and \ref{sec:dexterousmanip}) will include both
+simulation and physical variants.
 
 
 \section{Problem domain: Scaling double-integrators}\label{sec:scalingdoubleinteg}
