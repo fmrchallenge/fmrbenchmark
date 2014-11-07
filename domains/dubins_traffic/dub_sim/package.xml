@@ -2,8 +2,15 @@
   <name>dub_sim</name>
   <version>0.0.0</version>
   <description>
-  
-    Main package for the simulation variant of the Dubins traffic domain
+Main package for the simulation variant of the Dubins traffic domain
+
+The roslaunch file that instantiates Kobuki models in Gazebo relies on a patched
+plugin that is available from
+
+  https://github.com/slivingston/kobuki_desktop
+
+Consult the README file of this domain for instructions about installing it.
+My (SCL) intent is to contribute patches upstream after additional testing.
 
   </description>
   <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
