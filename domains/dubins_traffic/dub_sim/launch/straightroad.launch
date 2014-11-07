@@ -1,0 +1,19 @@
+<!-- SCL; 7 Nov 2014 -->
+<launch>
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find dub_sim)/models/straightroad.world" />
+    <arg name="headless" value="false" />
+    <arg name="gui" value="true" />
+  </include>
+
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find kobuki_description)/urdf/kobuki_standalone.urdf.xacro'" />
+
+  <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
+    <arg name="namespace" value="vehicle0" />
+    <arg name="init_pose" value="-x -2 -y -0.3 -z 0 -Y 0" />
+  </include>
+  <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
+    <arg name="namespace" value="vehicle1" />
+    <arg name="init_pose" value="-x 2 -y 0.3 -z 0 -Y 3.14159" />
+  </include>
+</launch>

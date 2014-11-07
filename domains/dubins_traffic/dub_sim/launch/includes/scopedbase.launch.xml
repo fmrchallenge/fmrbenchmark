@@ -1,0 +1,16 @@
+<launch>
+  <arg name="namespace" default="vehicle0" />
+  <arg name="init_pose" default="-x 0 -y 0 -z 0 -Y 0" />
+
+  <node name="$(anon spawn_kobuki_model)"
+        pkg="gazebo_ros" type="spawn_model"
+        args="$(arg init_pose) -urdf -param robot_description -model $(arg namespace) -robot_namespace $(arg namespace)"
+        output="screen" />
+  <param name="/$(arg namespace)/base_prefix" value="" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="$(anon robot_state_publisher)">
+    <param name="publish_frequency" type="double" value="30.0" />
+    <param name="tf_prefix" value="$(arg namespace)" />
+    <remap from="joint_states" to="$(arg namespace)/joint_states" />
+  </node>
+</launch>

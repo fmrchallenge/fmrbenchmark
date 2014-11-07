@@ -1,0 +1,17 @@
+<package>
+  <name>dub_sim</name>
+  <version>0.0.0</version>
+  <description>
+  
+    Main package for the simulation variant of the Dubins traffic domain
+
+  </description>
+  <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
+  <license>BSD</license>
+
+  <run_depend>gazebo_ros</run_depend>
+  <run_depend>robot_state_publisher</run_depend>
+  <run_depend>kobuki_description</run_depend>
+
+  <buildtool_depend>catkin</buildtool_depend>
+</package>
