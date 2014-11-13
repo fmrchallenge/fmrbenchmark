@@ -46,7 +46,11 @@ At this step you should be in the root of your workspace, i.e., the directory
 named `dubplay`.  Finally build everything, and launch the straightroad example.
 
     catkin_make
+    source devel/setup.zsh
     roslaunch dub_sim straightroad.launch
+
+where the `source` command assumes that you are using the Z shell; try
+`setup.bash` if you use Bash.
 
 
 References
