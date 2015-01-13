@@ -25,7 +25,7 @@ entirely novel treatments.  However, compared to other areas within robotics
 research, demonstrations of formal methods have been surprisingly small-scale.
 The proposed robotics challenge seeks to motivate advancement of the state of
 the art toward practical realization.  The challenge is organized into three
-problem domains: arbitrary dimensional double integrators, roads with Dubins
+problem domains: arbitrary dimensional chains of integrators, roads with Dubins
 cars, and manipulation tasks on the assembly line.
 \end{abstract}
 \maketitle
@@ -111,7 +111,7 @@ performance, receive rankings in the Challenge.  A team must have a name by
 which it will be referred to during the Challenge.
 
 There are three \textit{problem domains}, which are described in
-Sections~\ref{sec:scalingdoubleinteg}, \ref{sec:trafficdubins}, and
+Sections~\ref{sec:scalingcinteg}, \ref{sec:trafficdubins}, and
 \ref{sec:dexterousmanip} (one per section).  Within a problem domain, a problem
 \textit{instance} is a particular workspace, arrangement of obstacles, labeling
 of the workspace, selection of parameters for the robot dynamics, and a task
@@ -132,34 +132,53 @@ that team.
 
 \section{Procedure}
 
-The scaling double-integrators (Section~\ref{sec:scalingdoubleinteg}) domain
+The scaling chains of integrators (Section~\ref{sec:scalingcinteg}) domain
 will proceed entirely in simulation.  The other two domains (described in
 Sections~\ref{sec:trafficdubins} and \ref{sec:dexterousmanip}) will include both
 simulation and physical variants.
 
 
-\section{Problem domain: Scaling double-integrators}\label{sec:scalingdoubleinteg}
+\section{Problem domain: Scaling chains of integrators}\label{sec:scalingcinteg}
 
 The first problem domain is the simplest in terms of dynamics and
 specifications, yet unlike the other domains, the system to be controlled can be
 scaled easily to arbitrarily many dimensions.  While this problem is abstract in
 the sense that it is not modeling a specific physical system, it is
-well-motivated because the double-integrator is just the basic force equation
-($F=ma$) of Newtonian mechanics, up to a scaling factor.  In other words, this
-problem domain concerns acceleration of a point-mass in high-dimensional spaces
-so as to visit goal regions and avoid obstacles.  The precise description is
-given below.
+well-motivated because the double-integrator is just the basic force equation of
+Newtonian mechanics, up to a scaling factor.  Informally, this problem domain
+concerns controlling acceleration or a higher order derivative of a point-mass
+in high-dimensional spaces so as to visit goal regions and avoid obstacles.  The
+precise description is given below.
 
 \subsection{Dynamics and constraints}
 
-Let $n$ be a positive integer.
-\begin{equation}\label{eq:doubleinteg}
-\ddot{q} = u ,
+Let $n$ and $m$ be positive integers.  Consider the dynamical system
+\begin{equation}\label{eq:minteg}
+D^{m}q = u ,
 \end{equation}
-where $q(t)\in \mathbb{R}^{n}$ and $\dot{q}(t)$ are called the \textit{position}
-and \textit{velocity}, respectively, at time~$t$.  The input is bounded as
-$\lVert u(t) \rVert_1 \leq u_{\mathrm{max}}$.  To introduce process and sensor
-noise, consider the 2-dimensional system
+where $q: [0,\infty [ \rightarrow \mathbb{R}^{n}$, and $D$ is the differential
+operator.  The input is bounded as $\lVert u(t) \rVert_1 \leq u_{\mathrm{max}}$.
+The system is called a \textit{chain of a integrators} because it can be
+rewritten as a system of ODEs
+\begin{equation}\label{eq:cintegdyn}
+\begin{split}
+\dot{x}_1 &= x_2 \\
+\dot{x}_2 &= x_3 \\
+&\vdots \\
+\dot{x}_{m-1} &= x_m \\
+\dot{x}_m &= u ,
+\end{split}
+\end{equation}
+where for time $t$, $x(t)=\left( x_{1}(t) , \ldots , x_{m}(t)\right)\in
+\mathbb{R}^{nm}$, and each $x_{i}(t)\in \mathbb{R}^n$ for $i=1,\ldots,m$.  That
+is, \eqref{eq:cintegdyn} is a linear control system.  This can be regarded as a
+dynamical system in which control input is applied as the $m$-th derivative of a
+variable $q$.  In particular, $m=2$ is known as the ``double integrator'' case.
+If $q$ takes values in a state space of dimension~$n$, then the system overall
+has dimension $mn$.  In particular, if $n \leq 3$ then $q$ may be referred to as
+``position''.
+
+To introduce process and sensor noise, consider the 2-dimensional system
 \begin{align}
 \dot{x} &= \left(
 \begin{array}{cc}
@@ -179,16 +198,11 @@ y &= \left(
 \right) x + \eta \label{eq:dintegobs},
 \end{align}
 where $\xi$ and $\eta$ are either bounded disturbances (nondeterministic) or
-stochastic processes.  Equivalence with \eqref{eq:doubleinteg} in the case of
+stochastic processes.  Equivalence with \eqref{eq:minteg} in the case of
 $n=1$ and $\xi=\eta=0$ is apparent using $x_1 = q$ and $x_2 = \dot{q}$.  For $n
 > 1$, the matrices in \eqref{eq:dintegdyn} and \eqref{eq:dintegobs} can be
 repeated in block diagonal form to yield a new linear time-invariant system of
-dimension $2n$ and which is again equivalent to \eqref{eq:doubleinteg}.
-
-For this aspect of the ``scaling double-integrators'' problem domain, we are
-able to vary the number of position dimensions $n$, the maximum 1-norm of the
-control input $u_{\mathrm{max}}$, and the process and sensor noise $\xi$ and
-$\eta$.
+dimension $2n$ and which is again equivalent to \eqref{eq:minteg}.
 
 \subsection{Specifications}
 
@@ -238,7 +252,7 @@ such as through Amazon Web Services (\url{http://aws.amazon.com/}).
 
 This domain involves navigation in a small network of two-lane roads with
 vehicles that follow unicycle-like dynamics. Unlike the ``scaling
-double-integrators'' problem (cf.\ Section~\ref{sec:scalingdoubleinteg}), now
+chains of integrators'' problem (cf.\ Section~\ref{sec:scalingcinteg}), now
 there is an adversary that selects the motion of other cars.  The adversary is
 subject to assumptions such as obeying traffic rules and not parking unfairly at
 locations that must be eventually reached by the controller.
