@@ -199,6 +199,8 @@ a time of initialization and rate of progression of the discrete counters is
 specified.  These are significant because they determine in what order and how
 quickly the goal regions must be reached.
 
+
+
 \subsection{Implementation plan for the challenge}
 
 This problem domain will be evaluated entirely within a numerical simulation.
@@ -206,6 +208,11 @@ As such, competitors will submit controllers for this part of the challenge
 before the conference, and results will be obtained during live runs at ICRA.
 After completion of each run in real-time, using software released as part of
 the problem domain source code, animations will be generated to depict results.
+In order to facilitate visualization of the results, each specification will consist 
+of a conjunction of specifications, each of which governs no more than three 
+dimensions of the state space. This enables plotting trajectories in these 3D 
+subspaces, and visually verifying satisfaction of the specification. 
+
 The main evaluation metric for this domain will be scalability of solutions to
 high dimensions and large problem sizes. As such, we are currently investigating
 feasibility of running the trials for this domain on common compute hardware,
@@ -283,7 +290,8 @@ assumptions will be provided, e.g.,
 \bigwedge_i \Galways \Feventually \tt{free}(\mathrm{goal}_i)
 \end{equation}
 which provides that other cars will always eventually vacate the $i$-th goal
-region.
+region. The position of the other cars will be provided when in a predetermined 
+radius, to simulate solving the associated vision problem. 
 
 \begin{figure}[h!]\label{fig:network}
   \centering
@@ -326,28 +334,68 @@ domain will include uncertainty in the shape and dynamics of the end-effector,
 as well as objects that are being grasped, and collision-avoidance with moving
 obstacles that come into the workspace, including humans.
 
+%For the tasks in this problem domain, the robot workspace is a three-dimensional
+%Euclidean space. We will consider two dynamic settings: one in which the working
+%surface is moving, and one in which it is not.  The former is motivated by
+%conveyor belts, and tasks that may be expected in an assembly line. The focus is
+%on moving objects around or performing end-effector specific behaviors, but will
+%not involve difficult grasping problems, like deformable surfaces.
+%
+%For each end-effector, we will provide a description of its shape and how to use
+%it, i.e.  how it should be positioned relative to the items of interest so that
+%an abstract ``execute-end-effector'' action can be taken. For example, in order
+%for a paint spraying device to be used, it should have a certain proximity to
+%the object-to-be-sprayed, and a minimum distance from objects that should be
+%left unpainted. These requirements would be expressed using LTL. Besides shape,
+%the dynamics of the arm (without any end-effector) would be affected by the
+%end-effector -- these modified dynamics would also be provided.
+%
+%Finally, these tasks will be reactive, in that they will involve an adversary
+%that can interfere with the workspace. Assumptions on this adversary and how it
+%can affect the workspace will also be provided.
+
+\subsection{Dynamics and constraints}
 For the tasks in this problem domain, the robot workspace is a three-dimensional
-Euclidean space. We will consider two dynamic settings: one in which the working
-surface is moving, and one in which it is not.  The former is motivated by
-conveyor belts, and tasks that may be expected in an assembly line. The focus is
-on moving objects around or performing end-effector specific behaviors, but will
-not involve difficult grasping problems, like deformable surfaces.
+Euclidean space. The focus is on picking up and moving objects around, but will not 
+involve difficult grasping problems, like deformable surfaces. To this end, the end-effector
+will be something easy to use, like a magnet or some suction mechanism, such as a 
+Universal Jamming Gripper \cite{AmendBRJL12}.
 
-For each end-effector, we will provide a description of its shape and how to use
-it, i.e.  how it should be positioned relative to the items of interest so that
-an abstract ``execute-end-effector'' action can be taken. For example, in order
-for a paint spraying device to be used, it should have a certain proximity to
-the object-to-be-sprayed, and a minimum distance from objects that should be
-left unpainted. These requirements would be expressed using LTL. Besides shape,
-the dynamics of the arm (without any end-effector) would be affected by the
-end-effector -- these modified dynamics would also be provided.
+TODO: dynamics of the arm
 
-Finally, these tasks will be reactive, in that they will involve an adversary
-that can interfere with the workspace. Assumptions on this adversary and how it
-can affect the workspace will also be provided.
+
+\subsection{Specifications}
+The specified scenario will be as follows. The robot is to process objects laid out on a cart that 
+is brought to it and sort them into bins. There are several possible variants:
+\begin{itemize}
+\item carts arrive after the robot indicates that it is ready
+\item cart is removed once a robot declares that it is done.
+\item carts arrive at a randomly time-varying rate, whether or not the robot is ready for the next.
+\end{itemize}
+
+The top surface of the cart will be unwalled but divided into an object placement grid. Each 
+object can occupy multiple cells in the grid. Each object has a priority level (possibly shared 
+with other objects) which determines the order of processing. Processing involves picking up
+the object and waiting for a signal to determine which of a set of bins to deposit it in. Polygonal 
+bounding boxes for the objects will be provided after a small delay once the cart arrives, to simulate 
+solving the vision problem. 
+
+The gripping process is automatic and regarded as a subroutine, so that teams need only place 
+the gripper within a certain region above the object then request a grasp, which may fail but 
+will eventually succeed provided repeated attempts (this can be regarded a fairness assumption).
+There will be a safety or clearance requirement for the arm and end-effector.  While different kinds 
+of end-effectors will not be provided, a disc-shaped mount will be placed on the wrist (end-effector 
+mounting point) to effect varying shape constraints.
+
+The cart will be serviced in collaboration with some other agent, e.g., a human or another robot.
+When the partner is busy with a part of the cart, the corresponding cells and the space above them 
+are unavailable, which may be indicated by literally covering them or shining a light from underneath 
+those cells.
+
 
 \subsection{Implementation plan for the challenge}
 
+Performance for a trial will be assessed by how many carts are processed within the time limit.
 We are exploring several simulation environments for this domain, including the following.
 \begin{itemize}
 \item Gazebo (\url{http://gazebosim.org/})
@@ -357,7 +405,8 @@ We are exploring several simulation environments for this domain, including the 
 \item Klamp't (\url{http://www.iu.edu/~motion/klampt/})
 \end{itemize}
 
-We are also still exploring the possibility of a physical testbed on-site at ICRA.
+We are also exploring the possibility of a physical testbed on-site at ICRA, involving a Baxter robot
+on loan from Rethink Robotics.
 
 
 \bibliographystyle{abbrv}
