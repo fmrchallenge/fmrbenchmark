@@ -66,16 +66,31 @@ choose to do so.
 
 \section{Preliminaries (not normative)}
 
-We briefly present basic concepts and notation that may not be widely known by
-potential participants at ICRA.  Linear temporal logic (LTL) is an extension of
-Boolean (or propositional) logic that describes properties for countably
-infinite sequences of events.  Within this proposal, the most relevant is $\psi
-\Uuntil \varphi$, which informally requires that the formula $\psi$ holds until
-a state satisfying $\varphi$ is reached.  The operator $\Galways$ is also used;
-informally, $\Galways \psi$ requires $\psi$ is satisfied by all states reached
-during an execution.  Intuitively the operator $\Feventually$ is dual to
-$\Galways$; informally, $\Feventually \psi$ requires that a state satisfying
-$\psi$ occurs in finite time.
+This section introduces notation used throughout the paper.  It also gives brief
+introduction to concepts that may not be widely known by potential participants
+at ICRA.  Let $A$ be a set.  $2^A$ denotes the set of all subsets of $A$.  The
+set of nonnegative real numbers is denoted by $\mathbb{R}_{\geq 0}$.  Let
+$x=(x_1 , \ldots, x_n )\in \mathbb{R}^n$.  For $p \geq 1$, the $p$-norm of $x$
+is defined to be
+\begin{equation}
+\lVert x \rVert_{p} = \left( \sum_{i=1}^{n}\lvert x_i \rvert^{p} \right)^{1/p} .
+\end{equation}
+The $2$-norm is also known as the Euclidean distance.  The $\infty$-norm is
+defined as
+\begin{equation}
+\lVert x \rVert_{\infty} = \max_{i}\lvert x_i \rvert .
+\end{equation}
+
+Linear temporal logic (LTL) is an extension of Boolean (or propositional) logic
+that describes properties for countably infinite sequences of events.  The two
+basic temporal operators are $\Uuntil$ (pronounced ``until'') and $\Xnext$
+(pronounced ``next''). $\psi \Uuntil \varphi$ requires that the formula $\psi$
+holds until a state satisfying $\varphi$ is reached and such a state must
+eventually be reached.  The operator $\Galways$ is also used; informally,
+$\Galways \psi$ requires $\psi$ is satisfied by all states reached during an
+execution.  Intuitively the operator $\Feventually$ is dual to $\Galways$;
+informally, $\Feventually \psi$ requires that a state satisfying $\psi$ occurs
+in finite time.
 
 A convex polytope is a bounded region defined by the intersection of finitely
 many halfspaces, each of which is defined by a linear inequality.  There are
