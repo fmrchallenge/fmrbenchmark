@@ -152,28 +152,33 @@ precise description is given below.
 
 \subsection{Dynamics and constraints}
 
-Let $n$ and $m$ be positive integers.  Consider the dynamical system
+Let $n$ and $m$ be positive integers.  Consider the differential equation
 \begin{equation}\label{eq:minteg}
 D^{m}q = u ,
 \end{equation}
-where $q: [0,\infty [ \rightarrow \mathbb{R}^{n}$, and $D$ is the differential
-operator.  The input is bounded as $\lVert u(t) \rVert_1 \leq u_{\mathrm{max}}$.
-The system is called a \textit{chain of a integrators} because it can be
-rewritten as a system of ODEs
+where $q: [0,\infty [ \rightarrow \mathbb{R}^{n}$ and $D$ is the differential
+operator.  The input $u$ is bounded as $\lVert u(t) \rVert_1 \leq
+u_{\mathrm{max}}$.  The system is called a \textit{chain of a integrators}
+because it can be rewritten as a linear control system
 \begin{equation}\label{eq:cintegdyn}
 \begin{split}
 \dot{x}_1 &= x_2 \\
 \dot{x}_2 &= x_3 \\
 &\vdots \\
 \dot{x}_{m-1} &= x_m \\
-\dot{x}_m &= u ,
+\dot{x}_m &= u \\
+y &= x_1
 \end{split}
 \end{equation}
-where for time $t$, each $x_{i}(t)\in \mathbb{R}^n$ for $i=1,\ldots,m$, and $x(t)=\left( x_{1}(t) , \ldots , x_{m}(t)\right)\in
-\mathbb{R}^{nm}$.  That
-is, \eqref{eq:cintegdyn} is a linear control system of dimension $mn$, and is equivalent to the
-dynamical system in \eqref{eq:minteg}, where control input is applied as the $m$-th derivative of an $n$-dimensional
-variable $q$. Notably, $m=2$ is known as the ``double integrator'' case, and if $n \leq 3$ then $q$ may be referred to as the ``position''.
+where for time $t$, each $x_{i}(t)\in \mathbb{R}^n$ for $i=1,\ldots,m$, and
+$x(t)=\left( x_{1}(t) , \ldots , x_{m}(t)\right)\in \mathbb{R}^{nm}$. The output
+trajectories of \eqref{eq:cintegdyn} are exactly those of \eqref{eq:minteg},
+given the same input, and thus we call them equivalent. In \eqref{eq:minteg},
+control input is applied as the $m$-th derivative of an $n$-dimensional variable
+$q$, and the intermediate derivatives are made explicit in
+\eqref{eq:cintegdyn}. A notable particular case is $m=2$, which is called the
+``double integrator''. If $n \leq 3$ then $q$ may be referred to as the
+``position''.
 
 To introduce process and sensor noise, consider the 2-dimensional system
 \begin{align}
