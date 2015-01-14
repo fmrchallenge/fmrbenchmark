@@ -169,14 +169,11 @@ rewritten as a system of ODEs
 \dot{x}_m &= u ,
 \end{split}
 \end{equation}
-where for time $t$, $x(t)=\left( x_{1}(t) , \ldots , x_{m}(t)\right)\in
-\mathbb{R}^{nm}$, and each $x_{i}(t)\in \mathbb{R}^n$ for $i=1,\ldots,m$.  That
-is, \eqref{eq:cintegdyn} is a linear control system.  This can be regarded as a
-dynamical system in which control input is applied as the $m$-th derivative of a
-variable $q$.  In particular, $m=2$ is known as the ``double integrator'' case.
-If $q$ takes values in a state space of dimension~$n$, then the system overall
-has dimension $mn$.  In particular, if $n \leq 3$ then $q$ may be referred to as
-``position''.
+where for time $t$, each $x_{i}(t)\in \mathbb{R}^n$ for $i=1,\ldots,m$, and $x(t)=\left( x_{1}(t) , \ldots , x_{m}(t)\right)\in
+\mathbb{R}^{nm}$.  That
+is, \eqref{eq:cintegdyn} is a linear control system of dimension $mn$, and is equivalent to the
+dynamical system in \eqref{eq:minteg}, where control input is applied as the $m$-th derivative of an $n$-dimensional
+variable $q$. Notably, $m=2$ is known as the ``double integrator'' case, and if $n \leq 3$ then $q$ may be referred to as the ``position''.
 
 To introduce process and sensor noise, consider the 2-dimensional system
 \begin{align}
@@ -199,10 +196,11 @@ y &= \left(
 \end{align}
 where $\xi$ and $\eta$ are either bounded disturbances (nondeterministic) or
 stochastic processes.  Equivalence with \eqref{eq:minteg} in the case of
-$n=1$ and $\xi=\eta=0$ is apparent using $x_1 = q$ and $x_2 = \dot{q}$.  For $n
+$n=1, m=2$ and $\xi=\eta=0$ is apparent using $x_1 = q$ and $x_2 = \dot{q}$.  For $n
 > 1$, the matrices in \eqref{eq:dintegdyn} and \eqref{eq:dintegobs} can be
 repeated in block diagonal form to yield a new linear time-invariant system of
-dimension $2n$ and which is again equivalent to \eqref{eq:minteg}.
+dimension $2n$ and which is again equivalent to \eqref{eq:minteg} for $m=2$. 
+In general, the resulting linear time-invariant system will thus be of dimension $mn$.
 
 \subsection{Specifications}
 
