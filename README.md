@@ -6,8 +6,8 @@ Summary of organization
 
 - `doc/icra2015/` : The document describing the ICRA 2015 challenge.
 
-- `domains/` : Problem domains, e.g., `domains/double_integrator/` contains code
-  for the scaling double-integrators setting.
+- `domains/` : Problem domains, e.g., `domains/integrator_chains/` contains code
+  for the scaling chains of integrators setting.
 
 
 License
