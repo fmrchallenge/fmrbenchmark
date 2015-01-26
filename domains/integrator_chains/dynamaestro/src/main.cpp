@@ -23,26 +23,46 @@
 #include <pthread.h>
 
 
+/* Because we are assuming the chain of integrators system, the number of
+   dimensions of the input (parameter numdim_input to the constructors) must
+   equal the number of dimensions of the output (parameter numdim_output).
+
+   The trajectories are the solutions of linear time-invariant control
+   system. Control input is applied using a zero-order hold, i.e., applied
+   constantly during the duration given as the first parameter of step().
+
+   Let M be the highest order of derivative, and let N be the dimension of the
+   output space.  The state variable indexing is such that the first output
+   variable is the first state variable, the second output variable is the
+   second state variable, etc. Thus the component systems are interleaved in the
+   sense that the first subsystem is formed from state variable indices 1, 1+N,
+   1+2N, ..., 1+(M-1)N, and the input to this subsystem is applied at state
+   variable index 1+(M-1)N.
+*/
 class TrajectoryGenerator {
 private:
 	std::vector<double> X;
 	double t;  // Current time
-	int numdim_input;
+	int highest_order_deriv;
 	int numdim_output;
 
 public:
-	/* Because we are assuming the chain of integrators system, the
-	   number of dimensions of the input (parameter numdim_input to
-	   the constructors) must equal the number of dimensions of the
-	   output (parameter numdim_output). */
-	TrajectoryGenerator( int numdim_state, int numdim_input, int numdim_output );
-	TrajectoryGenerator( std::vector<double> Xinit, int numdim_input, int numdim_output );
+	TrajectoryGenerator( int numdim_output, int highest_order_deriv );
 
-	double step( double dt, const double &U );
+	/* Consult the class description regarding the assumed arrangement of the
+	   state variables, i.e., the indexing and the assumption that the system is
+	   a chain of integrators. */
+	TrajectoryGenerator( std::vector<double>Xinit, int numdim_output );
+
+	/* Forward Euler integration for duration dt using constant input U */
+	double step( double dt, const std::vector<double> &U );
+
 	double getTime() const
 		{ return t; }
 	double getStateDim() const
 		{ return X.size(); }
+	double getOutputDim() const
+		{ return numdim_output; }
 
 	// Output vector
 	double operator[]( int i ) const;
@@ -52,25 +72,35 @@ public:
 		{ return X[i]; }
 };
 
-TrajectoryGenerator::TrajectoryGenerator( int numdim_state, int numdim_input, int numdim_output )
-	: t(0.0), numdim_input(numdim_input), numdim_output(numdim_output)
+TrajectoryGenerator::TrajectoryGenerator( int numdim_output, int highest_order_deriv )
+	: t(0.0), highest_order_deriv(highest_order_deriv), numdim_output(numdim_output)
 {
-	for (int i = 0; i < numdim_state; i++)
+	for (int i = 0; i < numdim_output*highest_order_deriv; i++)
 		X.push_back( 5.0 );
 }
 
-TrajectoryGenerator::TrajectoryGenerator( std::vector<double> Xinit, int numdim_input, int numdim_output  )
-	: t(0.0), X(Xinit), numdim_input(numdim_input), numdim_output(numdim_output)
-{ }
-
-double TrajectoryGenerator::step( double dt, const double &U )
+TrajectoryGenerator::TrajectoryGenerator( std::vector<double> Xinit, int numdim_output  )
+	: t(0.0), X(Xinit), numdim_output(numdim_output)
 {
+	highest_order_deriv = X.size()/numdim_output;  // N.B., assumed to divide evenly!
+}
+
+double TrajectoryGenerator::step( double dt, const std::vector<double> &U )
+{
+	if (U.size() > numdim_output) {
+		ROS_ERROR( "Input vector has too many elements." );
+		return 0.0/0.0;
+	}
+
 	int numdim_state = X.size();
 
-	for (int i = 0; i <= numdim_state-2; i++)
-		X[i] += dt*X[i+1];
-
-	X[numdim_state-1] += dt*U;
+	int i, j;
+	for (j = 0; j < numdim_output; j++) {
+		for (i = 0; i <= highest_order_deriv-2; i++) {
+			X[i*numdim_output+j] += dt*X[(i+1)*numdim_output+j];
+		}
+		X[(highest_order_deriv-1)*numdim_output+j] += dt*U[j];
+	}
 
 	t += dt;
 	return t;
@@ -91,9 +121,10 @@ double TrajectoryGenerator::operator[]( int i ) const
 void *tgthread( void *nhp )
 {
 	ros::Publisher statepub = ((ros::NodeHandle *)nhp)->advertise<dynamaestro::VectorStamped>( "output", 10 );
+	//ros::Subscriber inputsub = ((ros::NodeHandle *)nhp)->subscribe( "input", 1, inputcb );
 
 	double h = 0.1;  // Sampling period
-	TrajectoryGenerator tg( 3, 1, 1 );
+	TrajectoryGenerator tg( 1, 3 );
 
 	// Send initial output, before any input is applied or time has begun.
 	dynamaestro::VectorStamped pt;
@@ -105,8 +136,13 @@ void *tgthread( void *nhp )
 	ros::spinOnce();
 
 	ros::Rate rate( 1/h );
+	std::vector<double> U;
+	for (int i = 0; i < tg.getOutputDim(); i++)
+		U.push_back( 0.0 );
+
 	while (ros::ok()) {
-		tg.step( h, -(tg.getState( 0 ) + 2.4142*tg.getState( 1 ) + 2.4142*tg.getState( 2 )) );
+		U[0] = -(tg.getState( 0 ) + 2.4142*tg.getState( 1 ) + 2.4142*tg.getState( 2 ));
+		tg.step( h, U );
 
 		dynamaestro::VectorStamped pt;
 		pt.header.frame_id = std::string( "map" );
