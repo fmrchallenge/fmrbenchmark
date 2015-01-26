@@ -8,7 +8,11 @@ target_link_libraries (dm pthread)
 if (CATKIN_ENV)
   message (STATUS "Building for ROS")
   add_definitions (-DUSE_ROS)
-  find_package (catkin REQUIRED COMPONENTS roscpp geometry_msgs)
+  find_package (catkin REQUIRED COMPONENTS roscpp std_msgs message_generation)
+
+  add_message_files (FILES VectorStamped.msg)
+  generate_messages (DEPENDENCIES std_msgs)
+
   catkin_package ()
   include_directories (include ${catkin_INCLUDE_DIRS})
   target_link_libraries (dm ${catkin_LIBRARIES})

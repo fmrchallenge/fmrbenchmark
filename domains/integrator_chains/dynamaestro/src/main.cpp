@@ -14,7 +14,7 @@
 
 #ifdef USE_ROS
 #include <ros/ros.h>
-#include <geometry_msgs/PointStamped.h>
+#include <dynamaestro/VectorStamped.h>
 #endif
 
 #include <cmath>
@@ -41,6 +41,8 @@ public:
 	double step( double dt, const double &U );
 	double getTime() const
 		{ return t; }
+	double getStateDim() const
+		{ return X.size(); }
 
 	// Output vector
 	double operator[]( int i ) const;
@@ -88,18 +90,17 @@ double TrajectoryGenerator::operator[]( int i ) const
 /* nhp should point to an instance of ros::NodeHandle */
 void *tgthread( void *nhp )
 {
-	ros::Publisher statepub = ((ros::NodeHandle *)nhp)->advertise<geometry_msgs::PointStamped>( "output", 10 );
+	ros::Publisher statepub = ((ros::NodeHandle *)nhp)->advertise<dynamaestro::VectorStamped>( "output", 10 );
 
 	double h = 0.1;  // Sampling period
 	TrajectoryGenerator tg( 3, 1, 1 );
 
 	// Send initial output, before any input is applied or time has begun.
-	geometry_msgs::PointStamped pt;
+	dynamaestro::VectorStamped pt;
 	pt.header.frame_id = std::string( "map" );
 	pt.header.stamp = ros::Time::now();
-	pt.point.x = tg.getState( 0 );
-	pt.point.y = tg.getState( 1 );
-	pt.point.z = tg.getState( 2 );
+	for (int i = 0; i < tg.getStateDim(); i++)
+		pt.point.push_back( tg.getState( i ) );
 	statepub.publish( pt );
 	ros::spinOnce();
 
@@ -107,14 +108,12 @@ void *tgthread( void *nhp )
 	while (ros::ok()) {
 		tg.step( h, -(tg.getState( 0 ) + 2.4142*tg.getState( 1 ) + 2.4142*tg.getState( 2 )) );
 
-		geometry_msgs::PointStamped pt;
+		dynamaestro::VectorStamped pt;
 		pt.header.frame_id = std::string( "map" );
 		pt.header.stamp = ros::Time::now();
-		pt.point.x = tg.getState( 0 );
-		pt.point.y = tg.getState( 1 );
-		pt.point.z = tg.getState( 2 );
+		for (int i = 0; i < tg.getStateDim(); i++)
+			pt.point.push_back( tg.getState( i ) );
 		statepub.publish( pt );
-
 		ros::spinOnce();
 		rate.sleep();
 	}
