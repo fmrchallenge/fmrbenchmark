@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen" />
+  <node pkg="rostopic" name="$(anon rostopic)" type="rostopic" args="echo /output" output="screen" />
+</launch>

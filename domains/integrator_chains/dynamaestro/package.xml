@@ -1,0 +1,15 @@
+<package>
+  <name>dynamaestro</name>
+  <version>0.0.0</version>
+  <description>
+    dynamaestro, motivated by the "scaling chains of integrators" problem domain.
+  </description>
+  <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <run_depend>roscpp</run_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <run_depend>geometry_msgs</run_depend>
+</package>
