@@ -17,10 +17,12 @@
 #include <dynamaestro/VectorStamped.h>
 #endif
 
-#include <cmath>
+#include <cstdlib>
+#include <cstdio>
 #include <vector>
 
 #include <pthread.h>
+#include <semaphore.h>
 
 
 /* Because we are assuming the chain of integrators system, the number of
@@ -117,14 +119,73 @@ double TrajectoryGenerator::operator[]( int i ) const
 }
 
 
-/* nhp should point to an instance of ros::NodeHandle */
-void *tgthread( void *nhp )
-{
-	ros::Publisher statepub = ((ros::NodeHandle *)nhp)->advertise<dynamaestro::VectorStamped>( "output", 10 );
-	//ros::Subscriber inputsub = ((ros::NodeHandle *)nhp)->subscribe( "input", 1, inputcb );
+class TGThread {
+private:
+	sem_t sem;
+	bool fresh_input;
+	std::vector<double> U;
 
-	double h = 0.1;  // Sampling period
-	TrajectoryGenerator tg( 1, 3 );
+	int numdim_output;
+	int highest_order_deriv;
+	double h;  // Sampling period
+
+public:
+	TGThread( int numdim_output = 0, int highest_order_deriv = 0, double period = 0.0 );
+	~TGThread();
+	void inputcb( const dynamaestro::VectorStamped &vs );
+	void run( ros::NodeHandle &nh );
+};
+
+TGThread::TGThread( int numdim_output, int highest_order_deriv, double period )
+	: fresh_input(false),
+	  numdim_output(numdim_output), highest_order_deriv(highest_order_deriv),
+	  h(period)
+{
+	if (sem_init( &sem, 0, 1 )) {
+		perror( "TGThread, sem_init" );
+		exit( -1 );
+	}
+
+	for (int i; i < numdim_output; i++)
+		U.push_back( 0.0 );
+}
+
+TGThread::~TGThread()
+{
+	if (sem_destroy( &sem )) {
+		perror( "~TGThread, sem_destroy" );
+		exit( -1 );
+	}
+}
+
+void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
+{
+	if (sem_wait( &sem )) {
+		perror( "inputcb, sem_wait" );
+		exit( -1 );
+	}
+
+	fresh_input = true;
+	U = vs.point;
+
+	if (sem_post( &sem )) {
+		perror( "inputcb, sem_post" );
+		exit( -1 );
+	}
+}
+
+void TGThread::run( ros::NodeHandle &nh )
+{
+	ros::Publisher statepub = nh.advertise<dynamaestro::VectorStamped>( "output", 10 );
+	ros::Subscriber inputsub = nh.subscribe( "input", 1, &TGThread::inputcb, this );
+
+
+	TrajectoryGenerator tg( numdim_output, highest_order_deriv );
+
+	ros::Rate rate( 1/h );
+	std::vector<double> defaultU;
+	for (int i = 0; i < numdim_output; i++)
+		defaultU.push_back( 0.0 );
 
 	// Send initial output, before any input is applied or time has begun.
 	dynamaestro::VectorStamped pt;
@@ -135,14 +196,23 @@ void *tgthread( void *nhp )
 	statepub.publish( pt );
 	ros::spinOnce();
 
-	ros::Rate rate( 1/h );
-	std::vector<double> U;
-	for (int i = 0; i < tg.getOutputDim(); i++)
-		U.push_back( 0.0 );
-
 	while (ros::ok()) {
-		U[0] = -(tg.getState( 0 ) + 2.4142*tg.getState( 1 ) + 2.4142*tg.getState( 2 ));
-		tg.step( h, U );
+		if (fresh_input) {
+			if (sem_wait( &sem )) {
+				perror( "TGThread::run, sem_wait" );
+				exit( -1 );
+			}
+
+			fresh_input = false;
+			tg.step( h, U );
+
+			if (sem_post( &sem )) {
+				perror( "TGThread::run, sem_post" );
+				exit( -1 );
+			}
+		} else {
+			tg.step( h, defaultU );
+		}
 
 		dynamaestro::VectorStamped pt;
 		pt.header.frame_id = std::string( "map" );
@@ -155,17 +225,25 @@ void *tgthread( void *nhp )
 	}
 }
 
+/* nhp should point to an instance of ros::NodeHandle */
+void *tgthread( void *nhp )
+{
+	TGThread tgt( 1, 3, 0.1 );
+	tgt.run( *(ros::NodeHandle *)nhp );
+}
+
 
 int main( int argc, char **argv )
 {
+	pthread_t tgID;
+
 #ifdef USE_ROS
 	ros::init( argc, argv, "dynamaestro" );
 	ros::NodeHandle nh;
 
-	pthread_t tgID;
 	if (pthread_create( &tgID, NULL, tgthread, (void *)&nh )) {
 		perror( "dm, pthread_create" );
-		return -1;
+		exit( -1 );
 	}
 
 	ros::Rate rate( 10. );

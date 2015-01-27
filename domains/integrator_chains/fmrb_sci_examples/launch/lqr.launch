@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen" />
+  <node pkg="fmrb_sci_examples" name="$(anon lqr)" type="lqr.py" output="screen" />
+</launch>

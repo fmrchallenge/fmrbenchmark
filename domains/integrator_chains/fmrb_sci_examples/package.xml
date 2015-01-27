@@ -1,0 +1,15 @@
+<package>
+  <name>fmrb_sci_examples</name>
+  <version>0.0.0</version>
+  <description>
+    examples for the "scaling chains of integrators" problem domain.
+  </description>
+  <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>dynamaestro</build_depend>
+  <run_depend>dynamaestro</run_depend>
+  <build_depend>rospy</build_depend>
+  <run_depend>rospy</run_depend>
+</package>
