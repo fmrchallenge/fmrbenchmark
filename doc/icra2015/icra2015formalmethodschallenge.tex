@@ -419,6 +419,60 @@ We are exploring several simulation environments for this domain, including the 
 We are also exploring the possibility of a physical testbed on-site at ICRA, involving a Baxter robot
 on loan from Rethink Robotics.
 
+\section{Evaluation}
+Our goal is to allow maximal flexibility of solution form, and allow entries to be provided as black-box 
+programs with defined interfaces. A static evaluation proving that the solution is correct would violate this 
+ideal by, for example, requiring submissions to be expressed in part using Promela, so that they could be 
+checked it with Spin, or provide a linearized-form closed system in order to generate a certificate via SOS 
+programming.
+
+Instead, the evaluation will be \emph{dynamic}, i.e., submissions will be evaluated by running them. It will also be 
+\emph{trial-based}, i.e., each controller will be run for a fixed set of trials that each have the adversary playing a 
+particular strategy. Some care will be made to cover the set of environment strategies.
+
+
+\subsection{Trajectory durations}
+Since the semantics of LTL is over infinite executions, the duration for which each trial will be run must be specified. 
+The Challenge will feature trials with both pre-specified and unspecified (yet finite) execution durations. 
+
+\begin{itemize}
+\item \textbf{unspecified in the problem:}
+The duration for which each trial will run (in terms of execution time) will be selected randomly at the time of evaluation.
+
+\item \textbf{specified in the problem instance:}
+There are two approaches here:
+\begin{itemize}
+\item A fixed duration for a timeout will be given as part of the instance description. Time discretization of this duration is part of the solution.
+\item Termination occurs upon reaching a final state. These specifications are necessarily co-safe.
+\end{itemize}
+
+\end{itemize}
+
+The chief difficulty in the evaluation is in verifying liveness properties of black-box controllers. To mitigate this problem,
+we will allow teams the following two options:
+\begin{itemize}
+\item provide trajectories of lasso form, with a pre-specified tolerance for closing the loop of the lasso. This applies chiefly to domain 1.
+\item declare a minimum execution time required to demonstrate correctness. This applies to domain 2 and 3.
+\end{itemize}
+
+\subsection{Scoring}
+Entries will be scored on the basis of the cumulative time required to achieve pre-specified milestones once given a specification.
+
+\begin{itemize}
+\item For the scaling chains of integrators domain, scoring will be purely on the basis of the time required to synthesize a trajectory that 
+satisfies the specification. Satisfaction will be checked by inspection by plotting the trajectories in each 3D subspace appearing in the
+subformulas.
+\item For the network of cars domain, scoring will be on the basis of the time required to synthesize \emph{and} execute a controller
+visiting a pre-specified set of regions, while satisfying specified safety conditions, in the presence of adversarial agents. For fairness, 
+each team's entry will be run against the same set of environment strategies and in the same set of road networks.
+\item For the manipulation domain, scoring will be on the basis of the number of carts processed. The same set of carts will be provided 
+to each team.
+\end{itemize}
+
+
+\subsection{Scheduling Trials}
+To ensure fairness, teams will not be allowed to modify their solutions once the trials for a specific domain have begun. The order of executing
+controllers will be randomized for each round of trials.
 
 \bibliographystyle{abbrv}
 \bibliography{fmrchallenge.bib}
