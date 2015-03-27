@@ -8,11 +8,16 @@
 \newtheorem{example}{Example}[section]
 
 
+%% format is YYYY-MM-DD
+\def\now{\number\year%
+-{\ifnum \month < 10 0\fi}\number\month%
+-{\ifnum \day < 10 0\fi}\number\day}
+
 \begin{document}
 \title{A competition on formal methods for robotics}
 \author{Scott C. Livingston}
 \author{Vasumathi Raman}
-\date{24 Jan 2015}
+\date{\textbf{DRAFT} \now}
 \begin{abstract}
 This is the normative reference for the first challenge on formal methods for
 robotics.  Formal methods refers broadly to techniques for the verification and
