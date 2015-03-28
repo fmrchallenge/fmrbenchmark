@@ -364,18 +364,59 @@ challenge.
 
 \section{Problem domain: Dexterous manipulation on the assembly line}\label{sec:dexterousmanip}
 
+\subsection{Summary (not normative)}
+
 This problem domain concerns pick and place tasks, expressed using LTL
 contracts, as described below. The key challenges explored in this problem
 domain will include uncertainty in the shape and dynamics of the end-effector,
 as well as objects that are being grasped, and collision-avoidance with moving
 obstacles that come into the workspace, including humans.
 
+The focus is on picking up and moving objects around, but will not involve
+difficult grasping problems, like deformable surfaces. The end-effector will be
+something easy to use, like a magnet or some suction mechanism, such as a
+Universal Jamming Gripper \cite{AmendBRJL12}.
+
+The scenario will be as follows. The robot is to process objects laid out on a
+cart that is brought to it and sort them into bins. Carts arrive after the robot
+indicates that it is ready, and carts are removed once a robot declares that it
+is done. Scoring will be based on how many carts can be processed correctly
+(described below) in a fixed amount of time.
+
+The top surface of the cart will be unwalled but divided into an object
+placement grid. Each object can occupy multiple cells in the grid. Each object
+has a priority level (possibly shared with other objects) which determines the
+order of processing. Processing involves picking up the object and waiting for a
+signal to determine which of a set of bins to deposit it in.
+
+The gripping process is automatic and regarded as a subroutine, so that teams
+need only place the gripper within a certain region above the object then
+request a grasp, which may fail but will eventually succeed provided repeated
+attempts.  There will be a clearance requirement for the arm and end-effector,
+so that it must maintain a minimum distance from obstacles throughout the trial.
+While different kinds of end-effectors will not be provided, a disc-shaped mount
+will be placed on the wrist to effect varying shape constraints.
+
+The cart will be serviced in collaboration with some other agent, e.g., a human
+or another robot.  When the partner is busy with a part of the cart, the
+corresponding cells and the space above them are unavailable, which may be
+indicated by literally covering them or shining a light from underneath those
+cells. The "clearance requirement" would then mandate that a safe distance is
+kept from this other agent and the part of the cart that it is using.
+
+In summary, the salient features are that:
+\begin{enumerate}
+\item carts are taken to and from the robot.
+\item the robot must sort items on the cart into bins.
+\item the decision of which bin to use for each item is given.
+\item a human or another robot may also use the cart and contribute to the sorting task.
+\item the details of grasping are abstracted so that teams merely need to request for a grasp to occur once sufficiently near the object.
+\item safe distances from obstacles must be maintained throughout.
+\end{enumerate}
+
 \subsection{Dynamics and constraints}
 For the tasks in this problem domain, the robot workspace is a three-dimensional
-Euclidean space. The focus is on picking up and moving objects around, but will not 
-involve difficult grasping problems, like deformable surfaces. To this end, the end-effector
-will be something easy to use, like a magnet or some suction mechanism, such as a 
-Universal Jamming Gripper \cite{AmendBRJL12}.
+Euclidean space.
 
 TODO: dynamics of the arm
 
