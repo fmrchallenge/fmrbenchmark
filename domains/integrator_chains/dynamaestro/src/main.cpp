@@ -8,7 +8,7 @@
  * is as yet not operational.
  *
  *
- * SCL; Jan 2015
+ * SCL; 2015
  */
 
 
