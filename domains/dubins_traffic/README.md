@@ -33,15 +33,6 @@ as this README file.
     cd dubplay/src
     ln -s /you/path/to/dub_sim
 
-`dub_sim` requires a patched version of the Kobuki Gazebo plugin.  The package
-that we desire is in a repository with other ROS packages, so it must be moved
-to the `src` directory after separately getting the copy of the source.  (It
-will be built when `catkin_make` is invoked later.)  E.g.,
-
-    wget https://github.com/slivingston/kobuki_desktop/archive/indigo.tar.gz
-    tar -xzf indigo.tar.gz
-    mv kobuki_desktop-indigo/kobuki_gazebo_plugins /your/path/to/dubplay/src
-
 At this step you should be in the root of your workspace, i.e., the directory
 named `dubplay`.  Finally build everything, and launch the straightroad example.
 
