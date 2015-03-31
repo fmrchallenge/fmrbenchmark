@@ -6,7 +6,6 @@
         pkg="gazebo_ros" type="spawn_model"
         args="$(arg init_pose) -urdf -param robot_description -model $(arg namespace) -robot_namespace $(arg namespace)"
         output="screen" />
-  <param name="/$(arg namespace)/base_prefix" value="" />
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="$(anon robot_state_publisher)">
     <param name="publish_frequency" type="double" value="30.0" />
