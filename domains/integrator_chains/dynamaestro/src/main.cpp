@@ -19,7 +19,8 @@
 
 #include <cstdlib>
 #include <cstdio>
-#include <vector>
+
+#include <Eigen/Dense>
 
 #include <pthread.h>
 #include <semaphore.h>
@@ -43,7 +44,7 @@
 */
 class TrajectoryGenerator {
 private:
-	std::vector<double> X;
+	Eigen::VectorXd X;
 	double t;  // Current time
 	int highest_order_deriv;
 	int numdim_output;
@@ -54,10 +55,10 @@ public:
 	/* Consult the class description regarding the assumed arrangement of the
 	   state variables, i.e., the indexing and the assumption that the system is
 	   a chain of integrators. */
-	TrajectoryGenerator( std::vector<double>Xinit, int numdim_output );
+	TrajectoryGenerator( Eigen::VectorXd Xinit, int numdim_output );
 
 	/* Forward Euler integration for duration dt using constant input U */
-	double step( double dt, const std::vector<double> &U );
+	double step( double dt, const Eigen::VectorXd &U );
 
 	double getTime() const
 		{ return t; }
@@ -75,19 +76,20 @@ public:
 };
 
 TrajectoryGenerator::TrajectoryGenerator( int numdim_output, int highest_order_deriv )
-	: t(0.0), highest_order_deriv(highest_order_deriv), numdim_output(numdim_output)
+	: t(0.0),
+	  highest_order_deriv(highest_order_deriv), numdim_output(numdim_output)
 {
-	for (int i = 0; i < numdim_output*highest_order_deriv; i++)
-		X.push_back( 5.0 );
+	X.resize( numdim_output*highest_order_deriv );
+	X.setZero();
 }
 
-TrajectoryGenerator::TrajectoryGenerator( std::vector<double> Xinit, int numdim_output  )
+TrajectoryGenerator::TrajectoryGenerator( Eigen::VectorXd Xinit, int numdim_output  )
 	: t(0.0), X(Xinit), numdim_output(numdim_output)
 {
 	highest_order_deriv = X.size()/numdim_output;  // N.B., assumed to divide evenly!
 }
 
-double TrajectoryGenerator::step( double dt, const std::vector<double> &U )
+double TrajectoryGenerator::step( double dt, const Eigen::VectorXd &U )
 {
 	if (U.size() > numdim_output) {
 		ROS_ERROR( "Input vector has too many elements." );
@@ -123,7 +125,7 @@ class TGThread {
 private:
 	sem_t sem;
 	bool fresh_input;
-	std::vector<double> U;
+	Eigen::VectorXd U;
 
 	int numdim_output;
 	int highest_order_deriv;
@@ -139,15 +141,12 @@ public:
 TGThread::TGThread( int numdim_output, int highest_order_deriv, double period )
 	: fresh_input(false),
 	  numdim_output(numdim_output), highest_order_deriv(highest_order_deriv),
-	  h(period)
+	  h(period), U(numdim_output)
 {
 	if (sem_init( &sem, 0, 1 )) {
 		perror( "TGThread, sem_init" );
 		exit( -1 );
 	}
-
-	for (int i; i < numdim_output; i++)
-		U.push_back( 0.0 );
 }
 
 TGThread::~TGThread()
@@ -166,7 +165,8 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 	}
 
 	fresh_input = true;
-	U = vs.point;
+	for (int i = 0; i < numdim_output; i++)
+		U[i] = vs.point[i];
 
 	if (sem_post( &sem )) {
 		perror( "inputcb, sem_post" );
@@ -188,12 +188,14 @@ void TGThread::run( ros::NodeHandle &nh )
 	nh.getParam( "period", h );
 	ROS_INFO( "dynamaestro: Using %f seconds as the period.", h );
 
+	U.resize( numdim_output );
+	U.setZero();
+
 	TrajectoryGenerator tg( numdim_output, highest_order_deriv );
 
 	ros::Rate rate( 1/h );
-	std::vector<double> defaultU;
-	for (int i = 0; i < numdim_output; i++)
-		defaultU.push_back( 0.0 );
+	Eigen::VectorXd defaultU( U );
+	defaultU.setZero();
 
 	// Send initial output, before any input is applied or time has begun.
 	dynamaestro::VectorStamped pt;

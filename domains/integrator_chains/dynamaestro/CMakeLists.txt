@@ -5,6 +5,9 @@ include_directories (include)
 add_executable (dm src/main.cpp)
 target_link_libraries (dm pthread)
 
+find_package (Eigen3 REQUIRED)
+include_directories (${EIGEN3_INCLUDE_DIR})
+
 if (CATKIN_ENV)
   message (STATUS "Building for ROS")
   add_definitions (-DUSE_ROS)
