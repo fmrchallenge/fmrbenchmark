@@ -1,4 +1,8 @@
 <launch>
-  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen" />
+  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
+    <param name="number_integrators" type="int" value="3" />
+    <param name="output_dim" type="int" value="1" />
+    <param name="period" type="double" value="0.1" />
+  </node>
   <node pkg="rostopic" name="$(anon rostopic)" type="rostopic" args="echo /output" output="screen" />
 </launch>

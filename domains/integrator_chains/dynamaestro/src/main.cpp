@@ -130,7 +130,7 @@ private:
 	double h;  // Sampling period
 
 public:
-	TGThread( int numdim_output = 0, int highest_order_deriv = 0, double period = 0.0 );
+	TGThread( int numdim_output = 1, int highest_order_deriv = 2, double period = 0.1 );
 	~TGThread();
 	void inputcb( const dynamaestro::VectorStamped &vs );
 	void run( ros::NodeHandle &nh );
@@ -179,6 +179,14 @@ void TGThread::run( ros::NodeHandle &nh )
 	ros::Publisher statepub = nh.advertise<dynamaestro::VectorStamped>( "output", 10 );
 	ros::Subscriber inputsub = nh.subscribe( "input", 1, &TGThread::inputcb, this );
 
+	nh.getParam( "number_integrators", highest_order_deriv );
+	ROS_INFO( "dynamaestro: Using %d as number of integrators.", highest_order_deriv );
+
+	nh.getParam( "output_dim", numdim_output );
+	ROS_INFO( "dynamaestro: Using %d as dimension of the output space.", numdim_output );
+
+	nh.getParam( "period", h );
+	ROS_INFO( "dynamaestro: Using %f seconds as the period.", h );
 
 	TrajectoryGenerator tg( numdim_output, highest_order_deriv );
 
@@ -228,7 +236,7 @@ void TGThread::run( ros::NodeHandle &nh )
 /* nhp should point to an instance of ros::NodeHandle */
 void *tgthread( void *nhp )
 {
-	TGThread tgt( 1, 3, 0.1 );
+	TGThread tgt;
 	tgt.run( *(ros::NodeHandle *)nhp );
 }
 
@@ -239,7 +247,7 @@ int main( int argc, char **argv )
 
 #ifdef USE_ROS
 	ros::init( argc, argv, "dynamaestro" );
-	ros::NodeHandle nh;
+	ros::NodeHandle nh( "~" );
 
 	if (pthread_create( &tgID, NULL, tgthread, (void *)&nh )) {
 		perror( "dm, pthread_create" );

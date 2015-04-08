@@ -1,4 +1,12 @@
 <launch>
-  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen" />
-  <node pkg="fmrb_sci_examples" name="$(anon lqr)" type="lqr.py" output="screen" />
+  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
+    <param name="number_integrators" type="int" value="2" />
+    <param name="output_dim" type="int" value="1" />
+
+    <remap from="dynamaestro/input" to="input" />
+    <remap from="dynamaestro/output" to="output" />
+  </node>
+  <node pkg="fmrb_sci_examples" name="$(anon lqr)" type="lqr.py" output="screen">
+    <remap from="number_integrators" to="dynamaestro/number_integrators" />
+  </node>
 </launch>

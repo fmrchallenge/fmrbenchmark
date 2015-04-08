@@ -37,7 +37,9 @@ if __name__ == "__main__":
     rospy.init_node("lqr", anonymous=True)
 
     n = 1  # Number of output dimensions
-    m = 3  # Number of derivatives
+
+    # Number of derivatives
+    m = rospy.get_param("number_integrators")
 
     A = np.diag(np.ones(m-1), k=1)
     B = np.zeros((m, 1))
