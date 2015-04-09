@@ -21,9 +21,7 @@
 #include <cstdio>
 
 #include <Eigen/Dense>
-
-#include <pthread.h>
-#include <semaphore.h>
+#include <boost/thread/thread.hpp>
 
 
 /* Because we are assuming the chain of integrators system, the number of
@@ -123,7 +121,7 @@ double TrajectoryGenerator::operator[]( int i ) const
 
 class TGThread {
 private:
-	sem_t sem;
+	boost::mutex mtx_;
 	bool fresh_input;
 	Eigen::VectorXd U;
 
@@ -142,36 +140,20 @@ TGThread::TGThread( int numdim_output, int highest_order_deriv, double period )
 	: fresh_input(false),
 	  numdim_output(numdim_output), highest_order_deriv(highest_order_deriv),
 	  h(period), U(numdim_output)
-{
-	if (sem_init( &sem, 0, 1 )) {
-		perror( "TGThread, sem_init" );
-		exit( -1 );
-	}
-}
+{ }
 
 TGThread::~TGThread()
-{
-	if (sem_destroy( &sem )) {
-		perror( "~TGThread, sem_destroy" );
-		exit( -1 );
-	}
-}
+{ }
 
 void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 {
-	if (sem_wait( &sem )) {
-		perror( "inputcb, sem_wait" );
-		exit( -1 );
-	}
+	mtx_.lock();
 
 	fresh_input = true;
 	for (int i = 0; i < numdim_output; i++)
 		U[i] = vs.point[i];
 
-	if (sem_post( &sem )) {
-		perror( "inputcb, sem_post" );
-		exit( -1 );
-	}
+	mtx_.unlock();
 }
 
 void TGThread::run( ros::NodeHandle &nh )
@@ -208,18 +190,12 @@ void TGThread::run( ros::NodeHandle &nh )
 
 	while (ros::ok()) {
 		if (fresh_input) {
-			if (sem_wait( &sem )) {
-				perror( "TGThread::run, sem_wait" );
-				exit( -1 );
-			}
+			mtx_.lock();
 
 			fresh_input = false;
 			tg.step( h, U );
 
-			if (sem_post( &sem )) {
-				perror( "TGThread::run, sem_post" );
-				exit( -1 );
-			}
+			mtx_.unlock();
 		} else {
 			tg.step( h, defaultU );
 		}
@@ -235,26 +211,20 @@ void TGThread::run( ros::NodeHandle &nh )
 	}
 }
 
-/* nhp should point to an instance of ros::NodeHandle */
-void *tgthread( void *nhp )
+void tgthread( ros::NodeHandle &nhp )
 {
 	TGThread tgt;
-	tgt.run( *(ros::NodeHandle *)nhp );
+	tgt.run( nhp );
 }
 
 
 int main( int argc, char **argv )
 {
-	pthread_t tgID;
-
 #ifdef USE_ROS
 	ros::init( argc, argv, "dynamaestro" );
 	ros::NodeHandle nh( "~" );
 
-	if (pthread_create( &tgID, NULL, tgthread, (void *)&nh )) {
-		perror( "dm, pthread_create" );
-		exit( -1 );
-	}
+	boost::thread tgmain( tgthread, nh );
 
 	ros::Rate rate( 10. );
 	while (ros::ok()) {

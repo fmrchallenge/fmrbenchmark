@@ -3,7 +3,10 @@ project (dynamaestro)
 
 include_directories (include)
 add_executable (dm src/main.cpp)
-target_link_libraries (dm pthread)
+
+find_package (Boost REQUIRED COMPONENTS thread)
+include_directories (${Boost_INCLUDE_DIRS})
+target_link_libraries (dm ${Boost_LIBRARIES})
 
 find_package (Eigen3 REQUIRED)
 include_directories (${EIGEN3_INCLUDE_DIR})

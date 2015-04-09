@@ -9,6 +9,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>roscpp</build_depend>
+  <build_depend>boost</build_depend>
+  <run_depend>boost</run_depend>
   <run_depend>roscpp</run_depend>
   <build_depend>std_msgs</build_depend>
 </package>
