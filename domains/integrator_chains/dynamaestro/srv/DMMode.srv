@@ -1,0 +1,15 @@
+# Pause time; no-op if already paused.
+# Result is false iff fail to pause from unpaused state.
+#
+# Going from unpaused to paused causes any input currently in the input queue to
+# be dropped.
+int8 PAUSE=2
+
+# Continue progression of time; no-op if not currently paused.
+# Result is false iff currently paused and fail to continue.
+int8 UNPAUSE=3
+
+# `mode` can be assigned one of the above constants.
+int16 mode
+---
+bool result

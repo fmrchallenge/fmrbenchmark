@@ -15,6 +15,7 @@
 #ifdef USE_ROS
 #include <ros/ros.h>
 #include "dynamaestro/VectorStamped.h"
+#include "dynamaestro/DMMode.h"
 #endif
 
 #include <cstdlib>
@@ -129,21 +130,57 @@ private:
 	int highest_order_deriv;
 	double h;  // Sampling period
 
+	bool running;
+
+	ros::NodeHandle &nh_;
+	ros::ServiceServer mode_srv;
+
 public:
-	TGThread( int numdim_output = 1, int highest_order_deriv = 2, double period = 0.1 );
+	TGThread( ros::NodeHandle &nh, int numdim_output = 1, int highest_order_deriv = 2, double period = 0.1 );
 	~TGThread();
 	void inputcb( const dynamaestro::VectorStamped &vs );
-	void run( ros::NodeHandle &nh );
+	bool mode_request( dynamaestro::DMMode::Request &req,
+					   dynamaestro::DMMode::Response &res );
+	void run();
 };
 
-TGThread::TGThread( int numdim_output, int highest_order_deriv, double period )
-	: fresh_input(false),
+TGThread::TGThread( ros::NodeHandle &nh, int numdim_output, int highest_order_deriv, double period )
+	: nh_(nh),
+	  fresh_input(false),
 	  numdim_output(numdim_output), highest_order_deriv(highest_order_deriv),
-	  h(period), U(numdim_output)
-{ }
+	  h(period), U(numdim_output),
+	  running(false)
+{
+	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
+}
 
 TGThread::~TGThread()
 { }
+
+bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
+							 dynamaestro::DMMode::Response &res )
+{
+	switch (req.mode) {
+	case dynamaestro::DMMode::Request::UNPAUSE:
+		if (!running)
+			running = true;
+		res.result = true;
+		break;
+
+	case dynamaestro::DMMode::Request::PAUSE:
+		if (running) {
+			running = false;
+			fresh_input = false;
+		}
+		res.result = true;
+		break;
+
+	default:
+		return false;
+	}
+
+	return true;
+}
 
 void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 {
@@ -156,18 +193,18 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 	mtx_.unlock();
 }
 
-void TGThread::run( ros::NodeHandle &nh )
+void TGThread::run()
 {
-	ros::Publisher statepub = nh.advertise<dynamaestro::VectorStamped>( "output", 10 );
-	ros::Subscriber inputsub = nh.subscribe( "input", 1, &TGThread::inputcb, this );
+	ros::Publisher statepub = nh_.advertise<dynamaestro::VectorStamped>( "output", 10, true );
+	ros::Subscriber inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 
-	nh.getParam( "number_integrators", highest_order_deriv );
+	nh_.getParam( "number_integrators", highest_order_deriv );
 	ROS_INFO( "dynamaestro: Using %d as number of integrators.", highest_order_deriv );
 
-	nh.getParam( "output_dim", numdim_output );
+	nh_.getParam( "output_dim", numdim_output );
 	ROS_INFO( "dynamaestro: Using %d as dimension of the output space.", numdim_output );
 
-	nh.getParam( "period", h );
+	nh_.getParam( "period", h );
 	ROS_INFO( "dynamaestro: Using %f seconds as the period.", h );
 
 	U.resize( numdim_output );
@@ -189,23 +226,25 @@ void TGThread::run( ros::NodeHandle &nh )
 	ros::spinOnce();
 
 	while (ros::ok()) {
-		if (fresh_input) {
-			mtx_.lock();
+		if (running) {
+			if (fresh_input) {
+				mtx_.lock();
 
-			fresh_input = false;
-			tg.step( h, U );
+				fresh_input = false;
+				tg.step( h, U );
 
-			mtx_.unlock();
-		} else {
-			tg.step( h, defaultU );
+				mtx_.unlock();
+			} else {
+				tg.step( h, defaultU );
+			}
+
+			dynamaestro::VectorStamped pt;
+			pt.header.frame_id = std::string( "map" );
+			pt.header.stamp = ros::Time::now();
+			for (int i = 0; i < tg.getStateDim(); i++)
+				pt.point.push_back( tg.getState( i ) );
+			statepub.publish( pt );
 		}
-
-		dynamaestro::VectorStamped pt;
-		pt.header.frame_id = std::string( "map" );
-		pt.header.stamp = ros::Time::now();
-		for (int i = 0; i < tg.getStateDim(); i++)
-			pt.point.push_back( tg.getState( i ) );
-		statepub.publish( pt );
 		ros::spinOnce();
 		rate.sleep();
 	}
@@ -213,8 +252,8 @@ void TGThread::run( ros::NodeHandle &nh )
 
 void tgthread( ros::NodeHandle &nhp )
 {
-	TGThread tgt;
-	tgt.run( nhp );
+	TGThread tgt( nhp );
+	tgt.run();
 }
 
 
@@ -231,6 +270,8 @@ int main( int argc, char **argv )
 		ros::spinOnce();
 		rate.sleep();
 	}
+
+	tgmain.join();
 	
 #endif
 	return 0;
