@@ -14,7 +14,7 @@
 
 #ifdef USE_ROS
 #include <ros/ros.h>
-#include <dynamaestro/VectorStamped.h>
+#include "dynamaestro/VectorStamped.h"
 #endif
 
 #include <cstdlib>
