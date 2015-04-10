@@ -1,0 +1,128 @@
+#ifndef POLYTOPE_H
+#define POLYTOPE_H
+
+#include <assert.h>
+#include <iostream>
+#include <vector>
+
+#include <Eigen/Dense>
+
+
+/* The half-space representation is used internally. */
+class Polytope
+{
+  public:
+	Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K );
+
+	bool is_consistent() const;
+	bool is_in( Eigen::VectorXd X ) const;
+
+	// Factory functions
+	static Polytope * random( int n );
+
+	/** bounds is an array of the form [x1_min, x1_max, x2_min, x2_max, ..., xn_min, xn_max],
+
+	   which defines a polytope in terms of intervals along each axis in
+	   R^n. The interval along the first axis is [x1_min, x1_max], the interval
+	   along the second axis is [x2_min, x2_max], etc. Thus the length of the
+	   given array is 2n.
+
+	   E.g., a unit square in R^2 can be created using:
+
+	       Eigen::Vector4d bounds;
+	       bounds << 0, 1,
+	                 0, 1;
+	       Polytope *square = Polytope::box( bounds );
+	*/
+	static Polytope * box( const Eigen::VectorXd &bounds );
+
+	/* Output this polytope in JSON */
+	friend std::ostream & operator<<( std::ostream &out, const Polytope &P );
+
+  private:
+	// { x \in R^n | Hx \leq K }
+	Eigen::MatrixXd H;
+	Eigen::VectorXd K;
+};
+
+std::ostream & operator<<( std::ostream &out, const Polytope &P )
+{
+	int i, j;
+	out << "{ \"H\": [";
+	for (i = 0; i < P.H.rows(); i++) {
+		if (i > 0) {
+			out << ", ";
+		}
+		out << "[";
+		for (j = 0; j < P.H.cols(); j++) {
+			if (j > 0)
+				out << ", ";
+			out << P.H(i,j);
+		}
+		out << "]";
+	}
+	out << "], \"K\": [";
+	for (i = 0; i < P.K.rows(); i++) {
+		if (i > 0) {
+			out << ", ";
+		}
+		out << P.K(i);
+	}
+	out << "] }";
+	return out;
+}
+
+Polytope * Polytope::random( int n )
+{
+	return new Polytope( Eigen::MatrixXd::Random( n, n ),
+						 Eigen::VectorXd::Random( n ) );
+}
+
+Polytope * Polytope::box( const Eigen::VectorXd &bounds )
+{
+	assert( bounds.size() % 2 == 0 );
+
+	int n = bounds.size()/2;
+	Eigen::MatrixXd H = Eigen::MatrixXd::Zero( 2*n, n );
+	Eigen::VectorXd K( 2*n );
+	for (int i = 0; i < n; i++) {
+		H(2*i, i) = -1;
+		K(2*i) = -bounds(2*i);
+		H(2*i+1, i) = 1;
+		K(2*i+1) = bounds(2*i+1);
+	}
+	return new Polytope( H, K );
+}
+
+bool Polytope::is_consistent() const
+{
+	if (H.rows() == K.size()) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool Polytope::is_in( Eigen::VectorXd X ) const
+{
+	assert( H.cols() == X.size() );
+
+	if ((H*X-K).maxCoeff() <= 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+Polytope::Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K )
+	: H(incoming_H), K(incoming_K)
+{ }
+
+
+class LabeledPolytope : Polytope {
+public:
+	std::string label;
+};
+
+
+#endif  // ifndef POLYTOPE_H
