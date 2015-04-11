@@ -13,6 +13,7 @@ class Polytope
 {
   public:
 	Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K );
+	Polytope( const Polytope &other );
 
 	bool is_consistent() const;
 	bool is_in( Eigen::VectorXd X ) const;
@@ -38,6 +39,7 @@ class Polytope
 
 	/* Output this polytope in JSON */
 	friend std::ostream & operator<<( std::ostream &out, const Polytope &P );
+	void dumpJSON( std::ostream &out ) const;
 
   private:
 	// { x \in R^n | Hx \leq K }
@@ -47,29 +49,36 @@ class Polytope
 
 std::ostream & operator<<( std::ostream &out, const Polytope &P )
 {
+	out << "{ ";
+	P.dumpJSON( out );
+	out << " }";
+	return out;
+}
+
+void Polytope::dumpJSON( std::ostream &out ) const
+{
 	int i, j;
-	out << "{ \"H\": [";
-	for (i = 0; i < P.H.rows(); i++) {
+	out << "\"H\": [";
+	for (i = 0; i < H.rows(); i++) {
 		if (i > 0) {
 			out << ", ";
 		}
 		out << "[";
-		for (j = 0; j < P.H.cols(); j++) {
+		for (j = 0; j < H.cols(); j++) {
 			if (j > 0)
 				out << ", ";
-			out << P.H(i,j);
+			out << H(i,j);
 		}
 		out << "]";
 	}
 	out << "], \"K\": [";
-	for (i = 0; i < P.K.rows(); i++) {
+	for (i = 0; i < K.rows(); i++) {
 		if (i > 0) {
 			out << ", ";
 		}
-		out << P.K(i);
+		out << K(i);
 	}
-	out << "] }";
-	return out;
+	out << "]";
 }
 
 Polytope * Polytope::random( int n )
@@ -118,11 +127,41 @@ Polytope::Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K )
 	: H(incoming_H), K(incoming_K)
 { }
 
+Polytope::Polytope( const Polytope &other )
+	: H(other.H), K(other.K)
+{ }
 
-class LabeledPolytope : Polytope {
+
+class LabeledPolytope : public Polytope {
 public:
 	std::string label;
+
+	LabeledPolytope( const Polytope &other );
+	static LabeledPolytope * box( const Eigen::VectorXd &bounds );
+
+	/* Output this polytope in JSON */
+	friend std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P );
 };
+
+LabeledPolytope::LabeledPolytope( const Polytope &other )
+	: label(""), Polytope( other )
+{ }
+
+LabeledPolytope * LabeledPolytope::box( const Eigen::VectorXd &bounds )
+{
+	Polytope *P = Polytope::box( bounds );
+	LabeledPolytope *Q = new LabeledPolytope( *P );
+	delete P;
+	return Q;
+}
+
+std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P )
+{
+	out << "{ \"label\": \"" << P.label << "\", ";
+	P.dumpJSON( out );
+	out << " }";
+	return out;
+}
 
 
 #endif  // ifndef POLYTOPE_H

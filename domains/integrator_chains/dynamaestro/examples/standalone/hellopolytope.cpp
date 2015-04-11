@@ -10,7 +10,8 @@ int main()
 	Eigen::Vector4d bounds;
 	bounds << 0, 1,
 		      0, 1;
-	Polytope *square = Polytope::box( bounds );
+	LabeledPolytope *square = LabeledPolytope::box( bounds );
+	square->label = "square";
 
 	std::cout << *square << std::endl;
 
