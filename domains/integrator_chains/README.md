@@ -12,7 +12,10 @@ Organization of sources
 Dependencies
 ------------
 
-Note that dependences of examples are *not* listed here because they are only
+* [Eigen](http://eigen.tuxfamily.org)
+* [Boost](http://www.boost.org), specifically [Boost.Thread](http://www.boost.org/libs/thread/)
+
+Note that dependencies of examples are *not* listed here because they are only
 necessary if you will run the examples, rather than the benchmark per se.
 
 
