@@ -188,7 +188,7 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 
 	fresh_input = true;
 	for (int i = 0; i < numdim_output; i++)
-		U[i] = vs.point[i];
+		U[i] = vs.v.point[i];
 
 	mtx_.unlock();
 }
@@ -221,7 +221,7 @@ void TGThread::run()
 	pt.header.frame_id = std::string( "map" );
 	pt.header.stamp = ros::Time::now();
 	for (int i = 0; i < tg.getStateDim(); i++)
-		pt.point.push_back( tg.getState( i ) );
+		pt.v.point.push_back( tg.getState( i ) );
 	statepub.publish( pt );
 	ros::spinOnce();
 
@@ -242,7 +242,7 @@ void TGThread::run()
 			pt.header.frame_id = std::string( "map" );
 			pt.header.stamp = ros::Time::now();
 			for (int i = 0; i < tg.getStateDim(); i++)
-				pt.point.push_back( tg.getState( i ) );
+				pt.v.point.push_back( tg.getState( i ) );
 			statepub.publish( pt );
 		}
 		ros::spinOnce();

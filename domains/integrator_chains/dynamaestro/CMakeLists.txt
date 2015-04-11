@@ -18,7 +18,7 @@ if (CATKIN_ENV)
   add_definitions (-DUSE_ROS)
   find_package (catkin REQUIRED COMPONENTS roscpp std_msgs message_generation)
 
-  add_message_files (DIRECTORY msg FILES VectorStamped.msg)
+  add_message_files (DIRECTORY msg FILES VectorStamped.msg Vector.msg)
   add_service_files (DIRECTORY srv FILES DMMode.srv)
   generate_messages (DEPENDENCIES std_msgs)
 

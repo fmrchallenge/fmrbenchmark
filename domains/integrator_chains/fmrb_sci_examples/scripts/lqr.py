@@ -3,7 +3,7 @@ from __future__ import print_function
 
 import roslib; roslib.load_manifest('dynamaestro')
 import rospy
-from dynamaestro.msg import VectorStamped
+from dynamaestro.msg import VectorStamped, Vector
 
 from control import lqr
 import numpy as np
@@ -16,7 +16,7 @@ class StateFeedback(rospy.Subscriber):
         self.K = K
 
     def read_state(self, vs):
-        self.intopic.publish(VectorStamped(point=[-np.dot(self.K, np.asarray(vs.point))]))
+        self.intopic.publish(VectorStamped(v=Vector(point=[-np.dot(self.K, np.asarray(vs.v.point))])))
 
 class LQRController(StateFeedback):
     def __init__(self, intopic, outtopic,
