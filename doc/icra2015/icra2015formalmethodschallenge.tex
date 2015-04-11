@@ -387,7 +387,9 @@ The top surface of the cart will be unwalled but divided into an object
 placement grid. Each object can occupy multiple cells in the grid. Each object
 has a priority level (possibly shared with other objects) which determines the
 order of processing. Processing involves picking up the object and waiting for a
-signal to determine which of a set of bins to deposit it in.
+signal to determine which of a set of bins to deposit it in. Polygonal bounding
+boxes for the objects will be provided after a small delay once the cart
+arrives, to simulate solving the vision problem.
 
 The gripping process is automatic and regarded as a subroutine, so that teams
 need only place the gripper within a certain region above the object then
@@ -429,25 +431,6 @@ is brought to it and sort them into bins. There are several possible variants:
 \item cart is removed once a robot declares that it is done.
 \item carts arrive at a randomly time-varying rate, whether or not the robot is ready for the next.
 \end{itemize}
-
-The top surface of the cart will be unwalled but divided into an object placement grid. Each 
-object can occupy multiple cells in the grid. Each object has a priority level (possibly shared 
-with other objects) which determines the order of processing. Processing involves picking up
-the object and waiting for a signal to determine which of a set of bins to deposit it in. Polygonal 
-bounding boxes for the objects will be provided after a small delay once the cart arrives, to simulate 
-solving the vision problem. 
-
-The gripping process is automatic and regarded as a subroutine, so that teams need only place 
-the gripper within a certain region above the object then request a grasp, which may fail but 
-will eventually succeed provided repeated attempts (this can be regarded a fairness assumption).
-There will be a safety or clearance requirement for the arm and end-effector.  While different kinds 
-of end-effectors will not be provided, a disc-shaped mount will be placed on the wrist (end-effector 
-mounting point) to effect varying shape constraints.
-
-The cart will be serviced in collaboration with some other agent, e.g., a human or another robot.
-When the partner is busy with a part of the cart, the corresponding cells and the space above them 
-are unavailable, which may be indicated by literally covering them or shining a light from underneath 
-those cells.
 
 
 \subsection{Implementation plan for the challenge}
