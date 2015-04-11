@@ -33,13 +33,13 @@
    system. Control input is applied using a zero-order hold, i.e., applied
    constantly during the duration given as the first parameter of step().
 
-   Let M be the highest order of derivative, and let N be the dimension of the
+   Let m be the highest order of derivative, and let n be the dimension of the
    output space.  The state variable indexing is such that the first output
    variable is the first state variable, the second output variable is the
    second state variable, etc. Thus the component systems are interleaved in the
-   sense that the first subsystem is formed from state variable indices 1, 1+N,
-   1+2N, ..., 1+(M-1)N, and the input to this subsystem is applied at state
-   variable index 1+(M-1)N.
+   sense that the first subsystem is formed from state variable indices 1, 1+n,
+   1+2n, ..., 1+(m-1)n, and the input to this subsystem is applied at state
+   variable index 1+(m-1)n.
 */
 class TrajectoryGenerator {
 private:
