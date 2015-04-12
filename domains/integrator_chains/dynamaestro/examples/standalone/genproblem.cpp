@@ -25,6 +25,9 @@ int main()
 									 Y_max, U_max, 2, 1 );
 	std::cout << *prob << std::endl;
 
+	prob->to_formula( std::cout );
+	std::cout << std::endl;
+
 
 	delete prob;
 	return 0;

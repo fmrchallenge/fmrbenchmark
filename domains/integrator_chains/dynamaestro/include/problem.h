@@ -22,7 +22,10 @@ public:
 	~Problem();
 
 	bool is_consistent() const;
-	std::string generate_formula() const;
+
+	/* Create formula using SPIN LTL syntax <http://spinroot.com/spin/Man/ltl.html>.
+	   Support for other syntax is coming soon. */
+	void to_formula( std::ostream &out ) const;
 
 	/* Change the number of dimensions of output or the order of the
 	   differential operator (i.e., the number of integrators). Return True on
@@ -200,6 +203,29 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 	}
 	
 	return prob;
+}
+
+void Problem::to_formula( std::ostream &out ) const
+{
+	if (obstacles.size() > 0) {
+		out << "[]!(";
+		for (int i = 0; i < obstacles.size(); i++) {
+			if (i > 0)
+				out << " || ";
+			out << obstacles[i]->label;
+		}
+		out << ")";
+	}
+	if (goals.size() > 0) {
+		if (obstacles.size() > 0)
+			out << " && ";
+
+		for (int i = 0; i < goals.size(); i++) {
+			if (i > 0)
+				out << " && ";
+			out << "([]<> " << goals[i]->label << ")";
+		}
+	}
 }
 
 
