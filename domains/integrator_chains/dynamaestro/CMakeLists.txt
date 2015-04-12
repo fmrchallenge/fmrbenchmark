@@ -36,4 +36,5 @@ else (CATKIN_ENV)
   message (WARNING "Not all components can be built as standalone.")
 
   add_executable (hellopolytope examples/standalone/hellopolytope.cpp)
+  add_executable (genproblem examples/standalone/genproblem.cpp)
 endif (CATKIN_ENV)
