@@ -137,7 +137,7 @@ public:
 	std::string label;
 
 	LabeledPolytope( const Polytope &other );
-	static LabeledPolytope * box( const Eigen::VectorXd &bounds );
+	static LabeledPolytope * box( const Eigen::VectorXd &bounds, std::string label="" );
 
 	/* Output this polytope in JSON */
 	friend std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P );
@@ -147,11 +147,12 @@ LabeledPolytope::LabeledPolytope( const Polytope &other )
 	: label(""), Polytope( other )
 { }
 
-LabeledPolytope * LabeledPolytope::box( const Eigen::VectorXd &bounds )
+LabeledPolytope * LabeledPolytope::box( const Eigen::VectorXd &bounds, std::string label )
 {
 	Polytope *P = Polytope::box( bounds );
 	LabeledPolytope *Q = new LabeledPolytope( *P );
 	delete P;
+	Q->label = label;
 	return Q;
 }
 
