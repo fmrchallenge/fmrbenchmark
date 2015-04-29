@@ -1,4 +1,4 @@
-<!-- SCL; 7 Nov 2014 -->
+<!-- SCL; 2014, 2015 -->
 <launch>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find dub_sim)/models/straightroad.world" />
@@ -6,7 +6,7 @@
     <arg name="gui" value="true" />
   </include>
 
-  <param name="robot_description" command="$(find xacro)/xacro.py '$(find kobuki_description)/urdf/kobuki_standalone.urdf.xacro'" />
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 
   <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
     <arg name="namespace" value="vehicle0" />
