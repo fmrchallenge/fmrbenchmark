@@ -17,8 +17,8 @@ Components of the benchmark
 
 
 
-Dependencies of benchmark
--------------------------
+Dependencies of the benchmark
+-----------------------------
 
 * [Eigen](http://eigen.tuxfamily.org)
 * [Boost](http://www.boost.org), specifically [Boost.Thread](http://www.boost.org/libs/thread/)
