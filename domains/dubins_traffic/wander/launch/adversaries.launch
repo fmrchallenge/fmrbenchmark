@@ -1,0 +1,29 @@
+<!-- VR; 2014, 2015 -->
+<launch>
+  <node
+    pkg="wander"
+    type="wander"
+    name="$(anon vehicle0)"
+    args="0"
+    ns="vehicle0"
+  >
+    <remap
+      from="cmd_vel"
+      to="mobile_base/commands/velocity"
+    />
+  </node>
+
+  <node
+    pkg="wander"
+    type="wander"
+    name="$(anon vehicle1)"
+    args="100"
+    ns="vehicle1"
+  >
+    <remap
+      from="cmd_vel"
+      to="mobile_base/commands/velocity"
+    />
+  </node>
+</launch>
+
