@@ -1,0 +1,6 @@
+<launch>
+  <arg name="world" default="generic" />
+  <node pkg="stage_ros" type="stageros" name="$(anon stage)" args="$(find wander)/sim/$(arg world).world">
+    <remap from="base_scan" to="scan" />
+  </node>
+</launch>

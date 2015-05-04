@@ -1,0 +1,26 @@
+cmake_minimum_required (VERSION 2.8.3)
+project (wander)
+
+find_package (catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  tf
+  nav_msgs
+  geometry_msgs
+  sensor_msgs
+)
+
+catkin_package ()
+include_directories (
+  ${catkin_INCLUDE_DIRS}
+)
+
+add_executable (wander src/wander.cpp)
+target_link_libraries (wander ${catkin_LIBRARIES})
+
+install (DIRECTORY launch sim
+         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+catkin_install_python (PROGRAMS scripts/wander.py
+                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
