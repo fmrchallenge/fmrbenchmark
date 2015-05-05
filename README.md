@@ -10,6 +10,19 @@ Summary of organization
 * `domains/` : Problem domains, e.g., `domains/integrator_chains/` contains code
   for the scaling chains of integrators setting.
 
+Documentation
+-------------
+
+The directory `doc/` contains sources for several components of documentation.
+
+* `doc/icra2015/` : Document describing the ICRA 2015 challenge. Building
+  requires [LaTeX](http://www.latex-project.org).
+* `doc/api/` : API manual. Building requires [Doxygen](http://www.doxygen.org).
+* `doc/guide` : User's Guide. Building requires [Sphinx](http://sphinx.pocoo.org).
+
+If the appropriate tools are installed, as noted above, then go to the desired
+directory and run `make`.
+
 
 License
 -------
