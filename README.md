@@ -4,9 +4,10 @@ Topical README files are provided in some directories.  For example,
 Summary of organization
 -----------------------
 
-- `doc/icra2015/` : The document describing the ICRA 2015 challenge.
+* `doc/` : Documentation sources, including benchmark APIs, the User's Guide,
+  and competition rules.
 
-- `domains/` : Problem domains, e.g., `domains/integrator_chains/` contains code
+* `domains/` : Problem domains, e.g., `domains/integrator_chains/` contains code
   for the scaling chains of integrators setting.
 
 
