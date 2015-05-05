@@ -1,0 +1,12 @@
+DOXYFILE_ENCODING      = UTF-8
+PROJECT_NAME           = fmrbenchmark
+OUTPUT_DIRECTORY       = _build
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+GENERATE_LATEX         = NO
+FULL_PATH_NAMES        = NO
+INPUT                  = ../../domains/integrator_chains/dynamaestro/src ../../domains/integrator_chains/dynamaestro/include
+SOURCE_BROWSER         = NO
+VERBATIM_HEADERS       = NO
+SORT_BRIEF_DOCS        = YES
+SORT_MEMBER_DOCS       = YES
