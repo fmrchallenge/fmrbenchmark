@@ -25,11 +25,7 @@
 #include <boost/thread/thread.hpp>
 
 
-/* Because we are assuming the chain of integrators system, the number of
-   dimensions of the input (parameter numdim_input to the constructors) must
-   equal the number of dimensions of the output (parameter numdim_output).
-
-   The trajectories are the solutions of a linear time-invariant control
+/* The trajectories are the solutions of a linear time-invariant control
    system. Control input is applied using a zero-order hold, i.e., applied
    constantly during the duration given as the first parameter of step().
 
