@@ -20,6 +20,7 @@
 
 #include <cstdlib>
 #include <cstdio>
+#include <assert.h>
 
 #include <Eigen/Dense>
 #include <boost/thread/thread.hpp>
@@ -81,7 +82,8 @@ TrajectoryGenerator::TrajectoryGenerator( int numdim_output, int highest_order_d
 TrajectoryGenerator::TrajectoryGenerator( Eigen::VectorXd Xinit, int numdim_output  )
 	: t(0.0), X(Xinit), numdim_output(numdim_output)
 {
-	highest_order_deriv = X.size()/numdim_output;  // N.B., assumed to divide evenly!
+	assert( X.size() % numdim_output == 0 );
+	highest_order_deriv = X.size()/numdim_output;
 }
 
 double TrajectoryGenerator::step( double dt, const Eigen::VectorXd &U )
