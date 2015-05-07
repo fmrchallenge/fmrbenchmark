@@ -125,8 +125,10 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 						   const Eigen::VectorXd &U_max,
 						   int max_number_goals, int max_number_obstacles )
 {
-	assert( numdim_output_bounds(0) >= 1 && numdim_output_bounds(0) <= numdim_output_bounds(1)
-			&& highest_order_deriv_bounds(0) >= 1 && highest_order_deriv_bounds(0) <= highest_order_deriv_bounds(1)
+	assert( numdim_output_bounds(0) >= 1
+			&& numdim_output_bounds(0) <= numdim_output_bounds(1)
+			&& highest_order_deriv_bounds(0) >= 1
+			&& highest_order_deriv_bounds(0) <= highest_order_deriv_bounds(1)
 			&& max_number_goals >= 0 && max_number_obstacles >= 0
 			&& Y_max.size() >= 2*numdim_output_bounds(1)
 			&& U_max.size() >= 2*numdim_output_bounds(1) );
@@ -136,19 +138,25 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
 	prob->numdim_output = numdim_output_bounds(0);
 	if (numdim_output_bounds(1) != numdim_output_bounds(0))
-		prob->numdim_output += (rand() % (numdim_output_bounds(1)-numdim_output_bounds(0)));
+		prob->numdim_output += (rand()
+								% (numdim_output_bounds(1)
+								   - numdim_output_bounds(0)));
 
 	prob->highest_order_deriv = highest_order_deriv_bounds(0);
 	if (highest_order_deriv_bounds(1) != highest_order_deriv_bounds(0))
-		prob->highest_order_deriv += (rand() % (highest_order_deriv_bounds(1)-highest_order_deriv_bounds(0)));
+		prob->highest_order_deriv += (rand()
+									  % (highest_order_deriv_bounds(1)
+										 - highest_order_deriv_bounds(0)));
 
 	int number_goals = (rand() % max_number_goals) + 1;
 	int number_obstacles = (rand() % max_number_obstacles) + 1;
 
 	Eigen::VectorXd Y_bounds(2*prob->numdim_output);
 	for (i = 0; i < prob->numdim_output; i++) {
-		Y_bounds(2*i) = (double(rand())/RAND_MAX)*(Y_max(2*i+1) - Y_max(2*i)) + Y_max(2*i);
-		Y_bounds(2*i+1) = (double(rand())/RAND_MAX)*(Y_max(2*i+1) - Y_max(2*i)) + Y_max(2*i);
+		Y_bounds(2*i) = Y_max(2*i)
+			+ (double(rand())/RAND_MAX)*(Y_max(2*i+1) - Y_max(2*i));
+		Y_bounds(2*i+1) = Y_max(2*i)
+			+ (double(rand())/RAND_MAX)*(Y_max(2*i+1) - Y_max(2*i));
 		if (Y_bounds(2*i+1) < Y_bounds(2*i)) {
 			double tmp = Y_bounds(2*i+1);
 			Y_bounds(2*i+1) = Y_bounds(2*i);
@@ -159,8 +167,10 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
 	Eigen::VectorXd U_bounds(2*prob->numdim_output);
 	for (i = 0; i < prob->numdim_output; i++) {
-		U_bounds(2*i) = (double(rand())/RAND_MAX)*(U_max(2*i+1) - U_max(2*i)) + U_max(2*i);
-		U_bounds(2*i+1) = (double(rand())/RAND_MAX)*(U_max(2*i+1) - U_max(2*i)) + U_max(2*i);
+		U_bounds(2*i) = U_max(2*i)
+			+ (double(rand())/RAND_MAX)*(U_max(2*i+1) - U_max(2*i));
+		U_bounds(2*i+1) = U_max(2*i)
+			+ (double(rand())/RAND_MAX)*(U_max(2*i+1) - U_max(2*i));
 		if (U_bounds(2*i+1) < U_bounds(2*i)) {
 			double tmp = U_bounds(2*i+1);
 			U_bounds(2*i+1) = U_bounds(2*i);
@@ -171,35 +181,42 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
 	prob->Xinit.setZero( prob->numdim_output*prob->highest_order_deriv );
 	for (i = 0; i < prob->numdim_output; i++) {
-		prob->Xinit(i) = (double(rand())/RAND_MAX)*(Y_bounds(2*i+1) - Y_bounds(2*i)) + Y_bounds(2*i);
+		prob->Xinit(i) = Y_bounds(2*i)
+			+ (double(rand())/RAND_MAX)*(Y_bounds(2*i+1) - Y_bounds(2*i));
 	}
 
 	Eigen::VectorXd box_bounds(2*prob->numdim_output);
 	prob->goals.resize( number_goals );
 	for (i = 0; i < number_goals; i++) {
 		for (j = 0; j < prob->numdim_output; j++) {
-			box_bounds(2*j) = (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j)) + Y_bounds(2*j);
-			box_bounds(2*j+1) = (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j)) + Y_bounds(2*j);
+			box_bounds(2*j) = Y_bounds(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
+			box_bounds(2*j+1) = Y_bounds(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
 			if (box_bounds(2*j+1) < box_bounds(2*j)) {
 				double tmp = box_bounds(2*j+1);
 				box_bounds(2*j+1) = box_bounds(2*j);
 				box_bounds(2*j) = tmp;
 			}
 		}
-		prob->goals[i] = LabeledPolytope::box( box_bounds, std::string("goal_") + char(0x30+i) );
+		prob->goals[i] = LabeledPolytope::box( box_bounds,
+											   std::string("goal_") + char(0x30+i) );
 	}
 	prob->obstacles.resize( number_obstacles );
 	for (i = 0; i < number_obstacles; i++) {
 		for (j = 0; j < prob->numdim_output; j++) {
-			box_bounds(2*j) = (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j)) + Y_bounds(2*j);
-			box_bounds(2*j+1) = (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j)) + Y_bounds(2*j);
+			box_bounds(2*j) = Y_bounds(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
+			box_bounds(2*j+1) = Y_bounds(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
 			if (box_bounds(2*j+1) < box_bounds(2*j)) {
 				double tmp = box_bounds(2*j+1);
 				box_bounds(2*j+1) = box_bounds(2*j);
 				box_bounds(2*j) = tmp;
 			}
 		}
-		prob->obstacles[i] = LabeledPolytope::box( box_bounds, std::string("obstacle_") + char(0x30+i) );
+		prob->obstacles[i] = LabeledPolytope::box( box_bounds,
+												   std::string("obstacle_") + char(0x30+i) );
 	}
 	
 	return prob;
