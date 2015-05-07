@@ -19,21 +19,34 @@ class Polytope
 	bool is_in( Eigen::VectorXd X ) const;
 
 	// Factory functions
-	static Polytope * random( int n );
+	/** Create random Polytope in R^n using Eigen::MatrixXd::Random().
 
-	/** bounds is an array of the form [x1_min, x1_max, x2_min, x2_max, ..., xn_min, xn_max],
+		\param n dimension of the containing space.
 
-	   which defines a polytope in terms of intervals along each axis in
-	   R^n. The interval along the first axis is [x1_min, x1_max], the interval
-	   along the second axis is [x2_min, x2_max], etc. Thus the length of the
-	   given array is 2n.
+		Random matrices as provided by Eigen::MatrixXd::Random() are used to
+		instantiate Polytope in half-space representation. The matrices have
+		\c n+1 rows, corresponding to \c n+1 inequalities.
+	*/
+	static Polytope * randomH( int n );
 
-	   E.g., a unit square in R^2 can be created using:
+	/** Construct Polytope that is an axis-aligned rectangle.
 
+	   \param bounds an array of the form
+	   \code
+	   [x1_min, x1_max, x2_min, x2_max, ..., xn_min, xn_max],
+       \endcode
+	   which defines a polytope in terms of intervals along each axis in R^n.
+	   The interval along the first axis is [x1_min, x1_max], the interval along
+	   the second axis is [x2_min, x2_max], etc. Thus the length of the given
+	   array is 2n.
+
+	   E.g., a unit square in R^2 can be created using
+	   \code
 	       Eigen::Vector4d bounds;
 	       bounds << 0, 1,
 	                 0, 1;
 	       Polytope *square = Polytope::box( bounds );
+	   \endcode
 	*/
 	static Polytope * box( const Eigen::VectorXd &bounds );
 
@@ -81,10 +94,10 @@ void Polytope::dumpJSON( std::ostream &out ) const
 	out << "]";
 }
 
-Polytope * Polytope::random( int n )
+Polytope * Polytope::randomH( int n )
 {
-	return new Polytope( Eigen::MatrixXd::Random( n, n ),
-						 Eigen::VectorXd::Random( n ) );
+	return new Polytope( Eigen::MatrixXd::Random( n+1, n ),
+						 Eigen::VectorXd::Random( n+1 ) );
 }
 
 Polytope * Polytope::box( const Eigen::VectorXd &bounds )
