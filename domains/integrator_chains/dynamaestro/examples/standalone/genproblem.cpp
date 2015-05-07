@@ -8,10 +8,8 @@
 
 int main()
 {
-	Eigen::Vector2i numdim_output_bounds;
-	numdim_output_bounds << 2, 2;
-	Eigen::Vector2i num_integrators_bounds;
-	num_integrators_bounds << 2, 2;
+	Eigen::Vector2i numdim_output_bounds( 2, 2 );
+	Eigen::Vector2i num_integrators_bounds( 2, 2 );
 
 	Eigen::Vector4d Y_max;
 	Y_max << 0, 10, 0, 10;
