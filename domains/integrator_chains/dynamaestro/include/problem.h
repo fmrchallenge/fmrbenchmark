@@ -23,7 +23,7 @@ public:
 
 	bool is_consistent() const;
 
-	/* Create formula using SPIN LTL syntax <http://spinroot.com/spin/Man/ltl.html>.
+	/** Create formula using SPIN LTL syntax <http://spinroot.com/spin/Man/ltl.html>.
 	   Support for other syntax is coming soon. */
 	void to_formula( std::ostream &out ) const;
 
@@ -37,10 +37,10 @@ public:
 	   instance after this call. (Try is_consistent() to check.) */
 	bool change_order( int new_numdim_output , int new_highest_order_deriv );
 
-	/* Output description of problem in JSON */
+	/** Output description of problem in JSON */
 	friend std::ostream & operator<<( std::ostream &out, const Problem &prob );
 
-	/* Generate a random problem instance
+	/** Generate a random problem instance
 
 	   Y_max and U_max are of the same format as for Polytope::box(). This
 	   method relies on rand() for pseudo-randomness and assumes that something
