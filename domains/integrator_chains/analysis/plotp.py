@@ -97,6 +97,10 @@ class Problem(object):
                                           np.array(obsdict['K']),
                                           label=np.array(obsdict['label']))
                           for obsdict in probj['obstacles']]
+        if 'period' in probj:
+            prob.period = probj['period']
+        else:
+            prob.period = None
         return prob
 
     def plot(self, ax, outdims=None):
@@ -125,6 +129,7 @@ if __name__ == '__main__':
         f.close()
 
     prob = Problem.loadJSON(probjs)
+    print('Sampling period is '+str(prob.period))
 
     ax = plt.axes()
     ax.axis(prob.Y.get_bbox()[:4])

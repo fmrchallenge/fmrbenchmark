@@ -18,6 +18,8 @@ public:
 	std::vector<LabeledPolytope *> goals;
 	std::vector<LabeledPolytope *> obstacles;
 
+	double period;
+
 	Problem();
 	~Problem();
 
@@ -40,16 +42,35 @@ public:
 	/** Output description of problem in JSON */
 	friend std::ostream & operator<<( std::ostream &out, const Problem &prob );
 
-	/** Generate a random problem instance
+	/** Generate a random problem instance.
 
-	   Y_max and U_max are of the same format as for Polytope::box(). This
-	   method relies on rand() for pseudo-randomness and assumes that something
-	   else has seeded the RNG. */
+	   \param numdim_output_bounds range of integers from which the dimension of
+	   the output space will be chosen.
+
+	   \param highest_order_deriv_bounds range of integers from which the order
+	   of derivation (i.e., the number of integrators in the ODE defining the
+	   system) will be chosen.
+
+	   \param Y_max rectangle that is the maximum possible subset of the output
+	   space that is permitted. It is of the same format as for Polytope::box().
+
+	   \param U_max analogous to \p Y_max but for the input space.
+
+	   \param period_bounds range from which is uniformly randomly chosen the
+	   constant sampling period by which the original system is discretized.
+
+	   N.B., several parameters depend on each other in terms of consistency.
+	   E.g., if \p numdim_output_bounds = [2, 3], then Y_max must have length of
+	   at least 6 (cf. documentation for Polytope::box()).
+
+	   This method relies on rand() for pseudo-randomness and assumes that
+	   something else has seeded the RNG. */
 	static Problem * random( const Eigen::Vector2i &numdim_output_bounds,
 							 const Eigen::Vector2i &highest_order_deriv_bounds,
 							 const Eigen::VectorXd &Y_max,
 							 const Eigen::VectorXd &U_max,
-							 int max_number_goals, int max_number_obstacles );
+							 int max_number_goals, int max_number_obstacles,
+							 const Eigen::Vector2d &period_bounds );
 
 private:
 	int numdim_output;
@@ -114,6 +135,8 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
 	out << "," << std::endl;
 	out << "\"U\": ";
 	out << *prob.U;
+	out << "," << std::endl;
+	out << "\"period\": " << prob.period;
 	out << std::endl << " }";
 	return out;
 }
@@ -123,7 +146,8 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 						   const Eigen::Vector2i &highest_order_deriv_bounds,
 						   const Eigen::VectorXd &Y_max,
 						   const Eigen::VectorXd &U_max,
-						   int max_number_goals, int max_number_obstacles )
+						   int max_number_goals, int max_number_obstacles,
+						   const Eigen::Vector2d &period_bounds )
 {
 	assert( numdim_output_bounds(0) >= 1
 			&& numdim_output_bounds(0) <= numdim_output_bounds(1)
@@ -131,7 +155,8 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 			&& highest_order_deriv_bounds(0) <= highest_order_deriv_bounds(1)
 			&& max_number_goals >= 0 && max_number_obstacles >= 0
 			&& Y_max.size() >= 2*numdim_output_bounds(1)
-			&& U_max.size() >= 2*numdim_output_bounds(1) );
+			&& U_max.size() >= 2*numdim_output_bounds(1)
+			&& period_bounds(0) >= 0 && period_bounds(1) >= period_bounds(0) );
 
 	int i, j;
 	Problem *prob = new Problem;
@@ -218,6 +243,9 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 		prob->obstacles[i] = LabeledPolytope::box( box_bounds,
 												   std::string("obstacle_") + char(0x30+i) );
 	}
+
+	prob->period = period_bounds(0)
+		+ double(rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
 	
 	return prob;
 }
