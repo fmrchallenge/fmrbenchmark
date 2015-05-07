@@ -4,5 +4,5 @@
     <param name="output_dim" type="int" value="1" />
     <param name="period" type="double" value="0.1" />
   </node>
-  <node pkg="rostopic" name="$(anon rostopic)" type="rostopic" args="echo /output" output="screen" />
+  <node pkg="rostopic" name="$(anon rostopic)" type="rostopic" args="echo /dynamaestro/output" output="screen" />
 </launch>
