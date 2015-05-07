@@ -57,7 +57,7 @@ public:
 	   \param U_max analogous to \p Y_max but for the input space.
 
 	   \param period_bounds range from which is uniformly randomly chosen the
-	   constant sampling period by which the original system is discretized.
+	   constant period by which the original system is discretized.
 
 	   N.B., several parameters depend on each other in terms of consistency.
 	   E.g., if \p numdim_output_bounds = [2, 3], then Y_max must have length of

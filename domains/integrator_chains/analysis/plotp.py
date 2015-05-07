@@ -129,7 +129,7 @@ if __name__ == '__main__':
         f.close()
 
     prob = Problem.loadJSON(probjs)
-    print('Sampling period is '+str(prob.period))
+    print('Discretization period is '+str(prob.period))
 
     ax = plt.axes()
     ax.axis(prob.Y.get_bbox()[:4])
