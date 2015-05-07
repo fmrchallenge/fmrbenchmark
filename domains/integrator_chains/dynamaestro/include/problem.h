@@ -72,6 +72,11 @@ public:
 							 int max_number_goals, int max_number_obstacles,
 							 const Eigen::Vector2d &period_bounds );
 
+	int get_numdim_output() const
+	{ return numdim_output; }
+	int get_highest_order_deriv() const
+	{ return highest_order_deriv; }
+
 private:
 	int numdim_output;
 	int highest_order_deriv;
