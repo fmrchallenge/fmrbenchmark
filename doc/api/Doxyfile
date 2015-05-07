@@ -2,6 +2,7 @@ DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = fmrbenchmark
 OUTPUT_DIRECTORY       = _build
 CREATE_SUBDIRS         = NO
+JAVADOC_AUTOBRIEF      = YES
 OUTPUT_LANGUAGE        = English
 GENERATE_LATEX         = NO
 FULL_PATH_NAMES        = NO
