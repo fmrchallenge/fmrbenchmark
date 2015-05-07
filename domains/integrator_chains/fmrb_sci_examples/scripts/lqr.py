@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
-import roslib; roslib.load_manifest('dynamaestro')
+import roslib; roslib.load_manifest('fmrb_sci_examples')
 import rospy
 from dynamaestro.msg import VectorStamped, Vector
 
