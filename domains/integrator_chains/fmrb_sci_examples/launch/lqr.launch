@@ -1,8 +1,5 @@
 <launch>
   <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
-    <param name="number_integrators" type="int" value="2" />
-    <param name="output_dim" type="int" value="1" />
-
     <remap from="dynamaestro/input" to="input" />
     <remap from="dynamaestro/output" to="output" />
   </node>

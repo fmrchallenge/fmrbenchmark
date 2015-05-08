@@ -18,6 +18,8 @@
 #include "dynamaestro/DMMode.h"
 #endif
 
+#include "problem.h"
+
 #include <cstdlib>
 #include <cstdio>
 #include <assert.h>
@@ -124,9 +126,7 @@ private:
 	bool fresh_input;
 	Eigen::VectorXd U;
 
-	int numdim_output;
-	int highest_order_deriv;
-	double h;  // Sampling period
+	Problem *probinstance;
 
 	bool running;
 
@@ -134,7 +134,7 @@ private:
 	ros::ServiceServer mode_srv;
 
 public:
-	TGThread( ros::NodeHandle &nh, int numdim_output = 1, int highest_order_deriv = 2, double period = 0.1 );
+	TGThread( ros::NodeHandle &nh );
 	~TGThread();
 	void inputcb( const dynamaestro::VectorStamped &vs );
 	bool mode_request( dynamaestro::DMMode::Request &req,
@@ -142,11 +142,11 @@ public:
 	void run();
 };
 
-TGThread::TGThread( ros::NodeHandle &nh, int numdim_output, int highest_order_deriv, double period )
+TGThread::TGThread( ros::NodeHandle &nh )
 	: nh_(nh),
 	  fresh_input(false),
-	  numdim_output(numdim_output), highest_order_deriv(highest_order_deriv),
-	  h(period), U(numdim_output),
+	  U(),
+	  probinstance(NULL),
 	  running(false)
 {
 	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
@@ -182,10 +182,12 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
 
 void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 {
+	assert( probinstance != NULL );
+
 	mtx_.lock();
 
 	fresh_input = true;
-	for (int i = 0; i < numdim_output; i++)
+	for (int i = 0; i < probinstance->get_numdim_output(); i++)
 		U[i] = vs.v.point[i];
 
 	mtx_.unlock();
@@ -196,21 +198,47 @@ void TGThread::run()
 	ros::Publisher statepub = nh_.advertise<dynamaestro::VectorStamped>( "output", 10, true );
 	ros::Subscriber inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 
-	nh_.getParam( "number_integrators", highest_order_deriv );
-	ROS_INFO( "dynamaestro: Using %d as number of integrators.", highest_order_deriv );
+	Eigen::Vector2i numdim_output_bounds( 1, 3 );
+	Eigen::Vector2i num_integrators_bounds( 1, 3 );
 
-	nh_.getParam( "output_dim", numdim_output );
-	ROS_INFO( "dynamaestro: Using %d as dimension of the output space.", numdim_output );
+	Eigen::VectorXd Y_max( 2*numdim_output_bounds(1) );
+	for (int i = 0; i < numdim_output_bounds(1); i++) {
+		Y_max(2*i+1) = 10;
+		Y_max(2*i) = -Y_max(2*i+1);
+	}
 
-	nh_.getParam( "period", h );
-	ROS_INFO( "dynamaestro: Using %f seconds as the period.", h );
+	Eigen::VectorXd U_max( 2*numdim_output_bounds(1) );
+	for (int i = 0; i < numdim_output_bounds(1); i++) {
+		U_max(2*i+1) = 1;
+		U_max(2*i) = -U_max(2*i+1);
+	}
 
-	U.resize( numdim_output );
+	Eigen::Vector2d period_bounds( 0.05, 0.1 );
+
+	probinstance = Problem::random( numdim_output_bounds,
+									num_integrators_bounds,
+									Y_max, U_max, 2, 1, period_bounds );
+
+	nh_.setParam( "number_integrators",
+				  probinstance->get_highest_order_deriv() );
+	ROS_INFO( "dynamaestro: Using %d as number of integrators.",
+			  probinstance->get_highest_order_deriv() );
+
+	nh_.setParam( "output_dim", probinstance->get_numdim_output() );
+	ROS_INFO( "dynamaestro: Using %d as dimension of the output space.",
+			  probinstance->get_numdim_output() );
+
+	nh_.setParam( "period", probinstance->period );
+	ROS_INFO( "dynamaestro: Using %f seconds as the period.",
+			  probinstance->period );
+
+	U.resize( probinstance->get_numdim_output() );
 	U.setZero();
 
-	TrajectoryGenerator tg( numdim_output, highest_order_deriv );
+	TrajectoryGenerator tg( probinstance->Xinit,
+							probinstance->get_numdim_output() );
 
-	ros::Rate rate( 1/h );
+	ros::Rate rate( 1/probinstance->period );
 	Eigen::VectorXd defaultU( U );
 	defaultU.setZero();
 
@@ -229,11 +257,11 @@ void TGThread::run()
 				mtx_.lock();
 
 				fresh_input = false;
-				tg.step( h, U );
+				tg.step( probinstance->period, U );
 
 				mtx_.unlock();
 			} else {
-				tg.step( h, defaultU );
+				tg.step( probinstance->period, defaultU );
 			}
 
 			dynamaestro::VectorStamped pt;
@@ -260,6 +288,10 @@ int main( int argc, char **argv )
 #ifdef USE_ROS
 	ros::init( argc, argv, "dynamaestro" );
 	ros::NodeHandle nh( "~" );
+
+	time_t seed = time( NULL );
+	srand( seed );
+	ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
 	boost::thread tgmain( tgthread, nh );
 

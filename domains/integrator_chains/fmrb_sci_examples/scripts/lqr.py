@@ -16,19 +16,15 @@ class StateFeedback(rospy.Subscriber):
         self.K = K
 
     def read_state(self, vs):
-        self.intopic.publish(VectorStamped(v=Vector(point=[-np.dot(self.K, np.asarray(vs.v.point))])))
+        self.intopic.publish(VectorStamped(v=Vector(-np.dot(self.K, np.asarray(vs.v.point)))))
 
 class LQRController(StateFeedback):
     def __init__(self, intopic, outtopic,
-                 A=None, B=None, Q=None, R=None):
-        if A is None and B is None:
-            A = np.array([[0., 1, 0],
-                          [0,  0, 1],
-                          [0,  0, 0]])
-            B = np.array([[0.], [0], [1]])
-        if Q is None and R is None:
-            Q = np.diag([1.,1,1])
-            R = np.diag([1.])
+                 A, B, Q=None, R=None):
+        if Q is None:
+            Q = np.eye(A.shape[0])
+        if R is None:
+            R = np.eye(B.shape[1])
         K, S, E = lqr(A,B,Q,R)
         StateFeedback.__init__(self, intopic, outtopic, K)
 
@@ -36,16 +32,14 @@ class LQRController(StateFeedback):
 if __name__ == "__main__":
     rospy.init_node("lqr", anonymous=True)
 
-    n = 1  # Number of output dimensions
+    n = rospy.get_param("dynamaestro/output_dim")
+    m = rospy.get_param("dynamaestro/number_integrators")
 
-    # Number of derivatives
-    m = rospy.get_param("number_integrators")
-
-    A = np.diag(np.ones(m-1), k=1)
-    B = np.zeros((m, 1))
-    B[-1,0] = 1.0
-    Q = np.diag(np.ones(m))
-    R = np.diag([1.])
+    A = np.diag(np.ones((m-1)*n), k=n)
+    B = np.zeros((m*n, n))
+    B[(m-1)*n:,:] = np.eye(n)
+    Q = np.eye(m*n)
+    R = np.eye(n)
 
     lqrc = LQRController("input", "output", A, B, Q, R)
     rospy.spin()
