@@ -47,6 +47,8 @@ private:
 	int highest_order_deriv;
 	int numdim_output;
 
+	Eigen::VectorXd Xinit;
+
 public:
 	TrajectoryGenerator( int numdim_output, int highest_order_deriv );
 
@@ -54,6 +56,8 @@ public:
 	   state variables, i.e., the indexing and the assumption that the system is
 	   a chain of integrators. */
 	TrajectoryGenerator( Eigen::VectorXd Xinit, int numdim_output );
+
+	void clear();
 
 	/* Forward Euler integration for duration dt using constant input U */
 	double step( double dt, const Eigen::VectorXd &U );
@@ -79,13 +83,20 @@ TrajectoryGenerator::TrajectoryGenerator( int numdim_output, int highest_order_d
 {
 	X.resize( numdim_output*highest_order_deriv );
 	X.setZero();
+	Xinit = X;
 }
 
 TrajectoryGenerator::TrajectoryGenerator( Eigen::VectorXd Xinit, int numdim_output  )
-	: t(0.0), X(Xinit), numdim_output(numdim_output)
+	: t(0.0), Xinit(Xinit), X(Xinit), numdim_output(numdim_output)
 {
 	assert( X.size() % numdim_output == 0 );
 	highest_order_deriv = X.size()/numdim_output;
+}
+
+void TrajectoryGenerator::clear()
+{
+	X = Xinit;
+	t = 0.0;
 }
 
 double TrajectoryGenerator::step( double dt, const Eigen::VectorXd &U )
@@ -128,7 +139,8 @@ private:
 
 	Problem *probinstance;
 
-	bool running;
+	enum DMMode { running, paused, resetting, restarting };
+	DMMode dmmode;
 
 	ros::NodeHandle &nh_;
 	ros::ServiceServer mode_srv;
@@ -147,7 +159,7 @@ TGThread::TGThread( ros::NodeHandle &nh )
 	  fresh_input(false),
 	  U(),
 	  probinstance(NULL),
-	  running(false)
+	  dmmode(paused)
 {
 	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
 }
@@ -160,16 +172,28 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
 {
 	switch (req.mode) {
 	case dynamaestro::DMMode::Request::UNPAUSE:
-		if (!running)
-			running = true;
+		if (dmmode != running)
+			dmmode = running;
 		res.result = true;
 		break;
 
 	case dynamaestro::DMMode::Request::PAUSE:
-		if (running) {
-			running = false;
+		if (dmmode == running) {
+			dmmode = paused;
 			fresh_input = false;
 		}
+		res.result = true;
+		break;
+
+	case dynamaestro::DMMode::Request::RESTART:
+		dmmode = restarting;
+		ROS_INFO( "dynamaestro: Restarting trial..." );
+		res.result = true;
+		break;
+
+	case dynamaestro::DMMode::Request::RESET:
+		dmmode = resetting;
+		ROS_INFO( "dynamaestro: Stopping current trial and generating a new instance..." );
 		res.result = true;
 		break;
 
@@ -251,8 +275,8 @@ void TGThread::run()
 	statepub.publish( pt );
 	ros::spinOnce();
 
-	while (ros::ok()) {
-		if (running) {
+	while (ros::ok() && dmmode != resetting) {
+		if (dmmode == running) {
 			if (fresh_input) {
 				mtx_.lock();
 
@@ -270,6 +294,20 @@ void TGThread::run()
 			for (int i = 0; i < tg.getStateDim(); i++)
 				pt.v.point.push_back( tg.getState( i ) );
 			statepub.publish( pt );
+		} else if (dmmode == restarting) {
+			dmmode = paused;
+			mtx_.lock();
+			fresh_input = false;
+			mtx_.unlock();
+			tg.clear();
+			U.setZero();
+			dynamaestro::VectorStamped pt;
+			pt.header.frame_id = std::string( "map" );
+			pt.header.stamp = ros::Time::now();
+			for (int i = 0; i < tg.getStateDim(); i++)
+				pt.v.point.push_back( tg.getState( i ) );
+			statepub.publish( pt );
+			ros::spinOnce();
 		}
 		ros::spinOnce();
 		rate.sleep();
@@ -293,15 +331,12 @@ int main( int argc, char **argv )
 	srand( seed );
 	ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
-	boost::thread tgmain( tgthread, nh );
-
-	ros::Rate rate( 10. );
+	boost::thread *tgmain = NULL;
 	while (ros::ok()) {
-		ros::spinOnce();
-		rate.sleep();
+		tgmain = new boost::thread( tgthread, nh );
+		tgmain->join();
+		delete tgmain;
 	}
-
-	tgmain.join();
 	
 #endif
 	return 0;

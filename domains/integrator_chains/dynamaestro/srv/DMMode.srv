@@ -9,6 +9,15 @@ int8 PAUSE=2
 # Result is false iff currently paused and fail to continue.
 int8 UNPAUSE=3
 
+# Stop trial and go back to initial state. The same problem instance is used.
+int8 RESTART=1
+
+# Stop current trial and generate a new one. N.B., important parameters like the
+# number of dimensions of the output space may change. After this, wait for the
+# trial to begin.
+int8 RESET=0
+
+
 # `mode` can be assigned one of the above constants.
 int16 mode
 ---
