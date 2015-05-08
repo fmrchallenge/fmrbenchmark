@@ -12,11 +12,12 @@ include_directories (${EIGEN3_INCLUDE_DIR})
 if (CATKIN_ENV)
   message (STATUS "Building for ROS")
 
+  add_executable (log src/log.cpp)
   add_executable (dm src/main.cpp)
   target_link_libraries (dm ${Boost_LIBRARIES})
 
   add_definitions (-DUSE_ROS)
-  find_package (catkin REQUIRED COMPONENTS roscpp std_msgs message_generation)
+  find_package (catkin REQUIRED COMPONENTS roscpp tf std_msgs geometry_msgs message_generation)
 
   add_message_files (DIRECTORY msg FILES VectorStamped.msg Vector.msg)
   add_service_files (DIRECTORY srv FILES DMMode.srv)
@@ -24,8 +25,9 @@ if (CATKIN_ENV)
 
   catkin_package ()
   include_directories (include ${catkin_INCLUDE_DIRS})
+  target_link_libraries (log ${catkin_LIBRARIES})
   target_link_libraries (dm ${catkin_LIBRARIES})
-  install (TARGETS dm
+  install (TARGETS dm log
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 

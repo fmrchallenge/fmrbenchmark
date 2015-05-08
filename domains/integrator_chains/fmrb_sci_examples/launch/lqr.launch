@@ -3,6 +3,10 @@
     <remap from="dynamaestro/input" to="input" />
     <remap from="dynamaestro/output" to="output" />
   </node>
+  <node pkg="dynamaestro" name="logger" type="log" output="screen">
+    <remap from="dynamaestro/output" to="output" />
+  </node>
+
   <node pkg="fmrb_sci_examples" name="$(anon lqr)" type="lqr.py" output="screen">
     <remap from="number_integrators" to="dynamaestro/number_integrators" />
   </node>
