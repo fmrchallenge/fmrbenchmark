@@ -169,13 +169,13 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 	prob->numdim_output = numdim_output_bounds(0);
 	if (numdim_output_bounds(1) != numdim_output_bounds(0))
 		prob->numdim_output += (rand()
-								% (numdim_output_bounds(1)
+								% (1+numdim_output_bounds(1)
 								   - numdim_output_bounds(0)));
 
 	prob->highest_order_deriv = highest_order_deriv_bounds(0);
 	if (highest_order_deriv_bounds(1) != highest_order_deriv_bounds(0))
 		prob->highest_order_deriv += (rand()
-									  % (highest_order_deriv_bounds(1)
+									  % (1+highest_order_deriv_bounds(1)
 										 - highest_order_deriv_bounds(0)));
 
 	int number_goals = (rand() % max_number_goals) + 1;
