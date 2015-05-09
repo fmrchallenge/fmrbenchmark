@@ -15,6 +15,7 @@
 #ifdef USE_ROS
 #include <ros/ros.h>
 #include "dynamaestro/VectorStamped.h"
+#include "dynamaestro/LabelStamped.h"
 #include "dynamaestro/DMMode.h"
 #endif
 
@@ -165,7 +166,10 @@ TGThread::TGThread( ros::NodeHandle &nh )
 }
 
 TGThread::~TGThread()
-{ }
+{
+	if (probinstance)
+		delete probinstance;
+}
 
 bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
 							 dynamaestro::DMMode::Response &res )
@@ -220,6 +224,7 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 void TGThread::run()
 {
 	ros::Publisher statepub = nh_.advertise<dynamaestro::VectorStamped>( "output", 10, true );
+	ros::Publisher loutpub = nh_.advertise<dynamaestro::LabelStamped>( "loutput", 10, true );
 	ros::Subscriber inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 
 	Eigen::Vector2i numdim_output_bounds( 1, 3 );
@@ -242,6 +247,8 @@ void TGThread::run()
 	probinstance = Problem::random( numdim_output_bounds,
 									num_integrators_bounds,
 									Y_max, U_max, 2, 1, period_bounds );
+	Labeler labeler( *probinstance );
+	std::cout << *probinstance << std::endl;
 
 	nh_.setParam( "number_integrators",
 				  probinstance->get_highest_order_deriv() );
@@ -258,6 +265,8 @@ void TGThread::run()
 
 	U.resize( probinstance->get_numdim_output() );
 	U.setZero();
+
+	Eigen::VectorXd Y( probinstance->get_numdim_output() );
 
 	TrajectoryGenerator tg( probinstance->Xinit,
 							probinstance->get_numdim_output() );
@@ -291,9 +300,26 @@ void TGThread::run()
 			dynamaestro::VectorStamped pt;
 			pt.header.frame_id = std::string( "map" );
 			pt.header.stamp = ros::Time::now();
-			for (int i = 0; i < tg.getStateDim(); i++)
+			for (int i = 0; i < tg.getStateDim(); i++) {
 				pt.v.point.push_back( tg.getState( i ) );
+				if (i < tg.getOutputDim())
+					Y(i) = tg[i];
+			}
 			statepub.publish( pt );
+
+			std::list<std::string> label = labeler.get_label( Y );
+			dynamaestro::LabelStamped lbl;
+			lbl.header.frame_id = pt.header.frame_id;
+			lbl.header.stamp = pt.header.stamp;
+			lbl.label.resize( label.size() );
+			int i = 0;
+			for (std::list<std::string>::iterator it_label = label.begin();
+				 it_label != label.end(); it_label++) {
+				lbl.label[i] = *it_label;
+				i++;
+			}
+			loutpub.publish( lbl );
+
 		} else if (dmmode == restarting) {
 			dmmode = paused;
 			mtx_.lock();
