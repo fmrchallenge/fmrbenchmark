@@ -146,6 +146,7 @@ Polytope::Polytope( const Polytope &other )
 { }
 
 
+/** \ingroup integrator_chains */
 class LabeledPolytope : public Polytope {
 public:
 	std::string label;
