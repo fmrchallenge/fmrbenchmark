@@ -12,6 +12,7 @@
 #include <assert.h>
 
 
+/** \ingroup integrator_chains */
 class DMTranscriber {
 public:
 	DMTranscriber( ros::NodeHandle &nh, int i0, int i1=-1, int i2=-1 );

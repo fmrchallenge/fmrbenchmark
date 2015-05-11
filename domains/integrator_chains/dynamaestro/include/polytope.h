@@ -9,6 +9,7 @@
 
 
 /* The half-space representation is used internally. */
+/** \ingroup integrator_chains */
 class Polytope
 {
   public:

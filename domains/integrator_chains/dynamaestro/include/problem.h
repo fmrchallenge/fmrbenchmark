@@ -11,6 +11,7 @@
 #include "polytope.h"
 
 
+/** \ingroup integrator_chains */
 class Problem {
 public:
 	Eigen::VectorXd Xinit;

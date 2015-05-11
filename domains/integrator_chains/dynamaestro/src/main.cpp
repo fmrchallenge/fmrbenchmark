@@ -41,6 +41,7 @@
    1+2n, ..., 1+(m-1)n, and the input to this subsystem is applied at state
    variable index 1+(m-1)n.
 */
+/** \ingroup integrator_chains */
 class TrajectoryGenerator {
 private:
 	Eigen::VectorXd X;
@@ -132,6 +133,7 @@ double TrajectoryGenerator::operator[]( int i ) const
 }
 
 
+/** \ingroup integrator_chains */
 class TGThread {
 private:
 	boost::mutex mtx_;
