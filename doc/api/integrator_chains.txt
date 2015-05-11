@@ -1,0 +1,10 @@
+/** \defgroup integrator_chains Problem domain: Scaling chains of integrators
+
+Problems in this domain require construction of a controller---if one
+exists---for a chain of integrators so that resulting trajectories satisfy a
+reach-and-avoid specification.
+
+The notation and relevant theory is developed elsewhere. Our treatment here
+focuses on the programming interface.
+
+*/

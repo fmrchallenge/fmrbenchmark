@@ -1,0 +1,9 @@
+/** \mainpage
+
+\section sec_problem_domains Problem domains
+
+\subsection sec_integrator_chains Scaling chains of integrators
+
+For details, consult the API module \ref integrator_chains.
+
+*/
