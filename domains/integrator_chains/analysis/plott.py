@@ -33,7 +33,7 @@ if __name__ == '__main__':
 
     if len(indices) == 2:
         import matplotlib.pyplot as plt
-        plt.plot(x.T[indices[0]], x.T[indices[1]], 'r-')
+        plt.plot(x.T[indices[0]], x.T[indices[1]], 'r.-')
         plt.plot(x.T[indices[0]][0], x.T[indices[1]][0], 'r*')
         plt.show()
 
