@@ -116,17 +116,20 @@ class Problem(object):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        print('Usage: plotp.py FILE')
+    if '-h' in sys.argv or len(sys.argv) > 2:
+        print('Usage: plotp.py [FILE]')
         sys.exit(0)
-
-    if sys.argv[1] == '-':
-        f = sys.stdin
+    elif len(sys.argv) == 1:
+        import rospy
+        probjs = rospy.get_param('/dynamaestro/probleminstance')
     else:
-        f = open(sys.argv[1], 'r')
-    probjs = f.read()
-    if f is not sys.stdin:
-        f.close()
+        if sys.argv[1] == '-':
+            f = sys.stdin
+        else:
+            f = open(sys.argv[1], 'r')
+        probjs = f.read()
+        if f is not sys.stdin:
+            f.close()
 
     prob = Problem.loadJSON(probjs)
     print('Discretization period is '+str(prob.period))
