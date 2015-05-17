@@ -141,12 +141,16 @@ private:
 	Eigen::VectorXd U;
 
 	Problem *probinstance;
+	Labeler labeler;
 
 	enum DMMode { running, paused, resetting, restarting };
 	DMMode dmmode;
 
 	ros::NodeHandle &nh_;
 	ros::ServiceServer mode_srv;
+	ros::Publisher statepub;
+	ros::Publisher loutpub;
+	ros::Subscriber inputsub;
 
 public:
 	TGThread( ros::NodeHandle &nh );
@@ -155,6 +159,7 @@ public:
 	bool mode_request( dynamaestro::DMMode::Request &req,
 					   dynamaestro::DMMode::Response &res );
 	void run();
+	void pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y );
 };
 
 TGThread::TGThread( ros::NodeHandle &nh )
@@ -162,15 +167,45 @@ TGThread::TGThread( ros::NodeHandle &nh )
 	  fresh_input(false),
 	  U(),
 	  probinstance(NULL),
+	  labeler(),
 	  dmmode(paused)
 {
 	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
+	statepub = nh_.advertise<dynamaestro::VectorStamped>( "output", 10, true );
+	loutpub = nh_.advertise<dynamaestro::LabelStamped>( "loutput", 10, true );
+	inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 }
 
 TGThread::~TGThread()
 {
 	if (probinstance)
 		delete probinstance;
+}
+
+void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
+{
+	dynamaestro::VectorStamped pt;
+	pt.header.frame_id = std::string( "map" );
+	pt.header.stamp = ros::Time::now();
+	for (int i = 0; i < tg.getStateDim(); i++) {
+		pt.v.point.push_back( tg.getState( i ) );
+		if (i < tg.getOutputDim())
+			Y(i) = tg[i];
+	}
+	statepub.publish( pt );
+
+	std::list<std::string> label = labeler.get_label( Y );
+	dynamaestro::LabelStamped lbl;
+	lbl.header.frame_id = pt.header.frame_id;
+	lbl.header.stamp = pt.header.stamp;
+	lbl.label.resize( label.size() );
+	int i = 0;
+	for (std::list<std::string>::iterator it_label = label.begin();
+		 it_label != label.end(); it_label++) {
+		lbl.label[i] = *it_label;
+		i++;
+	}
+	loutpub.publish( lbl );
 }
 
 bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
@@ -225,10 +260,6 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 
 void TGThread::run()
 {
-	ros::Publisher statepub = nh_.advertise<dynamaestro::VectorStamped>( "output", 10, true );
-	ros::Publisher loutpub = nh_.advertise<dynamaestro::LabelStamped>( "loutput", 10, true );
-	ros::Subscriber inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
-
 	Eigen::Vector2i numdim_output_bounds( 1, 3 );
 	Eigen::Vector2i num_integrators_bounds( 1, 3 );
 
@@ -249,7 +280,7 @@ void TGThread::run()
 	probinstance = Problem::random( numdim_output_bounds,
 									num_integrators_bounds,
 									Y_max, U_max, 2, 1, period_bounds );
-	Labeler labeler( *probinstance );
+	labeler.importProblem( *probinstance );
 	std::cout << *probinstance << std::endl;
 
 	nh_.setParam( "number_integrators",
@@ -278,12 +309,7 @@ void TGThread::run()
 	defaultU.setZero();
 
 	// Send initial output, before any input is applied or time has begun.
-	dynamaestro::VectorStamped pt;
-	pt.header.frame_id = std::string( "map" );
-	pt.header.stamp = ros::Time::now();
-	for (int i = 0; i < tg.getStateDim(); i++)
-		pt.v.point.push_back( tg.getState( i ) );
-	statepub.publish( pt );
+	pubstate( tg, Y );
 	ros::spinOnce();
 
 	while (ros::ok() && dmmode != resetting) {
@@ -299,28 +325,7 @@ void TGThread::run()
 				tg.step( probinstance->period, defaultU );
 			}
 
-			dynamaestro::VectorStamped pt;
-			pt.header.frame_id = std::string( "map" );
-			pt.header.stamp = ros::Time::now();
-			for (int i = 0; i < tg.getStateDim(); i++) {
-				pt.v.point.push_back( tg.getState( i ) );
-				if (i < tg.getOutputDim())
-					Y(i) = tg[i];
-			}
-			statepub.publish( pt );
-
-			std::list<std::string> label = labeler.get_label( Y );
-			dynamaestro::LabelStamped lbl;
-			lbl.header.frame_id = pt.header.frame_id;
-			lbl.header.stamp = pt.header.stamp;
-			lbl.label.resize( label.size() );
-			int i = 0;
-			for (std::list<std::string>::iterator it_label = label.begin();
-				 it_label != label.end(); it_label++) {
-				lbl.label[i] = *it_label;
-				i++;
-			}
-			loutpub.publish( lbl );
+			pubstate( tg, Y );
 
 		} else if (dmmode == restarting) {
 			dmmode = paused;
@@ -329,13 +334,7 @@ void TGThread::run()
 			mtx_.unlock();
 			tg.clear();
 			U.setZero();
-			dynamaestro::VectorStamped pt;
-			pt.header.frame_id = std::string( "map" );
-			pt.header.stamp = ros::Time::now();
-			for (int i = 0; i < tg.getStateDim(); i++)
-				pt.v.point.push_back( tg.getState( i ) );
-			statepub.publish( pt );
-			ros::spinOnce();
+			pubstate( tg, Y );
 		}
 		ros::spinOnce();
 		rate.sleep();

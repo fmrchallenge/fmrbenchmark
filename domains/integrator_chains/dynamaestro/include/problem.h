@@ -286,8 +286,11 @@ class Labeler
 {
 public:
 	Labeler();
+
+	/* importProblem() is called as part of instantiation. */
 	Labeler( const Problem &probinstance );
 
+	bool importProblem( const Problem &probinstance, bool check_collisions=true );
 	std::list<std::string> get_label( const Eigen::VectorXd &X );
 	void clear();
 
@@ -301,27 +304,44 @@ Labeler::Labeler()
 
 Labeler::Labeler( const Problem &probinstance )
 {
+	importProblem( probinstance, false );
+}
+
+bool Labeler::importProblem( const Problem &probinstance, bool check_collisions )
+{
 	int i, j;
+	bool no_collisions = true;
 	for (i = 0; i < probinstance.goals.size(); i++) {
-		for (j = 0; j < regions.size(); j++) {
-			if (regions[j]->label == probinstance.goals[i]->label) {
-				std::cerr << "WARNING: Labeler found a collision while importing from Problem object." << std::endl;
-				break;
-			}
-		}
-		if (j >= regions.size())
+		if (!check_collisions) {
 			regions.push_back( probinstance.goals[i] );
+		} else {
+			for (j = 0; j < regions.size(); j++) {
+				if (regions[j]->label == probinstance.goals[i]->label) {
+					std::cerr << "WARNING: Labeler found a collision while importing from Problem object." << std::endl;
+					no_collisions = false;
+					break;
+				}
+			}
+			if (j >= regions.size())
+				regions.push_back( probinstance.goals[i] );
+		}
 	}
 	for (i = 0; i < probinstance.obstacles.size(); i++) {
-		for (j = 0; j < regions.size(); j++) {
-			if (regions[j]->label == probinstance.obstacles[i]->label) {
-				std::cerr << "WARNING: Labeler found a collision while importing from Problem object." << std::endl;
-				break;
-			}
-		}
-		if (j >= regions.size())
+		if (!check_collisions) {
 			regions.push_back( probinstance.obstacles[i] );
+		} else {
+			for (j = 0; j < regions.size(); j++) {
+				if (regions[j]->label == probinstance.obstacles[i]->label) {
+					std::cerr << "WARNING: Labeler found a collision while importing from Problem object." << std::endl;
+					no_collisions = false;
+					break;
+				}
+			}
+			if (j >= regions.size())
+				regions.push_back( probinstance.obstacles[i] );
+		}
 	}
+	return no_collisions;
 }
 
 std::list<std::string> Labeler::get_label( const Eigen::VectorXd &X )
