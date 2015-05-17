@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <sstream>
 #include <string>
 #include <cstdlib>
 
@@ -41,8 +42,11 @@ public:
 	   instance after this call. (Try is_consistent() to check.) */
 	bool change_order( int new_numdim_output , int new_highest_order_deriv );
 
-	/** Output description of problem in JSON */
+	/** Output description of problem in JSON to a stream */
 	friend std::ostream & operator<<( std::ostream &out, const Problem &prob );
+
+	/** Get description of problem in JSON. */
+	std::string dumpJSON() const;
 
 	/** Generate a random problem instance.
 
@@ -146,6 +150,13 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
 	out << "\"period\": " << prob.period;
 	out << std::endl << " }";
 	return out;
+}
+
+std::string Problem::dumpJSON() const
+{
+	std::ostringstream out;
+	out << *this;
+	return out.str();
 }
 
 

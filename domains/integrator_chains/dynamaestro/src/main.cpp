@@ -281,7 +281,7 @@ void TGThread::run()
 									num_integrators_bounds,
 									Y_max, U_max, 2, 1, period_bounds );
 	labeler.importProblem( *probinstance );
-	std::cout << *probinstance << std::endl;
+	nh_.setParam( "probleminstance", probinstance->dumpJSON() );
 
 	nh_.setParam( "number_integrators",
 				  probinstance->get_highest_order_deriv() );
