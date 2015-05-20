@@ -31,7 +31,7 @@ research, demonstrations of formal methods have been surprisingly small-scale.
 The proposed robotics challenge seeks to motivate advancement of the state of
 the art toward practical realization.  The challenge is organized into three
 problem domains: arbitrary dimensional chains of integrators, roads with Dubins
-cars, and manipulation tasks on the assembly line.
+cars, and factory cart clearing.
 \end{abstract}
 \maketitle
 \tableofcontents
@@ -117,7 +117,7 @@ which it will be referred to during the Challenge.
 
 There are three \textit{problem domains}, which are described in
 Sections~\ref{sec:scalingcinteg}, \ref{sec:trafficdubins}, and
-\ref{sec:dexterousmanip} (one per section).  Within a problem domain, a problem
+\ref{sec:cartclearing} (one per section).  Within a problem domain, a problem
 \textit{instance} is a particular workspace, arrangement of obstacles, labeling
 of the workspace, selection of parameters for the robot dynamics, and a task
 formula.
@@ -139,7 +139,7 @@ that team.
 
 The scaling chains of integrators (Section~\ref{sec:scalingcinteg}) domain
 will proceed entirely in simulation.  The other two domains (described in
-Sections~\ref{sec:trafficdubins} and \ref{sec:dexterousmanip}) will include both
+Sections~\ref{sec:trafficdubins} and \ref{sec:cartclearing}) will include both
 simulation and physical variants.
 
 
@@ -215,7 +215,7 @@ dimension $2n$ and which is again equivalent to \eqref{eq:minteg} for $m=2$.
 
 Task specifications will require visitation of regions while avoiding obstacles.
 Compared with the specifications for the other problem domains presented in
-Sections~\ref{sec:trafficdubins} and \ref{sec:dexterousmanip}, these can be
+Sections~\ref{sec:trafficdubins} and \ref{sec:cartclearing}, these can be
 regarded as a slight extension beyond classical motion planning.  There are two
 forms of specifications:
 \begin{equation}\label{eq:dinteg-surveillance}
@@ -347,26 +347,25 @@ to install such a system on-site at ICRA to provide ground truth positions for
 scoring purposes, even if the data is not available to competitors during the
 challenge.
 
-\section{Problem domain: Dexterous manipulation on the assembly line}\label{sec:dexterousmanip}
+\section{Problem domain: Factory cart clearing}\label{sec:cartclearing}
 
 \subsection{Summary (not normative)}
 
-This problem domain concerns pick and place tasks, expressed using LTL
+This problem domain broadly concerns pick and place tasks, expressed using LTL
 contracts, as described below. The key challenges explored in this problem
 domain will include uncertainty in the shape and dynamics of the end-effector,
 as well as objects that are being grasped, and collision-avoidance with moving
-obstacles that come into the workspace, including humans.
+obstacles that come into the workspace, including humans. The focus is on
+picking up and moving objects around, but will not involve difficult grasping
+problems, like deformable surfaces. The end-effector will be something easy to
+use, like a magnet or some suction mechanism, such as a Universal Jamming
+Gripper \cite{AmendBRJL12}.
 
-The focus is on picking up and moving objects around, but will not involve
-difficult grasping problems, like deformable surfaces. The end-effector will be
-something easy to use, like a magnet or some suction mechanism, such as a
-Universal Jamming Gripper \cite{AmendBRJL12}.
-
-The scenario will be as follows. The robot is to process objects laid out on a
-cart that is brought to it and sort them into bins. Carts arrive after the robot
-indicates that it is ready, and carts are removed once a robot declares that it
-is done. Scoring will be based on how many carts can be processed correctly
-(described below) in a fixed amount of time.
+The scenario will be as follows. The robot is required to process objects laid
+out on a cart that is brought to it and sort them into bins. Carts arrive after
+the robot indicates that it is ready, and carts are removed once a robot
+declares that it is done. Scoring will be based on how many carts can be
+processed correctly (described below) in a fixed amount of time.
 
 The top surface of the cart will be unwalled but divided into an object
 placement grid. Each object can occupy multiple cells in the grid. Each object

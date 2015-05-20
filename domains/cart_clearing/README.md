@@ -1,5 +1,5 @@
-Problem domain: Dexterous manipulation on the assembly line
-===========================================================
+Problem domain: Factory cart clearing
+=====================================
 
 Summary
 -------
