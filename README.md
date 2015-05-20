@@ -15,8 +15,8 @@ Documentation
 
 The directory `doc/` contains sources for several components of documentation.
 
-* `doc/icra2015/` : Document describing the ICRA 2015 challenge. Building
-  requires [LaTeX](http://www.latex-project.org).
+* `doc/norm/` : Document provide normative problem domain descriptions and
+  competition rules. Building requires [LaTeX](http://www.latex-project.org).
 * `doc/api/` : API manual. Building requires [Doxygen](http://www.doxygen.org).
 * `doc/usersguide/` : User's Guide. Building requires [Sphinx](http://sphinx-doc.org).
 
