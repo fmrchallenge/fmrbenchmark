@@ -1,5 +1,5 @@
 <package>
-  <name>fmrb_sci_examples</name>
+  <name>sci_concrete_example</name>
   <version>0.0.0</version>
   <description>
     examples for the "scaling chains of integrators" problem domain.

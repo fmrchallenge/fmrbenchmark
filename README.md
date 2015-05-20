@@ -10,6 +10,15 @@ Summary of organization
 * `domains/` : Problem domains, e.g., `domains/integrator_chains/` contains code
   for the scaling chains of integrators setting.
 
+* `tools/fmrb-pkg/` : Python package providing code for both common and
+  domain-specific needs.
+
+* `examples/` : contains example controllers and other demonstrations. There is
+  a ROS meta-package for each problem domain that has name of the form
+  `DOMDIR_examples`, where the "DOMDIR" is the name of the directory under
+  `domains/` dedicated to that problem domain (benchmark).
+
+
 Documentation
 -------------
 

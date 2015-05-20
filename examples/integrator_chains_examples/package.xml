@@ -1,0 +1,16 @@
+<package>
+  <name>integrator_chains_examples</name>
+  <version>0.0.0</version>
+  <description>
+    meta-package that collects example ROS packages for the "Scaling chains of
+    integrators" problem domain (benchmark).
+  </description>
+  <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
+  <license>BSD</license>
+
+  <run_depend>sci_concrete_example</run_depend>
+
+  <export>
+    <metapackage />
+  </export>
+</package>
