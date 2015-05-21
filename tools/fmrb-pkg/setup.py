@@ -15,7 +15,7 @@ version = '{version}'""".format(version=fmrb_version))
 
 setup(name='fmrb',
       version=fmrb_version,
-      author='Scott C. Livingston and contributors',
+      author='Scott C. Livingston',
       author_email='slivingston@cds.caltech.edu',
       packages=['fmrb']
       )
