@@ -13,10 +13,8 @@ Summary of organization
 * `tools/fmrb-pkg/` : Python package providing code for both common and
   domain-specific needs.
 
-* `examples/` : contains example controllers and other demonstrations. There is
-  a ROS meta-package for each problem domain that has name of the form
-  `DOMDIR_examples`, where the "DOMDIR" is the name of the directory under
-  `domains/` dedicated to that problem domain (benchmark).
+* `examples/` : contains example controllers and other demonstrations. An
+  introduction to the examples is given below.
 
 
 Documentation
@@ -31,6 +29,14 @@ The directory `doc/` contains sources for several components of documentation.
 
 If the appropriate tools are installed, as noted above, then go to the desired
 directory and run `make`.
+
+
+Examples
+--------
+
+There is a ROS meta-package for each problem domain that has name of the form
+`DOMDIR_examples`, where the "DOMDIR" is the name of the directory under
+`domains/` dedicated to that problem domain (benchmark).
 
 
 License
