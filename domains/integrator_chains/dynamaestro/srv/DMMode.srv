@@ -1,3 +1,6 @@
+############################################################
+# REQUESTS
+
 # Pause time; no-op if already paused.
 # Result is false iff fail to pause from unpaused state.
 #
@@ -12,13 +15,31 @@ int8 UNPAUSE=3
 # Stop trial and go back to initial state. The same problem instance is used.
 int8 RESTART=1
 
+# Begin trial. This request is only defined if dm is "ready" for trial
+# to begin. Otherwise it is no-op, and the returned result is false.
+int8 START=5
+
 # Stop current trial and generate a new one. N.B., important parameters like the
 # number of dimensions of the output space may change. After this, wait for the
 # trial to begin.
 int8 RESET=0
 
+############################################################
+# QUERIES
+
+# Is the dm ready to start a trial?
+# The result is true iff the following are true:
+# 1. the dm is currently paused;
+# 2. the dynamics engine is at the initial state;
+# 3. the problem instance for this trial has not been posted.
+int8 READY=4
+
+
+############################################################
+# payload:
 
 # `mode` can be assigned one of the above constants.
 int16 mode
+
 ---
 bool result

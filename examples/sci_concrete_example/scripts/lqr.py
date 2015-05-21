@@ -5,9 +5,10 @@ import numpy as np
 import numpy.linalg as la
 from control import lqr
 
-import roslib; roslib.load_manifest('fmrb_sci_examples')
+import roslib; roslib.load_manifest('sci_concrete_example')
 import rospy
 from dynamaestro.msg import VectorStamped, Vector
+from dynamaestro.srv import DMMode, DMModeRequest
 
 from fmrb import integrator_chains
 
@@ -44,9 +45,19 @@ class LQRController(StateFeedback):
 if __name__ == "__main__":
     rospy.init_node("lqr", anonymous=True)
 
-    n = rospy.get_param("dynamaestro/output_dim")
-    m = rospy.get_param("dynamaestro/number_integrators")
-    prob = integrator_chains.Problem.loadJSON(rospy.get_param("dynamaestro/probleminstance"))
+    dmmode = rospy.ServiceProxy("dynamaestro/mode", DMMode)
+    while not dmmode(DMModeRequest.READY):
+        time.sleep(0.5)
+    assert dmmode(DMModeRequest.START)
+
+    while not rospy.is_shutdown():
+        probstr = rospy.get_param("dynamaestro/probleminstance", None)
+        if probstr is not None:
+            break
+
+    prob = integrator_chains.Problem.loadJSON(probstr)
+    n = prob.output_dim
+    m = prob.number_integrators
 
     A = np.diag(np.ones((m-1)*n), k=n)
     B = np.zeros((m*n, n))
@@ -65,6 +76,7 @@ if __name__ == "__main__":
         while (not rospy.is_shutdown()
                and ((lqrc.error is None) or (la.norm(lqrc.error) > 0.01))):
             time.sleep(0.5)
+        print('Reached '+prob.goals[current].label)
         lqrc.unregister()
         current += 1
         if current >= len(prob.goals):

@@ -143,7 +143,7 @@ private:
 	Problem *probinstance;
 	Labeler labeler;
 
-	enum DMMode { running, paused, resetting, restarting };
+	enum DMMode { ready, waiting, running, paused, resetting, restarting };
 	DMMode dmmode;
 
 	ros::NodeHandle &nh_;
@@ -218,6 +218,23 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
 		res.result = true;
 		break;
 
+	case dynamaestro::DMMode::Request::READY:
+		if (dmmode == ready) {
+			res.result = true;
+		} else {
+			res.result = false;
+		}
+		break;
+
+	case dynamaestro::DMMode::Request::START:
+		if (dmmode == ready) {
+			dmmode = waiting;
+			res.result = true;
+		} else {
+			res.result = false;
+		}
+		break;
+
 	case dynamaestro::DMMode::Request::PAUSE:
 		if (dmmode == running) {
 			dmmode = paused;
@@ -277,6 +294,14 @@ void TGThread::run()
 
 	Eigen::Vector2d period_bounds( 0.05, 0.1 );
 
+	ros::Rate polling_rate( 100 );
+	dmmode = ready;
+	while (dmmode == ready) {
+		ros::spinOnce();
+		polling_rate.sleep();
+	}
+	assert( dmmode == waiting );
+
 	probinstance = Problem::random( numdim_output_bounds,
 									num_integrators_bounds,
 									Y_max, U_max, 2, 1, period_bounds );
@@ -335,6 +360,13 @@ void TGThread::run()
 			tg.clear();
 			U.setZero();
 			pubstate( tg, Y );
+			dmmode = waiting;
+		} else if (dmmode == waiting) {
+			if (fresh_input) {
+				dmmode = running;
+			} else {
+				pubstate( tg, Y );
+			}
 		}
 		ros::spinOnce();
 		rate.sleep();

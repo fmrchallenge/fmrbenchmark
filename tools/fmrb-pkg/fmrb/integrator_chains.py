@@ -72,6 +72,8 @@ class Problem(object):
         self.obstacles = []
         self.Y = None
         self.U = None
+        self.output_dim = None
+        self.number_integrators = None
 
     @staticmethod
     def loadJSON(probjs):
@@ -83,16 +85,18 @@ class Problem(object):
         prob.U = Polytope(np.array(probj['U']['H']), np.array(probj['U']['K']))
         prob.goals = [LabeledPolytope(np.array(goaldict['H']),
                                       np.array(goaldict['K']),
-                                      label=np.array(goaldict['label']))
+                                      label=goaldict['label'])
                       for goaldict in probj['goals']]
         prob.obstacles = [LabeledPolytope(np.array(obsdict['H']),
                                           np.array(obsdict['K']),
-                                          label=np.array(obsdict['label']))
+                                          label=obsdict['label'])
                           for obsdict in probj['obstacles']]
         if 'period' in probj:
             prob.period = probj['period']
         else:
             prob.period = None
+        prob.output_dim = prob.Y.H.shape[1]
+        prob.number_integrators = prob.Xinit.shape[0]/prob.output_dim
         return prob
 
     def plot(self, ax, outdims=None):
