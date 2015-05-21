@@ -294,6 +294,23 @@ void TGThread::run()
 
 	Eigen::Vector2d period_bounds( 0.05, 0.1 );
 
+	probinstance = Problem::random( numdim_output_bounds,
+									num_integrators_bounds,
+									Y_max, U_max, 2, 1, period_bounds );
+	labeler.importProblem( *probinstance );
+
+	U.resize( probinstance->get_numdim_output() );
+	U.setZero();
+
+	Eigen::VectorXd Y( probinstance->get_numdim_output() );
+
+	TrajectoryGenerator tg( probinstance->Xinit,
+							probinstance->get_numdim_output() );
+
+	ros::Rate rate( 1/probinstance->period );
+	Eigen::VectorXd defaultU( U );
+	defaultU.setZero();
+
 	ros::Rate polling_rate( 100 );
 	dmmode = ready;
 	while (dmmode == ready) {
@@ -302,10 +319,6 @@ void TGThread::run()
 	}
 	assert( dmmode == waiting );
 
-	probinstance = Problem::random( numdim_output_bounds,
-									num_integrators_bounds,
-									Y_max, U_max, 2, 1, period_bounds );
-	labeler.importProblem( *probinstance );
 	nh_.setParam( "probleminstance", probinstance->dumpJSON() );
 
 	nh_.setParam( "number_integrators",
@@ -320,18 +333,6 @@ void TGThread::run()
 	nh_.setParam( "period", probinstance->period );
 	ROS_INFO( "dynamaestro: Using %f seconds as the period.",
 			  probinstance->period );
-
-	U.resize( probinstance->get_numdim_output() );
-	U.setZero();
-
-	Eigen::VectorXd Y( probinstance->get_numdim_output() );
-
-	TrajectoryGenerator tg( probinstance->Xinit,
-							probinstance->get_numdim_output() );
-
-	ros::Rate rate( 1/probinstance->period );
-	Eigen::VectorXd defaultU( U );
-	defaultU.setZero();
 
 	// Send initial output, before any input is applied or time has begun.
 	pubstate( tg, Y );
@@ -371,6 +372,13 @@ void TGThread::run()
 		ros::spinOnce();
 		rate.sleep();
 	}
+
+	// Clear registered instance
+	ROS_INFO( "dynamaestro: Clearing problem instance from Parameter Server." );
+	nh_.setParam( "probleminstance", "" );
+	nh_.setParam( "number_integrators", -1 );
+	nh_.setParam( "output_dim", -1 );
+	nh_.setParam( "period", -1.0 );
 }
 
 void tgthread( ros::NodeHandle &nhp )
