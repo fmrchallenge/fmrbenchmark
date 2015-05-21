@@ -277,6 +277,8 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 
 void TGThread::run()
 {
+	int nominal_duration = rand() % 61 + 30;
+
 	Eigen::Vector2i numdim_output_bounds( 1, 3 );
 	Eigen::Vector2i num_integrators_bounds( 1, 3 );
 
@@ -311,6 +313,8 @@ void TGThread::run()
 	Eigen::VectorXd defaultU( U );
 	defaultU.setZero();
 
+	ros::Duration trial_duration;
+
 	ros::Rate polling_rate( 100 );
 	dmmode = ready;
 	while (dmmode == ready) {
@@ -318,6 +322,7 @@ void TGThread::run()
 		polling_rate.sleep();
 	}
 	assert( dmmode == waiting );
+	ros::Time startt = ros::Time::now();
 
 	nh_.setParam( "probleminstance", probinstance->dumpJSON() );
 
@@ -338,7 +343,7 @@ void TGThread::run()
 	pubstate( tg, Y );
 	ros::spinOnce();
 
-	while (ros::ok() && dmmode != resetting) {
+	while (ros::ok() && dmmode != resetting && (trial_duration = ros::Time::now() - startt).toSec() < nominal_duration) {
 		if (dmmode == running) {
 			if (fresh_input) {
 				mtx_.lock();
@@ -371,6 +376,11 @@ void TGThread::run()
 		}
 		ros::spinOnce();
 		rate.sleep();
+	}
+
+	// Did the trial end because the nominal (hidden) duration was reached?
+	if (ros::ok() && trial_duration.toSec() >= nominal_duration) {
+		ROS_INFO( "dynamaestro: Trial ended after %f s (threshold is %d s).", trial_duration.toSec(), nominal_duration );
 	}
 
 	// Clear registered instance
