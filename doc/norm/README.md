@@ -1,5 +1,6 @@
-This directory contains LaTeX sources for the document that describes the
-ICRA 2015 challenge.
+This directory contains LaTeX sources for normative problem domain descriptions
+and competition rules. We also collect past proposals and other documents about
+logistics for relevant events.
 
 Building
 --------
@@ -13,10 +14,3 @@ defines the following commands.  Output is placed in `build/`
   7 numbers of the current commit hash.
 
 * `clean` : delete everything under `build/`.
-
-
-Dependencies
-------------
-
-* `images/network.xml` : <https://www.draw.io>
-* `images/network.png` : generated from `images/network.xml`
