@@ -7,7 +7,7 @@
     <remap from="dynamaestro/output" to="output" />
   </node>
 
-  <node pkg="sci_concrete_example" name="$(anon lqr)" type="lqr.py" output="screen">
+  <node pkg="sci_concrete_examples" name="$(anon lqr)" type="lqr.py" output="screen">
     <remap from="number_integrators" to="dynamaestro/number_integrators" />
   </node>
 </launch>

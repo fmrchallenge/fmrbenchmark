@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 2.8.3)
-project (sci_concrete_example)
+project (sci_concrete_examples)
 
 find_package (catkin REQUIRED COMPONENTS rospy dynamaestro)
 

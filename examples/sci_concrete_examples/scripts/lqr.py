@@ -5,7 +5,7 @@ import numpy as np
 import numpy.linalg as la
 from control import lqr
 
-import roslib; roslib.load_manifest('sci_concrete_example')
+import roslib; roslib.load_manifest('sci_concrete_examples')
 import rospy
 from dynamaestro.msg import VectorStamped, Vector
 from dynamaestro.srv import DMMode, DMModeRequest
