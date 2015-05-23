@@ -372,8 +372,6 @@ void TGThread::run()
 		} else if (dmmode == waiting) {
 			if (fresh_input) {
 				dmmode = running;
-			} else {
-				pubstate( tg, Y );
 			}
 		}
 		ros::spinOnce();

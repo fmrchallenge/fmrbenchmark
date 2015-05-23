@@ -17,6 +17,8 @@ class StateFeedback:
     def __init__(self, intopic, outtopic, K=None):
         self.error = None
         self.intopic = rospy.Publisher(intopic, VectorStamped, queue_size=1)
+        while self.intopic.get_num_connections() == 0 and not rospy.is_shutdown():
+            time.sleep(0.5)
         self.outtopic = rospy.Subscriber(outtopic, VectorStamped, self.read_state)
         self.K = K
 
