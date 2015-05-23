@@ -318,6 +318,8 @@ void TGThread::run()
 	ros::Rate polling_rate( 100 );
 	dmmode = ready;
 	while (dmmode == ready) {
+		if (!ros::ok())
+			return;
 		ros::spinOnce();
 		polling_rate.sleep();
 	}
