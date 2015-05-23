@@ -10,7 +10,7 @@ import numpy as np
 
 
 if __name__ == '__main__':
-    default_topicname = '/output'
+    default_topicname = '/state'
     default_indices = '0,1'
 
     parser = argparse.ArgumentParser(description=__doc__)

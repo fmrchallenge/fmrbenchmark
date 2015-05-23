@@ -74,7 +74,7 @@ if __name__ == "__main__":
 
     current = 0
     while not rospy.is_shutdown():
-        lqrc = LQRController("input", "output", A, B, targets[current], Q, R)
+        lqrc = LQRController("input", "state", A, B, targets[current], Q, R)
         while (not rospy.is_shutdown()
                and ((lqrc.error is None) or (la.norm(lqrc.error) > 0.01))):
             time.sleep(0.5)

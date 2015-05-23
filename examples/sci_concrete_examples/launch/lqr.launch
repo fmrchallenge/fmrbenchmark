@@ -1,10 +1,10 @@
 <launch>
   <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
     <remap from="dynamaestro/input" to="input" />
-    <remap from="dynamaestro/output" to="output" />
+    <remap from="dynamaestro/state" to="state" />
   </node>
   <node pkg="dynamaestro" name="logger" type="log" output="screen">
-    <remap from="dynamaestro/output" to="output" />
+    <remap from="dynamaestro/state" to="state" />
   </node>
 
   <node pkg="sci_concrete_examples" name="$(anon lqr)" type="lqr.py" output="screen">

@@ -171,7 +171,7 @@ TGThread::TGThread( ros::NodeHandle &nh )
 	  dmmode(paused)
 {
 	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
-	statepub = nh_.advertise<dynamaestro::VectorStamped>( "output", 10, true );
+	statepub = nh_.advertise<dynamaestro::VectorStamped>( "state", 10, true );
 	loutpub = nh_.advertise<dynamaestro::LabelStamped>( "loutput", 10, true );
 	inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 }
@@ -341,7 +341,7 @@ void TGThread::run()
 	ROS_INFO( "dynamaestro: Using %f seconds as the period.",
 			  probinstance->period );
 
-	// Send initial output, before any input is applied or time has begun.
+	// Send initial state, before any input is applied or time has begun.
 	pubstate( tg, Y );
 	ros::spinOnce();
 

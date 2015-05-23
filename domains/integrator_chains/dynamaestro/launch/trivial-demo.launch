@@ -1,5 +1,5 @@
 <launch>
   <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen" />
 
-  <node pkg="rostopic" name="$(anon rostopic)" type="rostopic" args="echo /dynamaestro/output" output="screen" />
+  <node pkg="rostopic" name="$(anon rostopic)" type="rostopic" args="echo /dynamaestro/state" output="screen" />
 </launch>

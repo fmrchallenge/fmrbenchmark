@@ -16,7 +16,7 @@
 class DMTranscriber {
 public:
 	DMTranscriber( ros::NodeHandle &nh, int i0, int i1=-1, int i2=-1 );
-	void outputcb( const dynamaestro::VectorStamped &vs );
+	void statecb( const dynamaestro::VectorStamped &vs );
 
 private:
 	ros::NodeHandle &nh_;
@@ -45,11 +45,11 @@ DMTranscriber::DMTranscriber( ros::NodeHandle &nh, int i0, int i1, int i2 )
 			  mapped_i1 >= 0 ? "y" : "0",
 			  mapped_i2 >= 0 ? "z" : "0" );
 
-	pubPointStamped = nh_.advertise<geometry_msgs::PointStamped>( "output_PointStamped", 10, true );
-	subVectorStamped = nh_.subscribe( "/dynamaestro/output", 1, &DMTranscriber::outputcb, this );
+	pubPointStamped = nh_.advertise<geometry_msgs::PointStamped>( "state_PointStamped", 10, true );
+	subVectorStamped = nh_.subscribe( "/dynamaestro/state", 1, &DMTranscriber::statecb, this );
 }
 
-void DMTranscriber::outputcb( const dynamaestro::VectorStamped &vs )
+void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 {
 	geometry_msgs::PointStamped pt;
 	pt.header.frame_id = vs.header.frame_id;
