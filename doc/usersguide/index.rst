@@ -18,3 +18,5 @@ For newcomers, a good place to begin is the :doc:`intro`.
    :maxdepth: 1
 
    intro
+   integrator_chains
+   contributing
