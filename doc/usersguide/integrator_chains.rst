@@ -76,7 +76,7 @@ Finally, run the example using::
   roslaunch sci_concrete_examples lqr.launch
 
 You can observe the sequence of states and control inputs using ``rostopic echo
-output`` and ``rostopic echo input``, respectively. At each time increment, the
+state`` and ``rostopic echo input``, respectively. At each time increment, the
 state labeling is published to the topic ``/dynamaestro/loutput`` as an array of
 strings (labels) corresponding to the polytopes containing the output at that
 time.
