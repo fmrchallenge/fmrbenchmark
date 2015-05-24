@@ -58,10 +58,16 @@ public:
 	   of derivation (i.e., the number of integrators in the ODE defining the
 	   system) will be chosen.
 
-	   \param Y_max rectangle that is the maximum possible subset of the output
-	   space that is permitted. It is of the same format as for Polytope::box().
+	   \param Y_box the compact subset of the output space in which the
+	   trajectory must remain, defined using the same format as for
+	   Polytope::box(). Unlike most other parameters of this method, \p Y_box is
+	   not a definition of the support of  a probability density
+	   function. However, the number of elements in it that are actually used
+	   depends on the randomly chosen number of dimensions of the output space.
 
-	   \param U_max analogous to \p Y_max but for the input space.
+	   \param U_box analogous to \p Y_box but for the input space.
+
+
 
 	   \param number_goals_bounds range of integers from which the number of
 	   goal polytopes in the output space will be chosen.
@@ -72,19 +78,26 @@ public:
 	   \param period_bounds range from which is uniformly randomly chosen the
 	   constant period by which the original system is discretized.
 
+	   \param Xinit_bounds (optional) the box from which the initial state will
+	   be chosen. It is assumed to be consistent with \p Y_box. Bounds for
+	   missing dimensions are assumed to be [0,0], i.e., Xinit is assigned 0.0
+	   at the corresponding indices. E.g., if Xinit_bounds has size 0 or is not
+	   given, then Xinit is the origin of the state space.
+
 	   N.B., several parameters depend on each other in terms of consistency.
-	   E.g., if \p numdim_output_bounds = [2, 3], then Y_max must have length of
+	   E.g., if \p numdim_output_bounds = [2, 3], then Y_box must have length of
 	   at least 6 (cf. documentation for Polytope::box()).
 
 	   This method relies on rand() for pseudo-randomness and assumes that
 	   something else has seeded the RNG. */
 	static Problem * random( const Eigen::Vector2i &numdim_output_bounds,
 							 const Eigen::Vector2i &highest_order_deriv_bounds,
-							 const Eigen::VectorXd &Y_max,
-							 const Eigen::VectorXd &U_max,
+							 const Eigen::VectorXd &Y_box,
+							 const Eigen::VectorXd &U_box,
 							 const Eigen::Vector2i &number_goals_bounds,
 							 const Eigen::Vector2i &number_obstacles_bounds,
-							 const Eigen::Vector2d &period_bounds );
+							 const Eigen::Vector2d &period_bounds,
+							 const Eigen::VectorXd &Xinit_bounds = Eigen::VectorXd() );
 
 	int get_numdim_output() const
 	{ return numdim_output; }
@@ -180,11 +193,12 @@ std::string Problem::dumpJSON() const
 
 Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 						   const Eigen::Vector2i &highest_order_deriv_bounds,
-						   const Eigen::VectorXd &Y_max,
-						   const Eigen::VectorXd &U_max,
+						   const Eigen::VectorXd &Y_box,
+						   const Eigen::VectorXd &U_box,
 						   const Eigen::Vector2i &number_goals_bounds,
 						   const Eigen::Vector2i &number_obstacles_bounds,
-						   const Eigen::Vector2d &period_bounds )
+						   const Eigen::Vector2d &period_bounds,
+						   const Eigen::VectorXd &Xinit_bounds )
 {
 	assert( numdim_output_bounds(0) >= 1
 			&& numdim_output_bounds(0) <= numdim_output_bounds(1)
@@ -194,8 +208,8 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 			&& number_goals_bounds(0) <= number_goals_bounds(1)
 			&& number_obstacles_bounds(0) >= 0
 			&& number_obstacles_bounds(0) <= number_obstacles_bounds(1)
-			&& Y_max.size() >= 2*numdim_output_bounds(1)
-			&& U_max.size() >= 2*numdim_output_bounds(1)
+			&& Y_box.size() >= 2*numdim_output_bounds(1)
+			&& U_box.size() >= 2*numdim_output_bounds(1)
 			&& period_bounds(0) >= 0 && period_bounds(1) >= period_bounds(0) );
 
 	int i, j;
@@ -225,48 +239,28 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 						 % (1+number_obstacles_bounds(1)
 							- number_obstacles_bounds(0)));
 
-	Eigen::VectorXd Y_bounds(2*prob->numdim_output);
-	for (i = 0; i < prob->numdim_output; i++) {
-		Y_bounds(2*i) = Y_max(2*i)
-			+ (double(rand())/RAND_MAX)*(Y_max(2*i+1) - Y_max(2*i));
-		Y_bounds(2*i+1) = Y_max(2*i)
-			+ (double(rand())/RAND_MAX)*(Y_max(2*i+1) - Y_max(2*i));
-		if (Y_bounds(2*i+1) < Y_bounds(2*i)) {
-			double tmp = Y_bounds(2*i+1);
-			Y_bounds(2*i+1) = Y_bounds(2*i);
-			Y_bounds(2*i) = tmp;
-		}
-	}
-	prob->Y = Polytope::box( Y_bounds );
-
-	Eigen::VectorXd U_bounds(2*prob->numdim_output);
-	for (i = 0; i < prob->numdim_output; i++) {
-		U_bounds(2*i) = U_max(2*i)
-			+ (double(rand())/RAND_MAX)*(U_max(2*i+1) - U_max(2*i));
-		U_bounds(2*i+1) = U_max(2*i)
-			+ (double(rand())/RAND_MAX)*(U_max(2*i+1) - U_max(2*i));
-		if (U_bounds(2*i+1) < U_bounds(2*i)) {
-			double tmp = U_bounds(2*i+1);
-			U_bounds(2*i+1) = U_bounds(2*i);
-			U_bounds(2*i) = tmp;
-		}
-	}
-	prob->U = Polytope::box( U_bounds );
+	prob->Y = Polytope::box( Y_box.head( 2*prob->numdim_output ) );
+	prob->U = Polytope::box( U_box.head( 2*prob->numdim_output ) );
 
 	prob->Xinit.setZero( prob->numdim_output*prob->highest_order_deriv );
-	for (i = 0; i < prob->numdim_output; i++) {
-		prob->Xinit(i) = Y_bounds(2*i)
-			+ (double(rand())/RAND_MAX)*(Y_bounds(2*i+1) - Y_bounds(2*i));
+	int largest_dim = prob->numdim_output*prob->highest_order_deriv;
+	if (largest_dim > Xinit_bounds.size()/2)
+		largest_dim = Xinit_bounds.size()/2;
+	for (i = 0; i < largest_dim; i++) {
+		assert( Xinit_bounds(2*i+1) >= Xinit_bounds(2*i) );
+		prob->Xinit(i) = Xinit_bounds(2*i);
+		if (Xinit_bounds(2*i+1) != Xinit_bounds(2*i))
+			prob->Xinit(i) += (double(rand())/RAND_MAX)*(Xinit_bounds(2*i+1) - Xinit_bounds(2*i));
 	}
 
 	Eigen::VectorXd box_bounds(2*prob->numdim_output);
 	prob->goals.resize( number_goals );
 	for (i = 0; i < number_goals; i++) {
 		for (j = 0; j < prob->numdim_output; j++) {
-			box_bounds(2*j) = Y_bounds(2*j)
-				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
-			box_bounds(2*j+1) = Y_bounds(2*j)
-				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
+			box_bounds(2*j) = Y_box(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+			box_bounds(2*j+1) = Y_box(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
 			if (box_bounds(2*j+1) < box_bounds(2*j)) {
 				double tmp = box_bounds(2*j+1);
 				box_bounds(2*j+1) = box_bounds(2*j);
@@ -279,10 +273,10 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 	prob->obstacles.resize( number_obstacles );
 	for (i = 0; i < number_obstacles; i++) {
 		for (j = 0; j < prob->numdim_output; j++) {
-			box_bounds(2*j) = Y_bounds(2*j)
-				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
-			box_bounds(2*j+1) = Y_bounds(2*j)
-				+ (double(rand())/RAND_MAX)*(Y_bounds(2*j+1) - Y_bounds(2*j));
+			box_bounds(2*j) = Y_box(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+			box_bounds(2*j+1) = Y_box(2*j)
+				+ (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
 			if (box_bounds(2*j+1) < box_bounds(2*j)) {
 				double tmp = box_bounds(2*j+1);
 				box_bounds(2*j+1) = box_bounds(2*j);
@@ -293,8 +287,9 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 												   std::string("obstacle_") + int_to_str(i) );
 	}
 
-	prob->period = period_bounds(0)
-		+ double(rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
+	prob->period = period_bounds(0);
+	if (period_bounds(1) != period_bounds(0))
+		prob->period += double(rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
 	
 	return prob;
 }

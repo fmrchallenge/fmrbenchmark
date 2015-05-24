@@ -22,8 +22,10 @@
 
 #include "problem.h"
 
+#include <list>
 #include <cstdlib>
 #include <cstdio>
+#include <errno.h>
 #include <assert.h>
 
 #include <Eigen/Dense>
@@ -162,7 +164,156 @@ private:
 	ros::Publisher statepub;
 	ros::Publisher loutpub;
 	ros::Subscriber inputsub;
+
+	/* param_name is a name in the ROS Parameter Server. It should be a string
+	   of the form "J K", where the range will be parsed as [J, K]. Return true
+	   iff success. If return value is false, then the contents of \p range are
+	   undefined (and may have changed). */
+	bool parse_range_str( const std::string param_name, Eigen::Vector2i &range );
+	bool parse_range_str( const std::string param_name, Eigen::Vector2d &range );
+
+	/* Like parse_range_str() but for arbitrarily long arrays. If
+	   expected_length is positive, then exactly that many values must be read
+	   for the call to be considered successful. Otherwise (default), continue
+	   to read values until no more are detected. */
+	bool parse_array_str( const std::string param_name, Eigen::VectorXd &array,
+						  int expected_length=-1 );
 };
+
+bool TGThread::parse_array_str( const std::string param_name, Eigen::VectorXd &array,
+								const int expected_length )
+{
+	// Try to handle special case of singletons
+	if (expected_length <= 1) {
+		double singleton;
+		if (nh_.getParam( param_name, singleton )) {
+			array.resize( 1 );
+			array(0) = singleton;
+			return true;
+		}
+	}
+	if (expected_length <= 1) {
+		int singleton;
+		if (nh_.getParam( param_name, singleton )) {
+			array.resize( 1 );
+			array(0) = singleton;
+			return true;
+		}
+	}
+
+	std::list<double> buffer;
+	std::string array_str;
+	if (!nh_.getParam( param_name, array_str ))
+		return false;
+
+	if (expected_length > 0) {
+		array.resize( expected_length );
+	}
+
+	double current_value;
+	char *endptr;
+	errno = 0;
+	current_value = strtod( array_str.data(), &endptr );
+	if (errno || array_str.data() == endptr) {
+		std::cerr << "dynamaestro: Malformed array string in \""
+				  << param_name << "\"" << std::endl;
+		return false;
+	}
+	if (expected_length > 0) {
+		array(0) = current_value;
+	} else {
+		buffer.push_back( current_value );
+	}
+
+	char *prev_endptr = NULL;
+	int read_count = 1;
+	while (prev_endptr != endptr) {
+		prev_endptr = endptr;
+		errno = 0;
+		current_value = strtod( prev_endptr, &endptr );
+		if (errno) {
+			std::cerr << "dynamaestro: Malformed array string in \""
+					  << param_name << "\"" << std::endl;
+			return false;
+		}
+		if (prev_endptr == endptr)
+			break;
+
+		if (expected_length > 0) {
+			array(read_count) = current_value;
+		} else {
+			buffer.push_back( current_value );
+		}
+
+		read_count++;
+		if (expected_length > 0 && read_count == expected_length)
+			break;
+	}
+
+	if (expected_length <= 0) {
+		array.resize( read_count );
+		int i = 0;
+		for (std::list<double>::iterator it_buff = buffer.begin();
+			 it_buff != buffer.end(); it_buff++) {
+			array(i) = *it_buff;
+			i++;
+		}
+	} else if (read_count != expected_length) {
+		return false;
+	}
+
+	return true;
+}
+
+bool TGThread::parse_range_str( const std::string param_name, Eigen::Vector2i &range )
+{
+	std::string range_str;
+	if (!nh_.getParam( param_name, range_str ))
+		return false;
+
+	char *endptr;
+	errno = 0;
+	range(0) = strtol( range_str.data(), &endptr, 10 );
+	if (errno || endptr == range_str.data()) {
+		std::cerr << "dynamaestro: Malformed range string in \"" << param_name << "\"" << std::endl;
+		return false;
+	}
+	char *prev_endptr = endptr;
+	errno = 0;
+	range(1) = strtol( prev_endptr, &endptr, 10 );
+	if (errno || endptr == prev_endptr) {
+		std::cerr << "dynamaestro: Malformed range string in \"" << param_name << "\"" << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool TGThread::parse_range_str( const std::string param_name, Eigen::Vector2d &range )
+{
+	std::string range_str;
+	if (!nh_.getParam( param_name, range_str ))
+		return false;
+
+	char *endptr;
+	errno = 0;
+	range(0) = strtod( range_str.data(), &endptr );
+	if (errno || endptr == range_str.data()) {
+		std::cerr << "dynamaestro: Malformed range string in \""
+				  << param_name << "\"" << std::endl;
+		return false;
+	}
+	char *prev_endptr = endptr;
+	errno = 0;
+	range(1) = strtod( prev_endptr, &endptr );
+	if (errno || endptr == prev_endptr) {
+		std::cerr << "dynamaestro: Malformed range string in \""
+				  << param_name << "\"" << std::endl;
+		return false;
+	}
+
+	return true;
+}
 
 TGThread::TGThread( ros::NodeHandle &nh )
 	: nh_(nh),
@@ -280,28 +431,103 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 
 void TGThread::run()
 {
-	int nominal_duration = rand() % 61 + 30;
+	Eigen::Vector2i duration_bounds;
+	if (!parse_range_str( "duration_bounds", duration_bounds )) {
+		duration_bounds << 30, 90;
+	}
+	ROS_INFO( "dynamaestro: Using [%d, %d] as range of integers for sampling "
+			  "the trial duration.",
+			  duration_bounds(0), duration_bounds(1) );
 
-	Eigen::Vector2i numdim_output_bounds( 1, 3 );
-	Eigen::Vector2i num_integrators_bounds( 1, 3 );
+	int nominal_duration = duration_bounds(0);
+	if (duration_bounds(0) == duration_bounds(1))
+		nominal_duration += rand() % (1+duration_bounds(1)-duration_bounds(1));
 
-	Eigen::VectorXd Y_max( 2*numdim_output_bounds(1) );
-	for (int i = 0; i < numdim_output_bounds(1); i++) {
-		Y_max(2*i+1) = 10;
-		Y_max(2*i) = -Y_max(2*i+1);
+	Eigen::Vector2i numdim_output_bounds;
+	if (!parse_range_str( "output_dim_bounds", numdim_output_bounds )) {
+		numdim_output_bounds << 1, 3;
+	}
+	ROS_INFO( "dynamaestro: Using [%d, %d] as sampling range for number of "
+			  "dimensions of the output space.",
+			  numdim_output_bounds(0), numdim_output_bounds(1) );
+
+	Eigen::Vector2i num_integrators_bounds;
+	if (!parse_range_str( "number_integrators_bounds", num_integrators_bounds )) {
+		num_integrators_bounds << 1, 3;
+	}
+	ROS_INFO( "dynamaestro: Using [%d, %d] as sampling range for number of "
+			  "integrators.",
+			  num_integrators_bounds(0), num_integrators_bounds(1) );
+
+	Eigen::Vector2i number_goals_bounds;
+	if (!parse_range_str( "number_goals_bounds", number_goals_bounds )) {
+		number_goals_bounds << 1, 4;
+	}
+	ROS_INFO( "dynamaestro: Using [%d, %d] as sampling range for number of "
+			  "goal polytopes.",
+			  number_goals_bounds(0), number_goals_bounds(1) );
+
+	Eigen::Vector2i number_obstacles_bounds;
+	if (!parse_range_str( "number_obstacles_bounds", number_obstacles_bounds )) {
+		number_obstacles_bounds << 0, 4;
+	}
+	ROS_INFO( "dynamaestro: Using [%d, %d] as sampling range for number of "
+			  "obstacle polytopes.",
+			  number_obstacles_bounds(0), number_obstacles_bounds(1) );
+
+	Eigen::VectorXd Y_box;
+	if (!parse_array_str( "Y", Y_box )
+		|| (Y_box.size() > 1 && Y_box.size() < numdim_output_bounds(1)*2)) {
+		Y_box.resize( 2*numdim_output_bounds(1) );
+		for (int i = 0; i < numdim_output_bounds(1); i++) {
+			Y_box(2*i+1) = 10;
+			Y_box(2*i) = -Y_box(2*i+1);
+		}
+	} else if (Y_box.size() == 1) {
+		double Y_ref = Y_box(0);
+		Y_box.resize( 2*numdim_output_bounds(1) );
+		for (int i = 0; i < numdim_output_bounds(1); i++) {
+			Y_box(2*i+1) = Y_ref;
+			Y_box(2*i) = -Y_box(2*i+1);
+		}
 	}
 
-	Eigen::VectorXd U_max( 2*numdim_output_bounds(1) );
-	for (int i = 0; i < numdim_output_bounds(1); i++) {
-		U_max(2*i+1) = 1;
-		U_max(2*i) = -U_max(2*i+1);
+	Eigen::VectorXd U_box;
+	if (!parse_array_str( "U", U_box )
+		|| (U_box.size() > 1 && U_box.size() < numdim_output_bounds(1)*2)) {
+		U_box.resize( 2*numdim_output_bounds(1) );
+		for (int i = 0; i < numdim_output_bounds(1); i++) {
+			U_box(2*i+1) = 1;
+			U_box(2*i) = -U_box(2*i+1);
+		}
+	} else if (U_box.size() == 1) {
+		double U_ref = U_box(0);
+		U_box.resize( 2*numdim_output_bounds(1) );
+		for (int i = 0; i < numdim_output_bounds(1); i++) {
+			U_box(2*i+1) = U_ref;
+			U_box(2*i) = -U_box(2*i+1);
+		}
 	}
 
-	Eigen::Vector2d period_bounds( 0.05, 0.1 );
+	Eigen::VectorXd Xinit_bounds;
+
+	Eigen::Vector2d period_bounds;
+	if (!parse_range_str( "period_bounds", period_bounds )) {
+		period_bounds << 0.01, 0.05;
+	}
+	ROS_INFO( "dynamaestro: Using [%f, %f] as sampling range for number of "
+			  "discretization period.",
+			  period_bounds(0), period_bounds(1) );
 
 	probinstance = Problem::random( numdim_output_bounds,
 									num_integrators_bounds,
-									Y_max, U_max, 2, 1, period_bounds );
+									Y_box, U_box,
+									number_goals_bounds,
+									number_obstacles_bounds,
+									period_bounds,
+									Y_box );
+	if (probinstance->get_highest_order_deriv() > 1)
+		probinstance->Xinit.tail( (probinstance->get_highest_order_deriv()-1)*probinstance->get_numdim_output() ).setZero();
 	labeler.importProblem( *probinstance );
 
 	U.resize( probinstance->get_numdim_output() );
