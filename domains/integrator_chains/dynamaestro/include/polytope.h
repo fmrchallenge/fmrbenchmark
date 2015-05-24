@@ -10,8 +10,7 @@
 
 /* The half-space representation is used internally. */
 /** \ingroup integrator_chains */
-class Polytope
-{
+class Polytope {
   public:
 	Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K );
 	Polytope( const Polytope &other );

@@ -293,8 +293,7 @@ void Problem::to_formula( std::ostream &out ) const
 
 
 /** \ingroup integrator_chains */
-class Labeler
-{
+class Labeler {
 public:
 	Labeler();
 
