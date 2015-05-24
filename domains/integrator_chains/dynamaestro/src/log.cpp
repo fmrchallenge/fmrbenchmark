@@ -7,6 +7,7 @@
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PointStamped.h>
 #include "dynamaestro/VectorStamped.h"
+#include "dynamaestro/LabelStamped.h"
 
 #include <unistd.h>
 #include <assert.h>
@@ -69,6 +70,37 @@ void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 }
 
 
+class WordEvents {
+public:
+	WordEvents( ros::NodeHandle &nh );
+	void labelcb( const dynamaestro::LabelStamped &ls );
+
+private:
+	ros::NodeHandle &nh_;
+	ros::Publisher pubLabelingNoRep;
+	ros::Subscriber subLabeledOutput;
+	std::vector<std::string> prevlabel;
+	bool initialized;
+};
+
+WordEvents::WordEvents( ros::NodeHandle &nh )
+	: nh_(nh), initialized(false)
+{
+	pubLabelingNoRep = nh_.advertise<dynamaestro::LabelStamped>( "loutput_norep", 10, true );
+	subLabeledOutput = nh_.subscribe( "/dynamaestro/loutput", 10, &WordEvents::labelcb, this );
+}
+
+void WordEvents::labelcb( const dynamaestro::LabelStamped &ls )
+{
+	if (!initialized || ls.label != prevlabel) {
+		initialized = true;
+		prevlabel = ls.label;
+		dynamaestro::LabelStamped echoed_ls = ls;
+		pubLabelingNoRep.publish( echoed_ls );
+	}
+}
+
+
 int main( int argc, char **argv )
 {
 	ros::init( argc, argv, "dynamaestro_logger" );
@@ -87,6 +119,7 @@ int main( int argc, char **argv )
 		i2 = 2;
 
 	DMTranscriber dmt( nh, i0, i1, i2 );
+	WordEvents we( nh );
 	tf::TransformListener tflistener( nh );
 	ros::spin();
 
