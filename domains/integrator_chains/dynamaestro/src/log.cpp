@@ -110,6 +110,8 @@ int main( int argc, char **argv )
 	while (!nh.getParam( "/dynamaestro/output_dim", numdim_output )) {
 		ROS_INFO( "dynamaestro_logger: number_integrators parameter not present; will try again soon..." );
 		sleep( 1 );
+		if (!ros::ok())
+			return 0;
 	}
 
 	int i0 = 0, i1 = -1, i2 = -1;
