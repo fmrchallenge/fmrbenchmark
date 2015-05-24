@@ -16,6 +16,7 @@
 #include <ros/ros.h>
 #include "dynamaestro/VectorStamped.h"
 #include "dynamaestro/LabelStamped.h"
+#include "dynamaestro/ProblemInstanceJSON.h"
 #include "dynamaestro/DMMode.h"
 #endif
 
@@ -148,6 +149,7 @@ private:
 
 	ros::NodeHandle &nh_;
 	ros::ServiceServer mode_srv;
+	ros::Publisher problemJSONpub;
 	ros::Publisher statepub;
 	ros::Publisher loutpub;
 	ros::Subscriber inputsub;
@@ -171,6 +173,7 @@ TGThread::TGThread( ros::NodeHandle &nh )
 	  dmmode(paused)
 {
 	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
+	problemJSONpub = nh_.advertise<dynamaestro::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
 	statepub = nh_.advertise<dynamaestro::VectorStamped>( "state", 10, true );
 	loutpub = nh_.advertise<dynamaestro::LabelStamped>( "loutput", 10, true );
 	inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
@@ -326,7 +329,10 @@ void TGThread::run()
 	assert( dmmode == waiting );
 	ros::Time startt = ros::Time::now();
 
-	nh_.setParam( "probleminstance", probinstance->dumpJSON() );
+	dynamaestro::ProblemInstanceJSON probinstance_msg;
+	probinstance_msg.stamp = ros::Time::now();
+	probinstance_msg.problemjson = probinstance->dumpJSON();
+	problemJSONpub.publish( probinstance_msg );
 
 	nh_.setParam( "number_integrators",
 				  probinstance->get_highest_order_deriv() );
@@ -377,6 +383,10 @@ void TGThread::run()
 		ros::spinOnce();
 		rate.sleep();
 	}
+	dmmode = resetting;
+	dynamaestro::VectorStamped pt;
+	// Send empty state message to indicate that trial has ended.
+	statepub.publish( pt );
 
 	// Did the trial end because the nominal (hidden) duration was reached?
 	if (ros::ok() && trial_duration.toSec() >= nominal_duration) {
@@ -384,17 +394,21 @@ void TGThread::run()
 	}
 
 	// Clear registered instance
-	ROS_INFO( "dynamaestro: Clearing problem instance from Parameter Server." );
-	nh_.setParam( "probleminstance", "" );
+	ROS_INFO( "dynamaestro: Clearing instance summary from Parameter Server." );
 	nh_.setParam( "number_integrators", -1 );
 	nh_.setParam( "output_dim", -1 );
 	nh_.setParam( "period", -1.0 );
+	fresh_input = false;
+	labeler.clear();
+	delete probinstance;
 }
 
 void tgthread( ros::NodeHandle &nhp )
 {
 	TGThread tgt( nhp );
-	tgt.run();
+	while (ros::ok()) {
+		tgt.run();
+	}
 }
 
 
@@ -409,11 +423,11 @@ int main( int argc, char **argv )
 	ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
 	boost::thread *tgmain = NULL;
-	while (ros::ok()) {
-		tgmain = new boost::thread( tgthread, nh );
-		tgmain->join();
-		delete tgmain;
-	}
+	tgmain = new boost::thread( tgthread, nh );
+	tgmain->join();
+	delete tgmain;
+
+	ros::spin();
 	
 #endif
 	return 0;

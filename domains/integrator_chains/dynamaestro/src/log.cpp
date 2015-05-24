@@ -55,13 +55,20 @@ void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 	geometry_msgs::PointStamped pt;
 	pt.header.frame_id = vs.header.frame_id;
 	pt.header.stamp = vs.header.stamp;
-	pt.point.x = vs.v.point[mapped_i0];
-	if (mapped_i1 >= 0) {
+	if (vs.v.point.size() == 0)
+		return;
+
+	if (mapped_i0 >= 0 && mapped_i0 < vs.v.point.size()) {
+		pt.point.x = vs.v.point[mapped_i0];
+	} else {
+		pt.point.x = 0.0;
+	}
+	if (mapped_i1 >= 0 && mapped_i1 < vs.v.point.size()) {
 		pt.point.y = vs.v.point[mapped_i1];
 	} else {
 		pt.point.y = 0.0;
 	}
-	if (mapped_i2 >= 0) {
+	if (mapped_i2 >= 0 && mapped_i2 < vs.v.point.size()) {
 		pt.point.z = vs.v.point[mapped_i2];
 	} else {
 		pt.point.z = 0.0;

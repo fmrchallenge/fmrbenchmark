@@ -21,6 +21,7 @@ if (CATKIN_ENV)
 
   add_message_files (DIRECTORY msg FILES
     VectorStamped.msg Vector.msg LabelStamped.msg
+    ProblemInstanceJSON.msg
   )
   add_service_files (DIRECTORY srv FILES DMMode.srv)
   generate_messages (DEPENDENCIES std_msgs)
