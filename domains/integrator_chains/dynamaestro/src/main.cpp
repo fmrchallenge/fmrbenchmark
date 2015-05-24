@@ -44,14 +44,6 @@
 */
 /** \ingroup integrator_chains */
 class TrajectoryGenerator {
-private:
-	Eigen::VectorXd X;
-	double t;  // Current time
-	int highest_order_deriv;
-	int numdim_output;
-
-	Eigen::VectorXd Xinit;
-
 public:
 	TrajectoryGenerator( int numdim_output, int highest_order_deriv );
 
@@ -78,6 +70,14 @@ public:
 	/* Access to full, current state vector */
 	double getState( int i ) const
 		{ return X[i]; }
+
+private:
+	Eigen::VectorXd X;
+	double t;  // Current time
+	int highest_order_deriv;
+	int numdim_output;
+
+	Eigen::VectorXd Xinit;
 };
 
 TrajectoryGenerator::TrajectoryGenerator( int numdim_output, int highest_order_deriv )
@@ -136,6 +136,15 @@ double TrajectoryGenerator::operator[]( int i ) const
 
 /** \ingroup integrator_chains */
 class TGThread {
+public:
+	TGThread( ros::NodeHandle &nh );
+	~TGThread();
+	void inputcb( const dynamaestro::VectorStamped &vs );
+	bool mode_request( dynamaestro::DMMode::Request &req,
+					   dynamaestro::DMMode::Response &res );
+	void run();
+	void pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y );
+
 private:
 	boost::mutex mtx_;
 	bool fresh_input;
@@ -153,15 +162,6 @@ private:
 	ros::Publisher statepub;
 	ros::Publisher loutpub;
 	ros::Subscriber inputsub;
-
-public:
-	TGThread( ros::NodeHandle &nh );
-	~TGThread();
-	void inputcb( const dynamaestro::VectorStamped &vs );
-	bool mode_request( dynamaestro::DMMode::Request &req,
-					   dynamaestro::DMMode::Response &res );
-	void run();
-	void pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y );
 };
 
 TGThread::TGThread( ros::NodeHandle &nh )
