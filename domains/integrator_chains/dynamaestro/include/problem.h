@@ -4,6 +4,7 @@
 #include <vector>
 #include <list>
 #include <sstream>
+#include <iomanip>
 #include <string>
 #include <cstdlib>
 
@@ -62,6 +63,12 @@ public:
 
 	   \param U_max analogous to \p Y_max but for the input space.
 
+	   \param number_goals_bounds range of integers from which the number of
+	   goal polytopes in the output space will be chosen.
+
+	   \param number_obstacles_bounds analogous to \p number_goals_bounds but
+	   for obstacles.
+
 	   \param period_bounds range from which is uniformly randomly chosen the
 	   constant period by which the original system is discretized.
 
@@ -75,7 +82,8 @@ public:
 							 const Eigen::Vector2i &highest_order_deriv_bounds,
 							 const Eigen::VectorXd &Y_max,
 							 const Eigen::VectorXd &U_max,
-							 int max_number_goals, int max_number_obstacles,
+							 const Eigen::Vector2i &number_goals_bounds,
+							 const Eigen::Vector2i &number_obstacles_bounds,
 							 const Eigen::Vector2d &period_bounds );
 
 	int get_numdim_output() const
@@ -86,7 +94,17 @@ public:
 private:
 	int numdim_output;
 	int highest_order_deriv;
+	static std::string int_to_str( int x, int zero_padding=0 );
 };
+
+std::string Problem::int_to_str( int x, int zero_padding )
+{
+	std::ostringstream out;
+	if (zero_padding > 0)
+		out << std::setfill('0') << std::setw( zero_padding );
+	out << x;
+	return out.str();
+}
 
 Problem::Problem()
 	: numdim_output(0), highest_order_deriv(0), Y(NULL), U(NULL)
@@ -164,14 +182,18 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 						   const Eigen::Vector2i &highest_order_deriv_bounds,
 						   const Eigen::VectorXd &Y_max,
 						   const Eigen::VectorXd &U_max,
-						   int max_number_goals, int max_number_obstacles,
+						   const Eigen::Vector2i &number_goals_bounds,
+						   const Eigen::Vector2i &number_obstacles_bounds,
 						   const Eigen::Vector2d &period_bounds )
 {
 	assert( numdim_output_bounds(0) >= 1
 			&& numdim_output_bounds(0) <= numdim_output_bounds(1)
 			&& highest_order_deriv_bounds(0) >= 1
 			&& highest_order_deriv_bounds(0) <= highest_order_deriv_bounds(1)
-			&& max_number_goals >= 0 && max_number_obstacles >= 0
+			&& number_goals_bounds(0) >= 0
+			&& number_goals_bounds(0) <= number_goals_bounds(1)
+			&& number_obstacles_bounds(0) >= 0
+			&& number_obstacles_bounds(0) <= number_obstacles_bounds(1)
 			&& Y_max.size() >= 2*numdim_output_bounds(1)
 			&& U_max.size() >= 2*numdim_output_bounds(1)
 			&& period_bounds(0) >= 0 && period_bounds(1) >= period_bounds(0) );
@@ -191,8 +213,17 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 									  % (1+highest_order_deriv_bounds(1)
 										 - highest_order_deriv_bounds(0)));
 
-	int number_goals = (rand() % max_number_goals) + 1;
-	int number_obstacles = (rand() % max_number_obstacles) + 1;
+	int number_goals = number_goals_bounds(0);
+	if (number_goals_bounds(1) != number_goals_bounds(0))
+		number_goals += (rand()
+						 % (1+number_goals_bounds(1)
+							- number_goals_bounds(0)));
+
+	int number_obstacles = number_obstacles_bounds(0);
+	if (number_obstacles_bounds(1) != number_obstacles_bounds(0))
+		number_obstacles += (rand()
+						 % (1+number_obstacles_bounds(1)
+							- number_obstacles_bounds(0)));
 
 	Eigen::VectorXd Y_bounds(2*prob->numdim_output);
 	for (i = 0; i < prob->numdim_output; i++) {
@@ -243,7 +274,7 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 			}
 		}
 		prob->goals[i] = LabeledPolytope::box( box_bounds,
-											   std::string("goal_") + char(0x30+i) );
+											   std::string("goal_") + int_to_str(i) );
 	}
 	prob->obstacles.resize( number_obstacles );
 	for (i = 0; i < number_obstacles; i++) {
@@ -259,7 +290,7 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 			}
 		}
 		prob->obstacles[i] = LabeledPolytope::box( box_bounds,
-												   std::string("obstacle_") + char(0x30+i) );
+												   std::string("obstacle_") + int_to_str(i) );
 	}
 
 	prob->period = period_bounds(0)
