@@ -10,7 +10,7 @@ master_doc = 'index'
 project = u'fmrbenchmark'
 copyright = u'2015, Scott C. Livingston'
 
-version = '0.0.0'
+version = '0.0.0-dev'
 release = version  # To appease Sphinx
 
 
