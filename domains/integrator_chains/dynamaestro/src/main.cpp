@@ -275,14 +275,16 @@ bool TGThread::parse_range_str( const std::string param_name, Eigen::Vector2i &r
 	errno = 0;
 	range(0) = strtol( range_str.data(), &endptr, 10 );
 	if (errno || endptr == range_str.data()) {
-		std::cerr << "dynamaestro: Malformed range string in \"" << param_name << "\"" << std::endl;
+		std::cerr << "dynamaestro: Malformed range string in \""
+				  << param_name << "\"" << std::endl;
 		return false;
 	}
 	char *prev_endptr = endptr;
 	errno = 0;
 	range(1) = strtol( prev_endptr, &endptr, 10 );
 	if (errno || endptr == prev_endptr) {
-		std::cerr << "dynamaestro: Malformed range string in \"" << param_name << "\"" << std::endl;
+		std::cerr << "dynamaestro: Malformed range string in \""
+				  << param_name << "\"" << std::endl;
 		return false;
 	}
 
@@ -616,7 +618,8 @@ void TGThread::run()
 
 	// Did the trial end because the nominal (hidden) duration was reached?
 	if (ros::ok() && trial_duration.toSec() >= nominal_duration) {
-		ROS_INFO( "dynamaestro: Trial ended after %f s (threshold is %d s).", trial_duration.toSec(), nominal_duration );
+		ROS_INFO( "dynamaestro: Trial ended after %f s (threshold is %d s).",
+				  trial_duration.toSec(), nominal_duration );
 	}
 
 	// Clear registered instance
