@@ -7,6 +7,7 @@ from control import lqr
 
 import roslib; roslib.load_manifest('sci_concrete_examples')
 import rospy
+from std_msgs.msg import Header
 from dynamaestro.msg import VectorStamped, Vector, ProblemInstanceJSON
 from dynamaestro.srv import DMMode, DMModeRequest
 
@@ -28,7 +29,8 @@ class StateFeedback:
             self.trial_ended = True
             return
         self.error = np.asarray(vs.v.point) - self.target_state
-        self.intopic.publish(VectorStamped(v=Vector(-np.dot(self.K, self.error))))
+        self.intopic.publish(VectorStamped(header=Header(stamp=rospy.Time.now()),
+                                           v=Vector(-np.dot(self.K, self.error))))
 
     def unregister(self):
         self.outtopic.unregister()
