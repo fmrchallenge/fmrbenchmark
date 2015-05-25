@@ -627,14 +627,27 @@ void TGThread::run()
 	fresh_input = false;
 	labeler.clear();
 	delete probinstance;
+	probinstance = NULL;
 }
 
 void tgthread( ros::NodeHandle &nhp )
 {
 	TGThread tgt( nhp );
-	while (ros::ok()) {
+	int number_trials = 0;
+	bool counting_trials = nhp.getParam( "/number_trials", number_trials );
+	if (counting_trials)
+		ROS_INFO( "dynamaestro: Initiated with request for %d trials.",
+				  number_trials );
+	int trial_counter = 0;
+	while ((!counting_trials || trial_counter < number_trials)
+		   && ros::ok()) {
 		tgt.run();
+		if (counting_trials)
+			trial_counter++;
 	}
+
+	if (counting_trials && ros::ok())
+		ROS_INFO( "dynamaestro: Completed %d trials.", trial_counter );
 }
 
 
@@ -648,11 +661,7 @@ int main( int argc, char **argv )
 	srand( seed );
 	ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
-	boost::thread *tgmain = NULL;
-	tgmain = new boost::thread( tgthread, nh );
-	tgmain->join();
-	delete tgmain;
-
+	boost::thread tgmain( tgthread, nh );
 	ros::spin();
 	
 #endif

@@ -1,4 +1,6 @@
 <launch>
+  <param name="number_trials" value="5" />
+
   <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
     <remap from="dynamaestro/input" to="input" />
     <remap from="dynamaestro/state" to="state" />
@@ -19,7 +21,5 @@
     <remap from="dynamaestro/state" to="state" />
   </node>
 
-  <node pkg="sci_concrete_examples" name="$(anon lqr)" type="lqr.py" output="screen">
-    <remap from="number_integrators" to="dynamaestro/number_integrators" />
-  </node>
+  <node pkg="sci_concrete_examples" name="$(anon lqr)" type="lqr.py" output="screen" />
 </launch>

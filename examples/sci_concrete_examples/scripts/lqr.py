@@ -106,5 +106,9 @@ def main(imon):
 if __name__ == "__main__":
     rospy.init_node("lqr", anonymous=True)
     imon = InstanceMonitor()
-    while True:
+    number_trials = rospy.get_param('/number_trials', None)
+    trial_counter = 0
+    while (number_trials is None) or (trial_counter < number_trials):
         main(imon)
+        if number_trials is not None:
+            trial_counter += 1
