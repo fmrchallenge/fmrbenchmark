@@ -1,25 +1,3 @@
 <launch>
-  <param name="number_trials" value="5" />
-
-  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
-    <remap from="dynamaestro/input" to="input" />
-    <remap from="dynamaestro/state" to="state" />
-
-    <param name="output_dim_bounds" value="1 3" />
-    <param name="number_integrators_bounds" value="1 3" />
-    <param name="number_goals_bounds" value="1 10" />
-    <param name="number_obstacles_bounds" value="0 4" />
-    <param name="period_bounds" value="0.01 0.05" />
-
-    <param name="Y" value="10" />
-    <param name="U" value="1" />
-
-    <param name="duration_bounds" value="30 60" />
-  </node>
-
-  <node pkg="dynamaestro" name="logger" type="log" output="screen">
-    <remap from="dynamaestro/state" to="state" />
-  </node>
-
   <node pkg="sci_concrete_examples" name="$(anon lqr)" type="lqr.py" output="screen" />
 </launch>

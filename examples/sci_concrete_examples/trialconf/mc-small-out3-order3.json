@@ -1,0 +1,13 @@
+{
+  "number_trials": 5,
+  "output_dim_bounds": [1, 3],
+  "number_integrators_bounds": [1, 3],
+  "number_goals_bounds": [1, 10],
+  "number_obstacles_bounds": [0, 4],
+  "period_bounds": [0.01, 0.05],
+
+  "Y": [10],
+  "U": [1],
+
+  "duration_bounds": [30, 60]
+}

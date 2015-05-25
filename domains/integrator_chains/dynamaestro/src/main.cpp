@@ -665,7 +665,8 @@ int main( int argc, char **argv )
 	ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
 	boost::thread tgmain( tgthread, nh );
-	ros::spin();
+	tgmain.join();
+	nh.shutdown();
 	
 #endif
 	return 0;
