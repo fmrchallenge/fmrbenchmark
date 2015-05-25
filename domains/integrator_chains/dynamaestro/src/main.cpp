@@ -176,12 +176,12 @@ private:
 	   expected_length is positive, then exactly that many values must be read
 	   for the call to be considered successful. Otherwise (default), continue
 	   to read values until no more are detected. */
-	bool parse_array_str( const std::string param_name, Eigen::VectorXd &array,
+	bool parse_array_str( const std::string &param_name, Eigen::VectorXd &array,
 						  int expected_length=-1 );
 };
 
-bool TGThread::parse_array_str( const std::string param_name, Eigen::VectorXd &array,
-								const int expected_length )
+bool TGThread::parse_array_str( const std::string &param_name, Eigen::VectorXd &array,
+								int expected_length )
 {
 	// Try to handle special case of singletons
 	if (expected_length <= 1) {
