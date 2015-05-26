@@ -34,6 +34,11 @@ if __name__ == '__main__':
 
     prob = integrator_chains.Problem.loadJSON(probjs)
     print('Discretization period is '+str(prob.period))
+    if prob.output_dim != 2:
+        print('This script can only plot for output space dimension of 2, '
+              'but that of given problem has dimension '
+              +str(prob.output_dim)+'.')
+        sys.exit(0)
 
     ax = plt.axes()
     ax.axis(prob.Y.get_bbox()[:4])
