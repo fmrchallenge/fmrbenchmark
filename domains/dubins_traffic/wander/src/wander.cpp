@@ -1,8 +1,9 @@
-/* Program that issues velocity commands for following a series of waypoints
- * Based on starter node in C++ for ME/CS 132a final assignment
+/* Program that generates a series of waypoints on a grid relative to the initial position,
+ * and  issues velocity commands for following this series of waypoints
  *
  * SCL; 6 Mar 2015
- */
+ * VR; 3 May, 26 May 2015 
+*/
 
 #include <iostream>
 #include <vector>
@@ -93,10 +94,6 @@ public:
 int main( int argc, char **argv )
 {
 	/*************************************************************/
-	// Generate a random series of waypoints
-	std::vector<PositionR2 *> waypoints;
-	int numWaypts = 3;
-	int x,y;
 	unsigned int seed;
 
 	if (argc <= 1) {
@@ -106,12 +103,39 @@ int main( int argc, char **argv )
 
         seed = atoi(argv[1]);
 	srand(seed);
+	
+	// Generate a random series of waypoints on a grid.
+	std::vector<PositionR2 *> waypoints;
+	int numWaypts = 3;
+	int x,y;
+	int r1,r2;
 
+	// Assumes initial position is (0,0) on the grid.
+	x = 0;
+	y = 0;
+	
+	int cell_size = 3; //size of grid cell in meters, assuming square cells
+	
 	for (int i=0; i<numWaypts; i++) {
-	  x = rand() % 5; //random integer between 0 and 4
-	  y = rand() % 5;
+	  r1 = rand() % 2; //move in x or y
+	  r2 = rand() % 2; //positive or negative increment on grid
+	  
+	  if (r1==0) {
+	    if (r2==0) {
+	      x = x + cell_size;
+	    } else {
+	      x = x - cell_size;
+	    }
+	  } else {
+	    if (r2==0) {
+	      y = y + cell_size;
+	    } else {
+	      y = y - cell_size;
+	    }
+	  }
 	  waypoints.push_back( new PositionR2( x, y ) );
 	}
+
 
 	// Configure turning rate and other motion parameters here
 	double turning_rate = 0.2;  // rad/s
@@ -136,6 +160,7 @@ int main( int argc, char **argv )
 	double angle_diff;
 
 	ros::Rate rate( 30. );
+	
 	while (ros::ok()) {
 
 		geometry_msgs::Twist mot;
