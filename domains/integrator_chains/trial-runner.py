@@ -10,6 +10,7 @@ import subprocess
 import sys
 import os
 import os.path
+from time import gmtime, strftime
 
 
 def gen_roslaunch(trialconf, results_filename=None, launch_logger=False):
@@ -78,7 +79,9 @@ if __name__ == '__main__':
 
     if args.DATAFILE is not None:
         with open(args.DATAFILE, 'w') as f:
-            f.write('{"trialconf": ')
+            f.write('{"version": 0,\n')
+            f.write('"date": "'+strftime('%Y-%m-%d %H:%M:%S', gmtime())+'",\n')
+            f.write('"trialconf": ')
             json.dump(trialconf, f)
             f.write(',\n')
 
