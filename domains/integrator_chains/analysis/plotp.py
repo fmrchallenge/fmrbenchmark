@@ -15,8 +15,13 @@ if __name__ == '__main__':
         print('Usage: plotp.py [FILE]')
         sys.exit(0)
     elif len(sys.argv) == 1:
-        import rospy
-        probjs = rospy.get_param('/dynamaestro/probleminstance')
+        param_name = '/dynamaestro/probleminstance'
+        try:
+            import rospy
+            probjs = rospy.get_param(param_name)
+        except:
+            print('Failed to get "'+param_name+'" from ROS Parameter Server')
+            sys.exit(-1)
     else:
         if sys.argv[1] == '-':
             f = sys.stdin
