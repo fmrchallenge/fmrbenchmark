@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-"""
+"""Depict problem instance that has 2-dimensional output space.
 
-If given `-`, then read from stdin.
+If given `-`, then read from stdin. If no filename is given at
+command-line, then try to get description from ROS Parameter Server.
 """
 from __future__ import print_function
 import sys
