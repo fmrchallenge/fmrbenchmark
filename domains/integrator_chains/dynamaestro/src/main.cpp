@@ -22,6 +22,10 @@
 
 #include "problem.h"
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <utility>
 #include <list>
 #include <cstdlib>
 #include <cstdio>
@@ -30,6 +34,7 @@
 
 #include <Eigen/Dense>
 #include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
 
 
 /* The trajectories are the solutions of a linear time-invariant control
@@ -136,6 +141,57 @@ double TrajectoryGenerator::operator[]( int i ) const
 }
 
 
+template <typename T>
+class Queue {
+public:
+	void enqueue( int, T );
+	std::pair<int, T> dequeue();
+	int size();
+	int peek();
+private:
+	boost::mutex mtx_;
+	std::list< std::pair<int, T> > Q;
+};
+
+template <typename T>
+void Queue<T>::enqueue( int k, T obj )
+{
+	mtx_.lock();
+	Q.push_front( std::pair<int, T>( k, obj ) );
+	mtx_.unlock();
+}
+
+template <typename T>
+std::pair<int, T> Queue<T>::dequeue()
+{
+	assert( Q.size() > 0 );
+	mtx_.lock();
+	std::pair<int, T> x = Q.back();
+	Q.pop_back();
+	mtx_.unlock();
+	return x;
+}
+
+template <typename T>
+int Queue<T>::size()
+{
+	mtx_.lock();
+	int sz = Q.size();
+	mtx_.unlock();
+	return sz;
+}
+
+template <typename T>
+int Queue<T>::peek()
+{
+	assert( this->size() > 0 );
+	mtx_.lock();
+	int k = Q.back().first;
+	mtx_.unlock();
+	return k;
+}
+
+
 /** \ingroup integrator_chains */
 class TGThread {
 public:
@@ -147,13 +203,47 @@ public:
 	void run();
 	void pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y );
 
+	void inc_trial();
+	int get_trial_number();
+
+	/* Spin up a scribe thread to record trial data.
+
+	   The scribe thread is responsible for freeing each message in the state
+	   and problem instance queues. It can be terminated using stop_monitoring()
+
+	   Other assumptions: All of the following assumptions ignore the case of
+	   thread interruption, e.g., due to stop_monitoring() or ROS shutdown.
+	   Interruption causes the superseding assumption to be made that no more
+	   messages will arrive and everything from the queues is safe to delete.
+	   Upon arrival of an item associated with trial number t+1, all items
+	   associated with trial t are safe to be freed. The arrival of the problem
+	   instance description for trial t+1 implies that no more state nor input
+	   items will be enqueued for trial t. The first state message should not be
+	   recorded because it is redundant with the Xinit in the problem instance
+	   description. Thus ignoring the first state message, the numbers of inputs
+	   and remaining states for the current trial are equal unless the first
+	   input is empty (vector of zero length), in which case the controller has
+	   declared "unrealizable". For each trial, the problem instance and any
+	   compromising details should not be recorded until after the controller
+	   has begun the trial. The problem instance of trial t is safe to be freed
+	   by the scribe thread only if the problem instance of trial t+1 has
+	   arrived (consistent with an assumption above) or monitoring has ended. */
+	void start_monitoring( std::string filename, bool append_mode=false );
+
+	/* No-op if no scribe is active. */
+	void stop_monitoring();
+
 private:
+	boost::mutex trial_mtx_;
 	boost::mutex mtx_;
 	bool fresh_input;
 	Eigen::VectorXd U;
 
 	Problem *probinstance;
 	Labeler labeler;
+
+	/* -1 indicates uninitialized. Counting begins at 0. */
+	int trial_number;
 
 	enum DMMode { ready, waiting, running, paused, resetting, restarting };
 	DMMode dmmode;
@@ -178,7 +268,144 @@ private:
 	   to read values until no more are detected. */
 	bool parse_array_str( const std::string &param_name, Eigen::VectorXd &array,
 						  int expected_length=-1 );
+
+	Queue<Problem *> instances_recording;
+	Queue<Eigen::VectorXd> inputs_recording;
+	Queue<dynamaestro::VectorStamped *> states_recording;
+	boost::thread *scribethread;
+	void tgt_scribe( std::string filename, bool append_mode );
 };
+
+void TGThread::tgt_scribe( std::string filename, bool append_mode )
+{
+	std::ofstream outf( filename.c_str(),
+						std::ios_base::out
+						| (append_mode ?
+						   std::ios_base::app : std::ios_base::trunc) );
+	bool first_trial = true;
+	std::pair<int, Problem *> tp( -1, NULL );
+
+	ros::Rate polling_rate( 100 );
+	while (get_trial_number() < 0 && ros::ok())
+		polling_rate.sleep();
+
+	ROS_INFO( "dynamaestro: Saving results to %s", filename.c_str() );
+	outf << "\"trials\": [\n" << std::endl;
+	while (!((get_trial_number() < 0 || !ros::ok()
+			  || boost::this_thread::interruption_requested())
+			 && instances_recording.size() == 0
+			 && states_recording.size() == 0
+			 && inputs_recording.size() == 0)) {
+
+		if (instances_recording.size() == 0) {
+			polling_rate.sleep();
+			continue;
+		}
+
+		if (tp.second)
+			delete tp.second;
+		std::pair<int, Problem *> tp = instances_recording.dequeue();
+
+		// Wait for first state to be sure that it is safe to begin recording
+		while (ros::ok() && get_trial_number() >= 0
+			   && states_recording.size() == 0
+			   && instances_recording.size() == 0)
+			polling_rate.sleep();
+
+		// Instance generated and queued but never revealed to the controller?
+		if (states_recording.size() == 0 || states_recording.peek() != tp.first)
+			continue;
+
+		if (first_trial) {
+			first_trial = false;
+		} else {
+			outf << "," << std::endl;
+		}
+		outf << "{\n  \"problem_instance\": " << *tp.second;
+
+		// Wait for first input to get realizability declaration
+		while (ros::ok() && get_trial_number() >= 0
+			   && inputs_recording.size() == 0
+			   && instances_recording.size() == 0)
+			polling_rate.sleep();
+
+		// Did the controller time-out, and the dm progress to the next trial?
+		if (inputs_recording.size() == 0 || inputs_recording.peek() != tp.first) {
+			outf << "}" << std::endl;
+			continue;
+		}
+
+		// Drop initial state because it is already in the instance description
+		states_recording.dequeue();
+
+		bool at_least_one = false;
+		while ((inputs_recording.size() > 0
+				&& inputs_recording.peek() == tp.first)
+			   || (ros::ok() && get_trial_number() >= 0
+				   && !boost::this_thread::interruption_requested()
+				   && instances_recording.size() == 0)) {
+
+			if (inputs_recording.size() == 0 || states_recording.size() == 0) {
+				polling_rate.sleep();
+				continue;
+			}
+
+			std::pair<int, Eigen::VectorXd> tinput = inputs_recording.dequeue();
+			if (!at_least_one) {
+				if (tinput.second.size() == 0) {
+					outf << ",\n  \"realizable\": false" << std::endl;
+					break;
+				} else {
+					outf << ",\n  \"realizable\": true," << std::endl;
+				}
+				at_least_one = true;
+				outf << "  \"trajectory\": [" << std::endl;
+			} else {
+				outf << "," << std::endl;
+			}
+
+			std::pair<int, dynamaestro::VectorStamped *> tstate = states_recording.dequeue();
+
+			outf << "[" << tstate.second->header.stamp.sec
+				 << ", " << tstate.second->header.stamp.nsec;
+			for (int i = 0; i < tinput.second.size(); i++)
+				outf << ", " << tinput.second(i);
+			for (int i = 0; i < tstate.second->v.point.size(); i++)
+				outf << ", " << tstate.second->v.point[i];
+			outf << "]";
+			delete tstate.second;
+
+		}
+		if (at_least_one)
+			outf << "]" << std::endl;
+
+		outf << "}";
+
+	}
+	outf << "\n]" << std::endl;
+	outf.close();
+	if (tp.second)
+		delete tp.second;
+}
+
+void TGThread::start_monitoring( std::string filename, bool append_mode )
+{
+	assert( scribethread == NULL );
+	scribethread = new boost::thread( boost::bind( &TGThread::tgt_scribe,
+												   this, _1, append_mode ),
+									  filename );
+}
+
+void TGThread::stop_monitoring()
+{
+	if (scribethread) {
+		scribethread->interrupt();
+		ROS_INFO( "dynamaestro: Waiting for scribe thread to finish..." );
+		scribethread->join();
+		delete scribethread;
+		scribethread = NULL;
+	}
+}
 
 bool TGThread::parse_array_str( const std::string &param_name, Eigen::VectorXd &array,
 								int expected_length )
@@ -317,13 +544,30 @@ bool TGThread::parse_range_str( const std::string param_name, Eigen::Vector2d &r
 	return true;
 }
 
+int TGThread::get_trial_number()
+{
+	trial_mtx_.lock();
+	int x = trial_number;
+	trial_mtx_.unlock();
+	return x;
+}
+
+void TGThread::inc_trial()
+{
+	trial_mtx_.lock();
+	trial_number += 1;
+	trial_mtx_.unlock();
+}
+
 TGThread::TGThread( ros::NodeHandle &nh )
 	: nh_(nh),
 	  fresh_input(false),
 	  U(),
 	  probinstance(NULL),
 	  labeler(),
-	  dmmode(paused)
+	  trial_number(-1),
+	  dmmode(paused),
+	  scribethread(NULL)
 {
 	mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
 	problemJSONpub = nh_.advertise<dynamaestro::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
@@ -332,28 +576,33 @@ TGThread::TGThread( ros::NodeHandle &nh )
 	inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 }
 
+
+
 TGThread::~TGThread()
 {
-	if (probinstance)
+	if (scribethread) {
+		stop_monitoring();
+	} else if (probinstance) {
 		delete probinstance;
+	}
 }
 
 void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
 {
-	dynamaestro::VectorStamped pt;
-	pt.header.frame_id = std::string( "map" );
-	pt.header.stamp = ros::Time::now();
+	dynamaestro::VectorStamped *pt = new dynamaestro::VectorStamped();
+	pt->header.frame_id = std::string( "map" );
+	pt->header.stamp = ros::Time::now();
 	for (int i = 0; i < tg.getStateDim(); i++) {
-		pt.v.point.push_back( tg.getState( i ) );
+		pt->v.point.push_back( tg.getState( i ) );
 		if (i < tg.getOutputDim())
 			Y(i) = tg[i];
 	}
-	statepub.publish( pt );
+	statepub.publish( *pt );
 
 	std::list<std::string> label = labeler.get_label( Y );
 	dynamaestro::LabelStamped lbl;
-	lbl.header.frame_id = pt.header.frame_id;
-	lbl.header.stamp = pt.header.stamp;
+	lbl.header.frame_id = pt->header.frame_id;
+	lbl.header.stamp = pt->header.stamp;
 	lbl.label.resize( label.size() );
 	int i = 0;
 	for (std::list<std::string>::iterator it_label = label.begin();
@@ -362,6 +611,12 @@ void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
 		i++;
 	}
 	loutpub.publish( lbl );
+
+	if (scribethread) {
+		states_recording.enqueue( get_trial_number(), pt );
+	} else {
+		delete pt;
+	}
 }
 
 bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
@@ -433,6 +688,9 @@ void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 
 void TGThread::run()
 {
+	inc_trial();
+	bool realizable;  // To be decided by the controller
+
 	Eigen::Vector2i duration_bounds;
 	if (!parse_range_str( "duration_bounds", duration_bounds )) {
 		duration_bounds << 30, 90;
@@ -544,6 +802,9 @@ void TGThread::run()
 	Eigen::VectorXd defaultU( U );
 	defaultU.setZero();
 
+	if (scribethread)
+		instances_recording.enqueue( get_trial_number(), probinstance );
+
 	ros::Duration trial_duration;
 
 	ros::Rate polling_rate( 100 );
@@ -579,16 +840,33 @@ void TGThread::run()
 	pubstate( tg, Y );
 	ros::spinOnce();
 
+	bool first_input = true;
 	while (ros::ok() && dmmode != resetting && (trial_duration = ros::Time::now() - startt).toSec() < nominal_duration) {
 		if (dmmode == running) {
 			if (fresh_input) {
 				mtx_.lock();
-
 				fresh_input = false;
+
+				if (scribethread)
+					inputs_recording.enqueue( get_trial_number(), U );
+
+				if (first_input) {
+					first_input = false;
+					if (U.size() == 0) { // Controller declares "unrealizable"
+						mtx_.unlock();
+						realizable = false;
+						break;
+					} else {
+						realizable = true;
+					}
+				}
+
 				tg.step( probinstance->period, U );
 
 				mtx_.unlock();
 			} else {
+				if (scribethread)
+					inputs_recording.enqueue( get_trial_number(), defaultU );
 				tg.step( probinstance->period, defaultU );
 			}
 
@@ -616,9 +894,13 @@ void TGThread::run()
 	// Send empty state message to indicate that trial has ended.
 	statepub.publish( pt );
 
-	// Did the trial end because the nominal (hidden) duration was reached?
+	// Handle special cases of trial termination:
 	if (ros::ok() && trial_duration.toSec() >= nominal_duration) {
+		// The trial end because the nominal (hidden) duration was reached
 		ROS_INFO( "dynamaestro: Trial ended after %f s (threshold is %d s).",
+				  trial_duration.toSec(), nominal_duration );
+	} else if (ros::ok() && !first_input && !realizable) {
+		ROS_INFO( "dynamaestro: Controller declared \"unrealizable\" after %f s (trial duration threshold is %d s).",
 				  trial_duration.toSec(), nominal_duration );
 	}
 
@@ -629,13 +911,17 @@ void TGThread::run()
 	nh_.setParam( "period", -1.0 );
 	fresh_input = false;
 	labeler.clear();
-	delete probinstance;
+	if (scribethread == NULL)
+		delete probinstance;
 	probinstance = NULL;
 }
 
 void tgthread( ros::NodeHandle &nhp )
 {
 	TGThread tgt( nhp );
+	std::string filename;
+	if (nhp.getParam( "results_file", filename ))
+		tgt.start_monitoring( filename, true );
 	int number_trials = 0;
 	bool counting_trials = nhp.getParam( "/number_trials", number_trials );
 	if (counting_trials)
@@ -649,8 +935,10 @@ void tgthread( ros::NodeHandle &nhp )
 			trial_counter++;
 	}
 
-	if (counting_trials && ros::ok())
+	if (counting_trials && ros::ok()) {
 		ROS_INFO( "dynamaestro: Completed %d trials.", trial_counter );
+		tgt.stop_monitoring();
+	}
 }
 
 
