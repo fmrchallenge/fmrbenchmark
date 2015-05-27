@@ -77,7 +77,13 @@ void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 }
 
 
-/** \ingroup integrator_chains */
+/** Echo trajectory labeling modulo repetition.
+
+	This object subscribes to "/dynamaestro/loutput" and publishes to
+	"loutput_norep". It forwards messages whenever there is a change in the
+	labeling, thus eliminating repetition in the corresponding word.
+
+	\ingroup integrator_chains */
 class WordEvents {
 public:
 	WordEvents( ros::NodeHandle &nh );
