@@ -17,12 +17,12 @@
 class DMTranscriber {
 public:
 	DMTranscriber( ros::NodeHandle &nh, int i0, int i1=-1, int i2=-1 );
-	void statecb( const dynamaestro::VectorStamped &vs );
 
 private:
 	ros::NodeHandle &nh_;
 	ros::Publisher pubPointStamped;
 	ros::Subscriber subVectorStamped;
+	void statecb( const dynamaestro::VectorStamped &vs );
 
 	int mapped_i0, mapped_i1, mapped_i2;
 };
