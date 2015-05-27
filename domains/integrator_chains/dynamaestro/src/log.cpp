@@ -13,7 +13,17 @@
 #include <assert.h>
 
 
-/** \ingroup integrator_chains */
+/** Transcribe state messages (VectorStamped) into other types.
+
+	This object subscribes to "/dynamaestro/state" and publishes to
+	"state_PointStamped". Upon instantiation, a mapping of indices of the state
+	vector to x,y,z coordinates must be given. Consult documentation of the
+	constructor DMTranscriber().
+
+	The object is robust to changes in the state vector size. When applying the
+	mapping, it ignores indices that are out of range.
+
+	\ingroup integrator_chains */
 class DMTranscriber {
 public:
 	DMTranscriber( ros::NodeHandle &nh, int i0, int i1=-1, int i2=-1 );
