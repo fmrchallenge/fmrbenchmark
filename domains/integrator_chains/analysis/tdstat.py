@@ -13,6 +13,25 @@ import matplotlib.pyplot as plt
 from fmrb import integrator_chains
 
 
+def get_labeling(td, trial_index, modrep=False):
+    try:
+        traj = np.array(td['trials'][trial_index]['trajectory'])
+    except KeyError:
+        print('Trial '+str(trial_index)+' does not have an associated trajectory.')
+        sys.exit(-1)
+    prob = integrator_chains.Problem.loadJSONdict(td['trials'][trial_index]['problem_instance'])
+    word = []
+    for row in traj:
+        y = row[2:(2+prob.output_dim)]
+        y_label = []
+        for lpolytope in prob.goals+prob.obstacles:
+            if lpolytope.contains(y):
+                if lpolytope.label not in y_label:
+                    y_label.append(lpolytope.label)
+        if not modrep or (len(word) == 0 or word[-1] != y_label):
+            word.append(y_label)
+    return word
+
 def plot_timeseries(td, trial_index, state_indices, input_indices):
     def get_index_list(indices_str, bounds):
         if indices_str == '*':
@@ -163,9 +182,10 @@ if __name__ == '__main__':
                         help=('get labeling of the trajectory (a.k.a. the '
                               'corresponding "word") for the requested '
                               'trial. The labeling is computed here and '
-                              'not part of the saved trial data.'))
+                              'not part of the saved trial data. Output '
+                              'is in JSON.'))
     parser.add_argument('--wordmodrep', action='store_true',
-                        dest='get_labeling', default=False,
+                        dest='get_labeling_norep', default=False,
                         help='like `--word` switch but without repetition.')
     args = parser.parse_args()
 
@@ -176,6 +196,9 @@ if __name__ == '__main__':
         if args.T < 0 or args.T >= len(td['trials']):
             print('Given trial number is out of the valid range, '
                   '[0,'+str(len(td['trials'])-1)+']')
+            sys.exit(-1)
+        if args.get_labeling and args.get_labeling_norep:
+            print('Cannot use --word and --wordmodrep simultaneously.')
             sys.exit(-1)
     else:
         print(get_summary(td, args.per_trial_summary))
@@ -188,5 +211,9 @@ if __name__ == '__main__':
     if args.plot_timeseries:
         plot_timeseries(td, args.T, args.state_indices, args.input_indices)
         plt.show()
+    elif args.get_labeling:
+        print(json.dumps(get_labeling(td, args.T)))
+    elif args.get_labeling_norep:
+        print(json.dumps(get_labeling(td, args.T, modrep=True)))
     else:
         print(json.dumps(td['trials'][args.T]))
