@@ -10,7 +10,7 @@
 
 /** Basic half-space representation of polytopes.
 
-	\ingroup integrator_chains */
+   \ingroup integrator_chains */
 class Polytope {
   public:
 	Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K );
@@ -18,24 +18,24 @@ class Polytope {
 
 	/** Check that defining matrices have consistent dimensions.
 
-	 The "defining matrices" are those involved in the inequality providing the
-	 half-space representation, i.e., H and K in {x | Hx <= K}.
-	 N.B., this check does not occur during instantiation of Polytope. */
+	   The "defining matrices" are those involved in the inequality providing
+	   the half-space representation, i.e., H and K in {x | Hx <= K}.
+	   N.B., this check does not occur during instantiation of Polytope. */
 	bool is_consistent() const;
 
 	/** Is X contained in this polytope?
 
-	 The polytope is a closed set. No numerical tolerance is used. */
+	   The polytope is a closed set. No numerical tolerance is used. */
 	bool is_in( Eigen::VectorXd X ) const;
 
 	// Factory functions
 	/** Create random Polytope in R^n using Eigen::MatrixXd::Random().
 
-		\param n dimension of the containing space.
+	   \param n dimension of the containing space.
 
-		Random matrices as provided by Eigen::MatrixXd::Random() are used to
-		instantiate Polytope in half-space representation. The matrices have
-		\c n+1 rows, corresponding to \c n+1 inequalities.
+	   Random matrices as provided by Eigen::MatrixXd::Random() are used to
+	   instantiate Polytope in half-space representation. The matrices have
+	   \c n+1 rows, corresponding to \c n+1 inequalities.
 	*/
 	static Polytope * randomH( int n );
 
@@ -65,8 +65,8 @@ class Polytope {
 
 	/** Output this polytope in JSON excluding opening { and closing }.
 
-	 This method facilitates inheritance from Polytope without crowding the JSON
-	 representations of other classes. */
+	   This method facilitates inheritance from Polytope without crowding the
+	   JSON representations of other classes. */
 	void dumpJSONcore( std::ostream &out ) const;
 
   private:
@@ -162,11 +162,11 @@ Polytope::Polytope( const Polytope &other )
 
 /** Extension of Polytope to have label (string).
 
-	This class provides a basis for labeling trajectories. E.g., the labeling of
-	the state can be a set of strings corresponding to the labels of polytopes
-	containing the state.
+   This class provides a basis for labeling trajectories. E.g., the labeling of
+   the state can be a set of strings corresponding to the labels of polytopes
+   containing the state.
 
-	\ingroup integrator_chains */
+   \ingroup integrator_chains */
 class LabeledPolytope : public Polytope {
 public:
 	std::string label;

@@ -15,15 +15,15 @@
 
 /** Transcribe state messages (VectorStamped) into other types.
 
-	This object subscribes to "/dynamaestro/state" and publishes to
-	"state_PointStamped". Upon instantiation, a mapping of indices of the state
-	vector to x,y,z coordinates must be given. Consult documentation of the
-	constructor DMTranscriber().
+   This object subscribes to "/dynamaestro/state" and publishes to
+   "state_PointStamped". Upon instantiation, a mapping of indices of the state
+   vector to x,y,z coordinates must be given. Consult documentation of the
+   constructor DMTranscriber().
 
-	The object is robust to changes in the state vector size. When applying the
-	mapping, it ignores indices that are out of range.
+   The object is robust to changes in the state vector size. When applying the
+   mapping, it ignores indices that are out of range.
 
-	\ingroup integrator_chains */
+   \ingroup integrator_chains */
 class DMTranscriber {
 public:
 	DMTranscriber( ros::NodeHandle &nh, int i0, int i1=-1, int i2=-1 );
@@ -39,12 +39,12 @@ private:
 
 /** Instantiate transcriber with given mapping.
 
-  \param i0 index of the vector that should be mapped to Point::x
+   \param i0 index of the vector that should be mapped to Point::x
 
-  \param i1 index of the vector that should be mapped to Point::y, or -1 if no
-  mapping should occur for y, in which case Point::y is assigned 0.
+   \param i1 index of the vector that should be mapped to Point::y, or -1 if no
+   mapping should occur for y, in which case Point::y is assigned 0.
 
-  \param i2 analogous to \p i1 but for Point::z.
+   \param i2 analogous to \p i1 but for Point::z.
  */
 DMTranscriber::DMTranscriber( ros::NodeHandle &nh, int i0, int i1, int i2 )
 	: nh_(nh), mapped_i0(i0), mapped_i1(i1), mapped_i2(i2)
@@ -89,11 +89,11 @@ void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 
 /** Echo trajectory labeling modulo repetition.
 
-	This object subscribes to "/dynamaestro/loutput" and publishes to
-	"loutput_norep". It forwards messages whenever there is a change in the
-	labeling, thus eliminating repetition in the corresponding word.
+   This object subscribes to "/dynamaestro/loutput" and publishes to
+   "loutput_norep". It forwards messages whenever there is a change in the
+   labeling, thus eliminating repetition in the corresponding word.
 
-	\ingroup integrator_chains */
+   \ingroup integrator_chains */
 class WordEvents {
 public:
 	WordEvents( ros::NodeHandle &nh );
