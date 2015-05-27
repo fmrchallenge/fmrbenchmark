@@ -77,6 +77,7 @@ void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 }
 
 
+/** \ingroup integrator_chains */
 class WordEvents {
 public:
 	WordEvents( ros::NodeHandle &nh );
