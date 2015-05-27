@@ -66,18 +66,18 @@ public:
 	/** Forward Euler integration for duration dt using constant input U */
 	double step( double dt, const Eigen::VectorXd &U );
 
-	double getTime() const
+	double get_time() const
 		{ return t; }
-	double getStateDim() const
+	double get_state_dim() const
 		{ return X.size(); }
-	double getOutputDim() const
+	double get_output_dim() const
 		{ return numdim_output; }
 
 	/** Output vector */
 	double operator[]( int i ) const;
 
 	/** Access to full, current state vector */
-	double getState( int i ) const
+	double get_state( int i ) const
 		{ return X[i]; }
 
 private:
@@ -609,9 +609,9 @@ void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
 	dynamaestro::VectorStamped *pt = new dynamaestro::VectorStamped();
 	pt->header.frame_id = std::string( "map" );
 	pt->header.stamp = ros::Time::now();
-	for (int i = 0; i < tg.getStateDim(); i++) {
-		pt->v.point.push_back( tg.getState( i ) );
-		if (i < tg.getOutputDim())
+	for (int i = 0; i < tg.get_state_dim(); i++) {
+		pt->v.point.push_back( tg.get_state( i ) );
+		if (i < tg.get_output_dim())
 			Y(i) = tg[i];
 	}
 	statepub.publish( *pt );
