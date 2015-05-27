@@ -13,6 +13,8 @@
 #include "ros/ros.h"
 #include "tf/tf.h"
 #include "nav_msgs/Odometry.h"
+#include "gazebo_msgs/ModelStates.h"
+
 #include "geometry_msgs/Twist.h"
 #include "sensor_msgs/LaserScan.h"
 
@@ -30,6 +32,53 @@ void laser_cb( const sensor_msgs::LaserScan &scan )
 		}
 	}
 	safe_to_move = true;
+}
+
+class ModelStatesWatcher {
+public:
+
+	ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_name = "gazebo/model_states" );
+
+	// Callback function for messages from the "gazebo/model_states" topic
+	void ms_cb( const gazebo_msgs::ModelStates &ms );
+
+	/* Get current pose estimate
+	 *
+	 * If an estimate is available, return true and place the estimate in the
+	 * given array. Otherwise, return false and do nothing to the array.
+	 */
+	bool get_pose_estimate( double *x );
+
+private:
+	double last_mspose[3];
+	bool valid_mspose;
+	std::string model_name;
+	ros::Subscriber mssub;
+};
+
+
+ModelStatesWatcher::ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_name )
+	: valid_mspose(false), model_name(nh.getNamespace()),
+	  mssub(nh.subscribe( topic_name, 1, &ModelStatesWatcher::ms_cb, this ))
+{ }
+
+void ModelStatesWatcher::ms_cb( const gazebo_msgs::ModelStates &ms )
+{
+	int idx = find(ms.name.begin(), ms.name.end(), model_name) - ms.name.begin();
+	valid_mspose = false;
+	last_mspose[0] = ms.pose[idx].position.x;
+	last_mspose[1] = ms.pose[idx].position.y;
+	last_mspose[2] = tf::getYaw( ms.pose[idx].orientation );
+	valid_mspose = true;
+}
+
+bool ModelStatesWatcher::get_pose_estimate( double *x )
+{
+	if (valid_mspose) {
+		for (int i = 0; i < 3; i++)
+			x[i] = last_mspose[i];
+	}
+	return valid_mspose;
 }
 
 
@@ -106,11 +155,12 @@ int main( int argc, char **argv )
 	
 	// Generate a random series of waypoints on a grid.
 	std::vector<PositionR2 *> waypoints;
-	int numWaypts = 3;
+	int numWaypts = 10;
 	int x,y;
 	int r1,r2;
 
 	// Assumes initial position is (0,0) on the grid.
+	// TODO: use initial pose estimate from gazebo
 	x = 0;
 	y = 0;
 	
@@ -153,8 +203,9 @@ int main( int argc, char **argv )
 
 	ros::Publisher action = nh.advertise<geometry_msgs::Twist>( "cmd_vel", 1 );
 	ros::Subscriber lmssub = nh.subscribe( "scan", 10, &laser_cb );
-	OdomWatcher pose_watcher( nh );
 
+	ModelStatesWatcher pose_watcher( nh );
+	
 	int current_index = 0;  // Visit waypoints in order
 	double current_pose[3];
 	double angle_diff;
