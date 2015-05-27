@@ -32,17 +32,8 @@ def get_labeling(td, trial_index, modrep=False):
             word.append(y_label)
     return word
 
-def plot_timeseries(td, trial_index, state_indices, input_indices):
-    def get_index_list(indices_str, bounds):
-        if indices_str == '*':
-            indices = range(bounds[0], bounds[1]+1)
-        else:
-            indices = [bounds[0]+int(k) for k in indices_str.split(',')]
-            if (min(indices) < bounds[0]
-                or max(indices) > bounds[1]):
-                return None
-        return indices
 
+def plot_trajectory(td, trial_index, state_indices):
     prob = integrator_chains.Problem.loadJSONdict(td['trials'][trial_index]['problem_instance'])
     state_dim = prob.output_dim*prob.number_integrators
 
@@ -56,7 +47,64 @@ def plot_timeseries(td, trial_index, state_indices, input_indices):
         state_indices = []
     else:
         state_index_bounds = (2+prob.output_dim, 2+prob.output_dim+state_dim-1)
-        state_indices = get_index_list(state_indices, state_index_bounds)
+        state_indices = _get_index_list(state_indices, state_index_bounds)
+        if state_indices is None:
+            print('One of the requested state indices is out of bounds, '
+                  '[0, '+str(state_index_bounds[1]-state_index_bounds[0])+']')
+            sys.exit(-1)
+
+    if len(state_indices) == 0:
+        print('Try `--state` option to select indices for plotting.')
+        sys.exit(0)
+
+    x = traj[:,state_indices]
+    if len(state_indices) == 2:
+        import matplotlib.pyplot as plt
+        plt.plot(x.T[0], x.T[1], 'r.-')
+        plt.plot(x.T[0][0], x.T[1][0], 'r*')
+        plt.show()
+
+    elif len(state_indices) == 3:
+        from mayavi import mlab
+
+        # mlab.plot3d() of Mayavi fails if there are repetitions of rows,
+        # so we first manually delete any.
+        y = np.zeros((x.shape[0], 3))
+        y[0] = x[0]
+        i = 1
+        for j in range(1, x.shape[0]):
+            if (x[j] != x[j-1]).any():
+                y[i] = x[j]
+                i += 1
+        y = y[:(i+1),:]
+
+        mlab.plot3d(y.T[0], y.T[1], y.T[2],
+                    color=(1.0, 0.0, 0.0))
+        mlab.points3d(y.T[0][0], y.T[1][0], y.T[2][0],
+                      color=(1.0, 0.0, 0.0), mode='sphere', opacity=0.5, scale_factor=0.2)
+        mlab.show()
+
+    else:
+        print('Plotting of trajectories requires selection of 2 or 3 indices.'
+              '\nTry `--state` option to select indices for plotting.')
+        sys.exit(0)
+
+
+def plot_timeseries(td, trial_index, state_indices, input_indices):
+    prob = integrator_chains.Problem.loadJSONdict(td['trials'][trial_index]['problem_instance'])
+    state_dim = prob.output_dim*prob.number_integrators
+
+    try:
+        traj = np.array(td['trials'][trial_index]['trajectory'])
+    except KeyError:
+        print('Trial '+str(trial_index)+' does not have an associated trajectory.')
+        sys.exit(-1)
+
+    if state_indices.strip() == '':
+        state_indices = []
+    else:
+        state_index_bounds = (2+prob.output_dim, 2+prob.output_dim+state_dim-1)
+        state_indices = _get_index_list(state_indices, state_index_bounds)
         if state_indices is None:
             print('One of the requested state indices is out of bounds, '
                   '[0, '+str(state_index_bounds[1]-state_index_bounds[0])+']')
@@ -66,7 +114,7 @@ def plot_timeseries(td, trial_index, state_indices, input_indices):
         input_indices = []
     else:
         input_index_bounds = (2, 2+prob.output_dim-1)
-        input_indices = get_index_list(input_indices, input_index_bounds)
+        input_indices = _get_index_list(input_indices, input_index_bounds)
         if input_indices is None:
             print('One of the requested input indices is out of bounds, '
                   '[0, '+str(input_index_bounds[1]-input_index_bounds[0])+']')
@@ -150,6 +198,16 @@ def get_summary(td, include_trials=False):
 
     return summary
 
+def _get_index_list(indices_str, bounds):
+    if indices_str == '*':
+        indices = range(bounds[0], bounds[1]+1)
+    else:
+        indices = [bounds[0]+int(k) for k in indices_str.split(',')]
+        if (min(indices) < bounds[0]
+            or max(indices) > bounds[1]):
+            return None
+    return indices
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
@@ -177,6 +235,11 @@ if __name__ == '__main__':
                               'and input to include can be selected using '
                               'the `--state` and `--input` switches, '
                               'respectively.'))
+    parser.add_argument('--traj', action='store_true',
+                        dest='plot_trajectory', default=False,
+                        help=('create plot of trajectory. Parts of the '
+                              'state to include can be selected using '
+                              'the `--state` switch.'))
     parser.add_argument('--word', action='store_true',
                         dest='get_labeling', default=False,
                         help=('get labeling of the trajectory (a.k.a. the '
@@ -211,6 +274,8 @@ if __name__ == '__main__':
     if args.plot_timeseries:
         plot_timeseries(td, args.T, args.state_indices, args.input_indices)
         plt.show()
+    elif args.plot_trajectory:
+        plot_trajectory(td, args.T, args.state_indices)
     elif args.get_labeling:
         print(json.dumps(get_labeling(td, args.T)))
     elif args.get_labeling_norep:
