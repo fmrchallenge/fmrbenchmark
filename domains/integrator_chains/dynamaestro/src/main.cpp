@@ -37,19 +37,21 @@
 #include <boost/bind.hpp>
 
 
-/* The trajectories are the solutions of a linear time-invariant control
+/** Flow computation for the problem domain: scaling chains of integrators.
+
+   The trajectories are the solutions of a linear time-invariant control
    system. Control input is applied using a zero-order hold, i.e., applied
    constantly during the duration given as the first parameter of step().
 
    Let m be the highest order of derivative, and let n be the dimension of the
    output space.  The state variable indexing is such that the first output
    variable is the first state variable, the second output variable is the
-   second state variable, etc. Thus the component systems are interleaved in the
-   sense that the first subsystem is formed from state variable indices 1, 1+n,
-   1+2n, ..., 1+(m-1)n, and the input to this subsystem is applied at state
-   variable index 1+(m-1)n.
-*/
-/** \ingroup integrator_chains */
+   second state variable, etc. Thus the component systems are interleaved in
+   the sense that the first subsystem is formed from state variable indices
+   1, 1+n, 1+2n, ..., 1+(m-1)n, and the input to this subsystem is applied at
+   state variable index 1+(m-1)n.
+
+   \ingroup integrator_chains */
 class TrajectoryGenerator {
 public:
 	TrajectoryGenerator( int numdim_output, int highest_order_deriv );
@@ -61,7 +63,7 @@ public:
 
 	void clear();
 
-	/* Forward Euler integration for duration dt using constant input U */
+	/** Forward Euler integration for duration dt using constant input U */
 	double step( double dt, const Eigen::VectorXd &U );
 
 	double getTime() const
@@ -71,10 +73,10 @@ public:
 	double getOutputDim() const
 		{ return numdim_output; }
 
-	// Output vector
+	/** Output vector */
 	double operator[]( int i ) const;
 
-	/* Access to full, current state vector */
+	/** Access to full, current state vector */
 	double getState( int i ) const
 		{ return X[i]; }
 
