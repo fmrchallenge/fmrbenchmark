@@ -269,6 +269,7 @@ private:
 	bool parse_array_str( const std::string &param_name, Eigen::VectorXd &array,
 						  int expected_length=-1 );
 
+	Queue<ros::Time> start_times_recording;
 	Queue<Problem *> instances_recording;
 	Queue<Eigen::VectorXd> inputs_recording;
 	Queue<dynamaestro::VectorStamped *> states_recording;
@@ -316,12 +317,17 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 		if (states_recording.size() == 0 || states_recording.peek() != tp.first)
 			continue;
 
+		std::pair<int, ros::Time> tstartt = start_times_recording.dequeue();
+		assert( tstartt.first == tp.first );
+
 		if (first_trial) {
 			first_trial = false;
 		} else {
 			outf << "," << std::endl;
 		}
-		outf << "{\n  \"problem_instance\": " << *tp.second;
+		outf << "{\n  \"start_time\": [" << tstartt.second.sec
+			 << ", " << tstartt.second.nsec << "],\n"
+			 << "  \"problem_instance\": " << *tp.second;
 
 		// Wait for first input to get realizability declaration
 		while (ros::ok() && get_trial_number() >= 0
@@ -816,12 +822,15 @@ void TGThread::run()
 		polling_rate.sleep();
 	}
 	assert( dmmode == waiting );
-	ros::Time startt = ros::Time::now();
 
 	dynamaestro::ProblemInstanceJSON probinstance_msg;
 	probinstance_msg.stamp = ros::Time::now();
 	probinstance_msg.problemjson = probinstance->dumpJSON();
 	problemJSONpub.publish( probinstance_msg );
+	ros::Time startt( probinstance_msg.stamp.sec,
+					  probinstance_msg.stamp.nsec );
+	if (scribethread)
+		start_times_recording.enqueue( get_trial_number(), startt );
 
 	nh_.setParam( "number_integrators",
 				  probinstance->get_highest_order_deriv() );
