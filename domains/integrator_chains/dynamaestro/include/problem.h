@@ -67,8 +67,6 @@ public:
 
 	   \param U_box analogous to \p Y_box but for the input space.
 
-
-
 	   \param number_goals_bounds range of integers from which the number of
 	   goal polytopes in the output space will be chosen.
 
