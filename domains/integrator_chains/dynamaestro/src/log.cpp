@@ -81,12 +81,12 @@ void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
 class WordEvents {
 public:
 	WordEvents( ros::NodeHandle &nh );
-	void labelcb( const dynamaestro::LabelStamped &ls );
 
 private:
 	ros::NodeHandle &nh_;
 	ros::Publisher pubLabelingNoRep;
 	ros::Subscriber subLabeledOutput;
+	void labelcb( const dynamaestro::LabelStamped &ls );
 	std::vector<std::string> prevlabel;
 	bool initialized;
 };
