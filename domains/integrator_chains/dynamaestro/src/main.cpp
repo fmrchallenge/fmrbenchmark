@@ -269,7 +269,7 @@ private:
 	bool parse_array_str( const std::string &param_name, Eigen::VectorXd &array,
 						  int expected_length=-1 );
 
-	Queue<ros::Time> start_times_recording;
+	Queue<ros::Time> times_recording;
 	Queue<Problem *> instances_recording;
 	Queue<Eigen::VectorXd> inputs_recording;
 	Queue<dynamaestro::VectorStamped *> states_recording;
@@ -317,7 +317,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 		if (states_recording.size() == 0 || states_recording.peek() != tp.first)
 			continue;
 
-		std::pair<int, ros::Time> tstartt = start_times_recording.dequeue();
+		std::pair<int, ros::Time> tstartt = times_recording.dequeue();
 		assert( tstartt.first == tp.first );
 
 		if (first_trial) {
@@ -358,14 +358,20 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 
 			std::pair<int, Eigen::VectorXd> tinput = inputs_recording.dequeue();
 			if (!at_least_one) {
+				std::pair<int, ros::Time> tdecisiont = times_recording.dequeue();
+				assert( tdecisiont.first == tinput.first );
+				outf << ",\n  \"decision_time\": [" << tdecisiont.second.sec
+					 << ", " << tdecisiont.second.nsec << "]," << std::endl;
+
 				if (tinput.second.size() == 0) {
-					outf << ",\n  \"realizable\": false" << std::endl;
+					outf << "  \"realizable\": false" << std::endl;
 					break;
 				} else {
-					outf << ",\n  \"realizable\": true," << std::endl;
+					outf << "  \"realizable\": true," << std::endl;
 				}
 				at_least_one = true;
 				outf << "  \"trajectory\": [" << std::endl;
+
 			} else {
 				outf << "," << std::endl;
 			}
@@ -830,7 +836,7 @@ void TGThread::run()
 	ros::Time startt( probinstance_msg.stamp.sec,
 					  probinstance_msg.stamp.nsec );
 	if (scribethread)
-		start_times_recording.enqueue( get_trial_number(), startt );
+		times_recording.enqueue( get_trial_number(), startt );
 
 	nh_.setParam( "number_integrators",
 				  probinstance->get_highest_order_deriv() );
@@ -868,6 +874,9 @@ void TGThread::run()
 					} else {
 						realizable = true;
 					}
+					if (scribethread)
+						times_recording.enqueue( get_trial_number(),
+												 ros::Time::now() );
 				}
 
 				tg.step( probinstance->period, U );
