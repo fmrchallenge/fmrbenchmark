@@ -306,6 +306,8 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 		if (tp.second)
 			delete tp.second;
 		std::pair<int, Problem *> tp = instances_recording.dequeue();
+		std::pair<int, ros::Time> tdurationt = times_recording.dequeue();
+		assert( tdurationt.first == tp.first && tdurationt.second.nsec == 0 );
 
 		// Wait for first state to be sure that it is safe to begin recording
 		while (ros::ok() && get_trial_number() >= 0
@@ -325,7 +327,8 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 		} else {
 			outf << "," << std::endl;
 		}
-		outf << "{\n  \"start_time\": [" << tstartt.second.sec
+		outf << "{\n  \"duration\": " << tdurationt.second.sec << ",\n"
+			 << "  \"start_time\": [" << tstartt.second.sec
 			 << ", " << tstartt.second.nsec << "],\n"
 			 << "  \"problem_instance\": " << *tp.second;
 
@@ -814,8 +817,11 @@ void TGThread::run()
 	Eigen::VectorXd defaultU( U );
 	defaultU.setZero();
 
-	if (scribethread)
+	if (scribethread) {
+		times_recording.enqueue( get_trial_number(),
+								 ros::Time( nominal_duration, 0 ) );
 		instances_recording.enqueue( get_trial_number(), probinstance );
+	}
 
 	ros::Duration trial_duration;
 
