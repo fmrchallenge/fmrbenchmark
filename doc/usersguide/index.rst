@@ -17,6 +17,9 @@ For newcomers, a good place to begin is the :doc:`intro`.
    :numbered:
    :maxdepth: 1
 
+   install
    intro
    integrator_chains
+   dubins_traffic
+   cart_clearing
    contributing
