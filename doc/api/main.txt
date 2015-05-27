@@ -7,6 +7,10 @@ will extend, modify, or in general, work directly with the source code of the
 various benchmarks and supporting infrastructure. For installation instructions,
 introductions about usage, and examples, consult the <a href="http://docs.fmrchallenge.org">User's Guide</a>.
 
+\warning The API is not stable. No part of it can be considered stable until
+version 0.1.0.  Beginning at that time, the API manual will include details
+about whether or how parts of the API may change.
+
 \section sec_problem_domains Problem domains
 
 \subsection sec_integrator_chains Scaling chains of integrators
