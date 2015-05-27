@@ -15,6 +15,12 @@ class Polytope(object):
         self.K = K.copy()
         self.V = None
 
+    def contains(self, x):
+        if (np.dot(self.H, x) <= self.K).all():
+            return True
+        else:
+            return False
+
     def cache_clear(self):
         self.V = None
 
