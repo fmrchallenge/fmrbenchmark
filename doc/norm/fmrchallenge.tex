@@ -39,11 +39,12 @@ cars, and factory cart clearing.
 \section{Introduction}
 
 We present the first challenge on formal methods for robotics, which will
-henceforth be referred to simply as ``the Challenge.''  It is to be hosted at
-the International Conference on Robotics and Automation ({ICRA}) in May 2015.
-The purpose of this document is to describe in detail the Challenge, including
-the problem domains, rules, and scoring procedures.  Unless explicitly stated
-otherwise, the description herein is normative.
+henceforth be referred to simply as ``the Challenge.''  It was originally
+intended to be held at the International Conference on Robotics and Automation
+({ICRA}) in May 2015. However, The date and location remain to be decided.  The purpose
+of this document is to describe in detail the Challenge, including the problem
+domains, rules, and scoring procedures.  Unless explicitly stated otherwise, the
+description herein is normative.
 
 \section{Summary (not normative)}
 
@@ -72,8 +73,8 @@ choose to do so.
 \section{Preliminaries (not normative)}
 
 This section introduces notation used throughout the paper.  It also gives brief
-introduction to concepts that may not be widely known by potential participants
-at ICRA.  Let $A$ be a set.  $2^A$ denotes the set of all subsets of $A$.  The
+introduction to concepts that may not be widely known by potential participants.
+Let $A$ be a set.  $2^A$ denotes the set of all subsets of $A$.  The
 set of nonnegative real numbers is denoted by $\mathbb{R}_{\geq 0}$.  Let
 $x=(x_1 , \ldots, x_n )\in \mathbb{R}^n$.  For $p \geq 1$, the $p$-norm of $x$
 is defined to be
@@ -241,7 +242,7 @@ quickly the goal regions must be reached.
 
 This problem domain will be evaluated entirely within a numerical simulation.
 As such, competitors will submit controllers for this part of the challenge
-before the conference, and results will be obtained during live runs at ICRA.
+before the conference, and results will be obtained during live runs.
 After completion of each run in real-time, using software released as part of
 the problem domain source code, animations will be generated to depict results.
 In order to facilitate visualization of the results, each specification will consist 
@@ -338,12 +339,12 @@ simulations (\url{http://gazebosim.org}) as part of the ``virtual'' component of
 the current DARPA challenge (\url{http://www.theroboticschallenge.org}).
 
 Besides simulation, we plan to construct a reduced size form of this challenge
-domain for running on-site at ICRA.  Both the robot to be controlled and the
+domain for running on-site.  Both the robot to be controlled and the
 adversarial vehicles will be based on Kobuki mobile bases
 (\url{http://yujinrobot.com/eng/?portfolio=kobuki}).  Because all
 problem-relevant motion will occur within a fixed plane, high-speed overhead
 pose tracking is possible using a single camera mounted on the ceiling.  We hope
-to install such a system on-site at ICRA to provide ground truth positions for
+to install such a system on-site to provide ground truth positions for
 scoring purposes, even if the data is not available to competitors during the
 challenge.
 
@@ -429,7 +430,7 @@ We are exploring several simulation environments for this domain, including the 
 \item Klamp't (\url{http://www.iu.edu/~motion/klampt/})
 \end{itemize}
 
-We are also exploring the possibility of a physical testbed on-site at ICRA.
+We are also exploring the possibility of a physical testbed on-site.
 
 \section{Evaluation}
 Our goal is to allow maximal flexibility of solution form, and allow entries to be provided as black-box 
