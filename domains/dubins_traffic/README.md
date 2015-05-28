@@ -47,6 +47,4 @@ where the `source` command assumes that you are using the Z shell; try
 References
 ----------
 
-* the patched kobuki_gazebo_plugins ROS package is available from
-  <https://github.com/slivingston/kobuki_desktop>
 * [upstream Kobuki Gazebo plugin](http://wiki.ros.org/kobuki_gazebo_plugins)
