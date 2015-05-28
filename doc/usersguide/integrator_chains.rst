@@ -6,6 +6,45 @@ controller for a given chain of integrators system so that all trajectories
 repeatedly reach several regions while avoiding others.
 
 
+Preparations
+------------
+
+While below we include pointers to the main websites for dependencies, many are
+available via packages for your OS and may already be installed, especially if
+you have ROS on Ubuntu 14.04. Supported platforms are described in the :doc:`intro`.
+
+Dependencies
+~~~~~~~~~~~~
+
+* `Eigen <http://eigen.tuxfamily.org>`_
+* `Boost <http://www.boost.org>`_, specifically `Boost.Thread <http://www.boost.org/libs/thread/>`_
+  and `bind <http://www.boost.org/doc/libs/1_57_0/libs/bind/bind.html>`_.
+
+Other
+~~~~~
+
+While not necessary to use the benchmark per se, ``plotp.py`` and ``tdstat.py``
+provide a means to examine problem instances and results of trials, as
+demonstrated in the tutorial below. Together with the ``fmrb`` Python package,
+which is under ``tools/fmrb-pkg/`` in the repository, the following additional
+dependencies are present:
+
+* NumPy, which is part of the `standard scientific Python stack <http://www.scipy.org/stackspec.html>`_
+* Matplotlib, also part of the standard stack
+* `pycddlib <https://pypi.python.org/pypi/pycddlib>`_, a Python wrapper for
+  Komei Fukuda's `cddlib <http://www.inf.ethz.ch/personal/fukudak/cdd_home/index.html>`_
+* `Python Control Systems Library <https://github.com/python-control/python-control>`_
+
+Once these are met, install ``fmrb`` from your copy of the repository, e.g., ::
+
+  cd tools/fmrb-pkg
+  pip install -e .
+
+or `get it from PyPI <https://pypi.python.org/pypi/fmrb>`_, ::
+
+  pip install fmrb
+
+
 Tutorial
 --------
 
