@@ -57,4 +57,4 @@ demonstrate basic usage as well as to provide partial or complete solutions.
 Along with the common Python dependencies that are listed above, the examples
 require the following:
 
-* [Python Control toolbox](https://github.com/python-control/python-control)
+* [Python Control Systems Library](https://github.com/python-control/python-control)
