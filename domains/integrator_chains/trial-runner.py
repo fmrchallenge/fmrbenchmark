@@ -37,7 +37,8 @@ def gen_roslaunch(trialconf, results_filename=None, launch_logger=False):
             pass
 
     if results_filename is not None:
-        output += 2*idt+'<param name="results_file" value="'+results_filename+'" />'+nl
+        results_path = os.path.abspath(results_filename)
+        output += 2*idt+'<param name="results_file" value="'+results_path+'" />'+nl
     output += idt+'</node>'+nl
 
     if launch_logger:
