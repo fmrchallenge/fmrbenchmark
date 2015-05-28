@@ -81,7 +81,8 @@ Controller examples
 ~~~~~~~~~~~~~~~~~~~
 
 Note that the ``lqr.py`` controller requires the Python Control System Library
-(``control``) and a standard scientific Python stack including NumPy.
+(``control``) and a standard scientific Python stack including NumPy. These and
+other dependencies are described above.
 
 Create a catkin workspace.
 
@@ -100,17 +101,29 @@ required for this example.
   ln -s $FMRBENCHMARK/domains/integrator_chains/dynamaestro
   ln -s $FMRBENCHMARK/examples/sci_concrete_examples
 
-Build and install it within the workspace.
+Build and install it within the catkin workspace.
 
 .. code-block:: none
 
   cd ..
   catkin_make install
 
-Because the installation is local to the workspace, you must use ``source install/setup.zsh``
-whenever a new shell session is created.
+Because the installation is local to the catkin workspace, before beginning and
+whenever a new shell session is created, you must first ::
 
-Finally, run the example using::
+  source install/setup.zsh
+
+To initiate the performance of a collection of trials defined by the
+configuration file ``mc-small-out3-order3.json`` in the ROS package
+``sci_concrete_examples`` of example controllers, ::
+
+  $FMRBENCHMARK/domains/integrator_chains/trial-runner.py -l -f mydata.json src/sci_concrete_examples/trialconf/mc-small-out3-order3.json
+
+This will cause trial data to be saved to the file ``mydata.json`` in the local
+directory from where the above command is executed. A description of options can
+be obtained from ``trial-runner.py -h``.
+
+In a separate terminal, run the example controller using::
 
   roslaunch sci_concrete_examples lqr.launch
 
@@ -119,3 +132,20 @@ state`` and ``rostopic echo input``, respectively. At each time increment, the
 state labeling is published to the topic ``/dynamaestro/loutput`` as an array of
 strings (labels) corresponding to the polytopes containing the output at that
 time.
+
+Because we used the ``-l`` flag when invoking ``trial-runner.py`` above, two
+additional topics are available. The labeling without repetition is published to
+"/logger/loutput_norep", and several elements (up to 3) of the state vector are
+published to "/logger/state_PointStamped" as a PointStamped message, which can
+be viewed in `rviz <http://wiki.ros.org/rviz>`_.
+
+Once all trials have completed, the trial data can be examined using
+``tdstat.py``. E.g., to get a summary about the data for each trial, ::
+
+  $FMRBENCHMARK/domains/integrator_chains/analysis/tdstat.py -s mydata.json
+
+To get the labeling of the trajectory for trial 0, modulo repetition, ::
+
+  $FMRBENCHMARK/domains/integrator_chains/analysis/tdstat.py -t 0 --wordmodrep mydata.json
+
+To get a description of options, try ``tdstat.py -h``.
