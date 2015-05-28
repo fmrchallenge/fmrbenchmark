@@ -37,9 +37,9 @@ void laser_cb( const sensor_msgs::LaserScan &scan )
 class ModelStatesWatcher {
 public:
 
-	ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_name = "gazebo/model_states" );
+	ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_name = "/gazebo/model_states" );
 
-	// Callback function for messages from the "gazebo/model_states" topic
+	// Callback function for messages from the "/gazebo/model_states" topic
 	void ms_cb( const gazebo_msgs::ModelStates &ms );
 
 	/* Get current pose estimate
@@ -60,11 +60,19 @@ private:
 ModelStatesWatcher::ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_name )
 	: valid_mspose(false), model_name(nh.getNamespace()),
 	  mssub(nh.subscribe( topic_name, 1, &ModelStatesWatcher::ms_cb, this ))
-{ }
+{
+	while (model_name[0] == '/')
+		model_name = std::string(model_name.c_str()+1);
+}
 
 void ModelStatesWatcher::ms_cb( const gazebo_msgs::ModelStates &ms )
 {
-	int idx = find(ms.name.begin(), ms.name.end(), model_name) - ms.name.begin();
+	int idx;
+	for (idx = 0; idx < ms.name.size(); idx++)
+		if (ms.name[idx] == model_name)
+			break;
+	if (idx == ms.name.size())
+		return;
 	valid_mspose = false;
 	last_mspose[0] = ms.pose[idx].position.x;
 	last_mspose[1] = ms.pose[idx].position.y;
@@ -77,8 +85,10 @@ bool ModelStatesWatcher::get_pose_estimate( double *x )
 	if (valid_mspose) {
 		for (int i = 0; i < 3; i++)
 			x[i] = last_mspose[i];
+		return true;
+	} else {
+		return false;
 	}
-	return valid_mspose;
 }
 
 
