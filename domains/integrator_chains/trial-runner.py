@@ -52,7 +52,7 @@ def gen_roslaunch(trialconf, results_filename=None, launch_logger=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('FILE', type=str)
+    parser.add_argument('FILE', type=str, help='trials configuration file')
     parser.add_argument('-l', action='store_true',
                         dest='launch_logger', default=False,
                         help='launch the logger of the dynamaestro package.')
