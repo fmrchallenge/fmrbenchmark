@@ -8,24 +8,34 @@
 #include <Eigen/Dense>
 
 
-/* The half-space representation is used internally. */
-/** \ingroup integrator_chains */
+/** Basic half-space representation of polytopes.
+
+   \ingroup integrator_chains */
 class Polytope {
   public:
 	Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K );
 	Polytope( const Polytope &other );
 
+	/** Check that defining matrices have consistent dimensions.
+
+	   The "defining matrices" are those involved in the inequality providing
+	   the half-space representation, i.e., H and K in {x | Hx <= K}.
+	   N.B., this check does not occur during instantiation of Polytope. */
 	bool is_consistent() const;
+
+	/** Is X contained in this polytope?
+
+	   The polytope is a closed set. No numerical tolerance is used. */
 	bool is_in( Eigen::VectorXd X ) const;
 
 	// Factory functions
 	/** Create random Polytope in R^n using Eigen::MatrixXd::Random().
 
-		\param n dimension of the containing space.
+	   \param n dimension of the containing space.
 
-		Random matrices as provided by Eigen::MatrixXd::Random() are used to
-		instantiate Polytope in half-space representation. The matrices have
-		\c n+1 rows, corresponding to \c n+1 inequalities.
+	   Random matrices as provided by Eigen::MatrixXd::Random() are used to
+	   instantiate Polytope in half-space representation. The matrices have
+	   \c n+1 rows, corresponding to \c n+1 inequalities.
 	*/
 	static Polytope * randomH( int n );
 
@@ -50,9 +60,14 @@ class Polytope {
 	*/
 	static Polytope * box( const Eigen::VectorXd &bounds );
 
-	/* Output this polytope in JSON */
+	/** Output this polytope in JSON to given stream. */
 	friend std::ostream & operator<<( std::ostream &out, const Polytope &P );
-	void dumpJSON( std::ostream &out ) const;
+
+	/** Output this polytope in JSON excluding opening { and closing }.
+
+	   This method facilitates inheritance from Polytope without crowding the
+	   JSON representations of other classes. */
+	void dumpJSONcore( std::ostream &out ) const;
 
   private:
 	// { x \in R^n | Hx \leq K }
@@ -63,12 +78,12 @@ class Polytope {
 std::ostream & operator<<( std::ostream &out, const Polytope &P )
 {
 	out << "{ ";
-	P.dumpJSON( out );
+	P.dumpJSONcore( out );
 	out << " }";
 	return out;
 }
 
-void Polytope::dumpJSON( std::ostream &out ) const
+void Polytope::dumpJSONcore( std::ostream &out ) const
 {
 	int i, j;
 	out << "\"H\": [";
@@ -145,15 +160,23 @@ Polytope::Polytope( const Polytope &other )
 { }
 
 
-/** \ingroup integrator_chains */
+/** Extension of Polytope to have label (string).
+
+   This class provides a basis for labeling trajectories. E.g., the labeling of
+   the state can be a set of strings corresponding to the labels of polytopes
+   containing the state.
+
+   \ingroup integrator_chains */
 class LabeledPolytope : public Polytope {
 public:
 	std::string label;
 
 	LabeledPolytope( const Polytope &other );
+
+	/** Polytope::box() but including a label. */
 	static LabeledPolytope * box( const Eigen::VectorXd &bounds, std::string label="" );
 
-	/* Output this polytope in JSON */
+	/** Output this labeled polytope in JSON to given stream. */
 	friend std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P );
 };
 
@@ -173,7 +196,7 @@ LabeledPolytope * LabeledPolytope::box( const Eigen::VectorXd &bounds, std::stri
 std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P )
 {
 	out << "{ \"label\": \"" << P.label << "\", ";
-	P.dumpJSON( out );
+	P.dumpJSONcore( out );
 	out << " }";
 	return out;
 }

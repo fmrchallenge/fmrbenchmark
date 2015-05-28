@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-"""
+"""Depict problem instance that has 2-dimensional output space.
 
-If given `-`, then read from stdin.
+If given `-`, then read from stdin. If no filename is given at
+command-line, then try to get description from ROS Parameter Server.
 """
 from __future__ import print_function
 import sys
@@ -15,8 +16,13 @@ if __name__ == '__main__':
         print('Usage: plotp.py [FILE]')
         sys.exit(0)
     elif len(sys.argv) == 1:
-        import rospy
-        probjs = rospy.get_param('/dynamaestro/probleminstance')
+        param_name = '/dynamaestro/probleminstance'
+        try:
+            import rospy
+            probjs = rospy.get_param(param_name)
+        except:
+            print('Failed to get "'+param_name+'" from ROS Parameter Server')
+            sys.exit(-1)
     else:
         if sys.argv[1] == '-':
             f = sys.stdin
@@ -28,6 +34,11 @@ if __name__ == '__main__':
 
     prob = integrator_chains.Problem.loadJSON(probjs)
     print('Discretization period is '+str(prob.period))
+    if prob.output_dim != 2:
+        print('This script can only plot for output space dimension of 2, '
+              'but that of given problem has dimension '
+              +str(prob.output_dim)+'.')
+        sys.exit(0)
 
     ax = plt.axes()
     ax.axis(prob.Y.get_bbox()[:4])

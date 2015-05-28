@@ -13,7 +13,9 @@
 #include "polytope.h"
 
 
-/** \ingroup integrator_chains */
+/** Representation of problem instances.
+
+	\ingroup integrator_chains */
 class Problem {
 public:
 	Eigen::VectorXd Xinit;
@@ -66,8 +68,6 @@ public:
 	   depends on the randomly chosen number of dimensions of the output space.
 
 	   \param U_box analogous to \p Y_box but for the input space.
-
-
 
 	   \param number_goals_bounds range of integers from which the number of
 	   goal polytopes in the output space will be chosen.

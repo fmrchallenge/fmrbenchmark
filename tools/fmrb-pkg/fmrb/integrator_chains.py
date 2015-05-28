@@ -15,6 +15,12 @@ class Polytope(object):
         self.K = K.copy()
         self.V = None
 
+    def contains(self, x):
+        if (np.dot(self.H, x) <= self.K).all():
+            return True
+        else:
+            return False
+
     def cache_clear(self):
         self.V = None
 
@@ -66,6 +72,8 @@ class LabeledPolytope(Polytope):
 
 
 class Problem(object):
+    """Problem instance of the domain: scaling chains of integrators
+    """
     def __init__(self):
         self.Xinit = None
         self.goals = []
@@ -76,28 +84,31 @@ class Problem(object):
         self.number_integrators = None
 
     @staticmethod
-    def loadJSON(probjs):
-        probj = json.loads(probjs)
+    def loadJSONdict(probd):
         prob = Problem()
-        assert probj['version'] == 0
-        prob.Xinit = np.array(probj['Xinit'])
-        prob.Y = Polytope(np.array(probj['Y']['H']), np.array(probj['Y']['K']))
-        prob.U = Polytope(np.array(probj['U']['H']), np.array(probj['U']['K']))
+        assert probd['version'] == 0
+        prob.Xinit = np.array(probd['Xinit'])
+        prob.Y = Polytope(np.array(probd['Y']['H']), np.array(probd['Y']['K']))
+        prob.U = Polytope(np.array(probd['U']['H']), np.array(probd['U']['K']))
         prob.goals = [LabeledPolytope(np.array(goaldict['H']),
                                       np.array(goaldict['K']),
                                       label=goaldict['label'])
-                      for goaldict in probj['goals']]
+                      for goaldict in probd['goals']]
         prob.obstacles = [LabeledPolytope(np.array(obsdict['H']),
                                           np.array(obsdict['K']),
                                           label=obsdict['label'])
-                          for obsdict in probj['obstacles']]
-        if 'period' in probj:
-            prob.period = probj['period']
+                          for obsdict in probd['obstacles']]
+        if 'period' in probd:
+            prob.period = probd['period']
         else:
             prob.period = None
         prob.output_dim = prob.Y.H.shape[1]
         prob.number_integrators = prob.Xinit.shape[0]/prob.output_dim
         return prob
+
+    @staticmethod
+    def loadJSON(probjs):
+        return Problem.loadJSONdict(json.loads(probjs))
 
     def plot(self, ax, outdims=None):
         if outdims is None:
