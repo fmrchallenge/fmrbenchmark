@@ -7,14 +7,17 @@ There are many ways to contribute. Major concerns to keep in mind:
   <https://www.debian.org/code_of_conduct>`_. (Replace references to "Debian"
   with "fmrbenchmark" and "fmrchallenge" as appropriate.)
 
-* There is not a dedicated mailing list yet, but there is an `announcements
-  newsletter <http://eepurl.com/bbxEcz>`_.
+* Our mailing list is `fmrbenchmark-users@googlegroups.com
+  <https://groups.google.com/forum/#!forum/fmrbenchmark-users>`_.
+  There is also a low-volume  `announcements newsletter <http://eepurl.com/bbxEcz>`_.
 
 * You must hold the copyright or have explicit permission from the copyright
   holder for anything that you contribute. Furthermore, to be included in this
   project, your contributed works must be under the standard "BSD 3-clause
   license" or a comparable open-source license (including public domain
-  dedication). You can find a copy at ``LICENSE`` in the root of the repository.
+  dedication). You can find a copy at ``LICENSE`` in the root of the
+  repository. A license is "comparable" if it is no more restrictive than the
+  `Apache License, Version 2.0 <http://opensource.org/licenses/Apache-2.0>`_.
 
 Please report potential bugs or request features using the `issue tracker
 <https://github.com/fmrchallenge/fmrbenchmark/issues>`_.
