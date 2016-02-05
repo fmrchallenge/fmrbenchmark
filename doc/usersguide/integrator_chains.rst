@@ -20,6 +20,9 @@ Dependencies
 * `Boost <http://www.boost.org>`_, specifically `Boost.Thread <http://www.boost.org/libs/thread/>`_
   and `bind <http://www.boost.org/doc/libs/1_57_0/libs/bind/bind.html>`_.
 
+On Ubuntu, Eigen can be obtained by installing the "libeigen3-dev" deb package
+(https://packages.debian.org/jessie/libeigen3-dev).
+
 Other
 ~~~~~
 
