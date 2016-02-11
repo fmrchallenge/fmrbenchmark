@@ -10,7 +10,7 @@
 
 #include <Eigen/Dense>
 
-#include "polytope.h"
+#include "polytope.hpp"
 
 
 /** Representation of problem instances.

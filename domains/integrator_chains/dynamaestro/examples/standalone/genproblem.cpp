@@ -3,7 +3,7 @@
 
 #include <Eigen/Dense>
 
-#include "problem.h"
+#include "problem.hpp"
 
 
 int main()

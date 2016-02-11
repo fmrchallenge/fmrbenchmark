@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-#include "polytope.h"
+#include "polytope.hpp"
 
 
 int main()

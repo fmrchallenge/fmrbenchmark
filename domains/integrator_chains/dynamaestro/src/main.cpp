@@ -20,7 +20,7 @@
 #include "dynamaestro/DMMode.h"
 #endif
 
-#include "problem.h"
+#include "problem.hpp"
 
 #include <iostream>
 #include <fstream>
