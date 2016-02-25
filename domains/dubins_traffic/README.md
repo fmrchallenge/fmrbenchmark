@@ -18,7 +18,7 @@ dependencies:
 
 If you are on Ubuntu 14.04, try
 
-    apt-get install ros-indigo-kobuki-node ros-indigo-kobuki-description
+    apt-get install ros-indigo-kobuki-node ros-indigo-kobuki-description ros-indigo-kobuki-gazebo
 
 
 ### Simulation variant
