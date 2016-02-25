@@ -30,7 +30,7 @@ and changes only to ``u`` are not expected to break any current usage.
    The interfaces to command-line tools, the names of important ROS topics, and
    other user-level aspects of the repository may change with little warning
    until version 0.1.0. Beginning at that time, care will be taken to ensure
-   backwards-compatibility for and to have more gradual deprecation.
+   backwards-compatibility and to have more gradual deprecation.
 
 
 Formulation
