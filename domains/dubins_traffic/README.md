@@ -15,6 +15,7 @@ A good start is the "desktop-full" configuration of ROS Indigo.  Additional
 dependencies:
 * [kobuki_node](http://wiki.ros.org/kobuki_node) and dependencies.
 * [kobuki_description](http://wiki.ros.org/kobuki_description) and dependencies.
+* [Kobuki Gazebo plugin](http://wiki.ros.org/kobuki_gazebo_plugins)
 
 If you are on Ubuntu 14.04, try
 
@@ -47,4 +48,3 @@ where the `source` command assumes that you are using the Z shell; try
 References
 ----------
 
-* [upstream Kobuki Gazebo plugin](http://wiki.ros.org/kobuki_gazebo_plugins)
