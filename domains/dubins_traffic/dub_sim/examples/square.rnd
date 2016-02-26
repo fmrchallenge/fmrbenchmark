@@ -1,0 +1,7 @@
+version: 0
+length: 5
+segments:
+0 0 0 1  # A segment of road from (x0, y0) to (x1, y1), after scaling by length
+0 1 1 1
+1 1 1 0
+1 0 0 0
