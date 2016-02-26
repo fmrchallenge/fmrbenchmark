@@ -120,7 +120,7 @@ To initiate the performance of a collection of trials defined by the
 configuration file ``mc-small-out3-order3.json`` in the ROS package
 ``sci_concrete_examples`` of example controllers, ::
 
-  $FMRBENCHMARK/domains/integrator_chains/trial-runner.py -l -f mydata.json src/sci_concrete_examples/trialconf/mc-small-out3-order3.json
+  python $FMRBENCHMARK/domains/integrator_chains/trial-runner.py -l -f mydata.json src/sci_concrete_examples/trialconf/mc-small-out3-order3.json
 
 This will cause trial data to be saved to the file ``mydata.json`` in the local
 directory from where the above command is executed. A description of options can
