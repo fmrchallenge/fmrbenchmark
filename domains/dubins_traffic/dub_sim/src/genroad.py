@@ -16,6 +16,7 @@ class RoadNetwork(object):
         self.version = None
         self.length = None
         self.segments = list()
+        self.transform = (0, 0, 0)
 
         reading_segments = False
         for line in rnd_file:
@@ -32,6 +33,9 @@ class RoadNetwork(object):
                 elif line.startswith('length'):
                     self.length = float(line.split(':')[1])
                     assert self.length > 0, 'Unit side length must be positive'
+                elif line.startswith('transform'):
+                    self.transform = tuple([float(x) for x in line.split(':')[1].split()])
+                    assert len(self.transform) == 3, 'Map transform must be a 3-tuple'
                 elif line.startswith('segments'):
                     reading_segments = True
                 else:
@@ -39,10 +43,29 @@ class RoadNetwork(object):
             else:
                 self.segments.append([int(x) for x in line.split()])
 
+    def number_of_segments(self):
+        return len(self.segments)
+
+    def get_mapped_segment(self, index):
+        if index < 0 or index > len(self.segments)-1:
+            raise ValueError('index out of bounds [0,'
+                             +str(len(self.segments)-1)+']: '
+                             +str(index))
+        mapped_segment = [self.segments[index][0]*self.length, self.segments[index][1]*self.length,
+                          self.segments[index][2]*self.length, self.segments[index][3]*self.length]
+        costheta = math.cos(self.transform[2])
+        sintheta = math.sin(self.transform[2])
+        for offset in [0, 2]:
+            new_x = costheta*mapped_segment[offset] - sintheta*mapped_segment[offset+1]
+            new_y = sintheta*mapped_segment[offset] + costheta*mapped_segment[offset+1]
+            mapped_segment[offset] = new_x + self.transform[0]
+            mapped_segment[offset+1] = new_y + self.transform[1]
+        return tuple(mapped_segment)
+
 
 def road_segment(x1, x2, prefix='straightroad'):
     assert len(x1) == 2 and len(x2) == 2
-    
+
     center = ((x1[0] + x2[0])/2.0, (x1[1] + x2[1])/2.0)
     length = math.sqrt((x1[0]-x2[0])**2 + (x1[1]-x2[1])**2)
     angle = math.atan2(x2[1]-x1[1], x2[0]-x1[0])
@@ -97,7 +120,9 @@ if __name__ == '__main__':
     <include><uri>model://sun</uri></include>
     <include><uri>model://ground_plane</uri></include>
 """)
-    for i, segment in enumerate(roads.segments):
-        print(road_segment((segment[0]*roads.length, segment[1]*roads.length),
-                           (segment[2]*roads.length, segment[3]*roads.length), prefix='segment_'+str(i)+'_'))
+    for sindex in range(roads.number_of_segments()):
+        segment = roads.get_mapped_segment(sindex)
+        print(road_segment((segment[0], segment[1]),
+                           (segment[2], segment[3]),
+                           prefix='segment_'+str(sindex)+'_'))
     print('</world></sdf>')

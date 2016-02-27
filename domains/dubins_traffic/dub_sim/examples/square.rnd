@@ -1,7 +1,13 @@
 version: 0
+
 length: 5
+transform: 0 0 0  # x y theta, as a point in SE(2); rotation is in radians.
+# Unlike segment coordinates, the transform is not scaled by length.
+
+# Segment coordinates as used in the "segments" field are scaled by
+# the length value and then transformed.
 segments:
-0 0 0 1  # A segment of road from (x0, y0) to (x1, y1), after scaling by length
+0 0 0 1  # A segment of road from (x0, y0) to (x1, y1)
 0 1 1 1
 1 1 1 0
 1 0 0 0
