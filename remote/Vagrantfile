@@ -1,9 +1,9 @@
 # Emacs, this is in -*- ruby -*-
 #
-# The directory containing this file is synced with /vagrant in the VM.
+# The directory one level up from this file is synced with /vagrant in the VM.
 # The intended usage is
 #
-#   cd /your/path/to/fmrbenchmark
+#   cd /your/path/to/fmrbenchmark/remote
 #   vagrant up
 #   vagrant ssh
 #   cd /vagrant
