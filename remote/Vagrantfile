@@ -30,6 +30,7 @@ sudo apt-get -y install ros-indigo-kobuki-node ros-indigo-kobuki-description ros
 
 sudo rosdep init
 rosdep update
+echo 'source /opt/ros/indigo/setup.bash' >> ~vagrant/.bashrc
 SHELL
 
 Vagrant.configure(2) do |config|
