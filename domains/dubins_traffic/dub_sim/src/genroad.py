@@ -103,6 +103,23 @@ def road_segment(x1, x2, prefix='straightroad'):
 """
     return output+nl+'</model>'
 
+def gen_worldsdf(roads):
+    output = """<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="default">
+    <gui><camera name="user_camera"><pose>0 0 9.5 0 1.5 0</pose></camera></gui>
+
+    <include><uri>model://sun</uri></include>
+    <include><uri>model://ground_plane</uri></include>
+"""
+    for sindex in range(roads.number_of_segments()):
+        segment = roads.get_mapped_segment(sindex)
+        output += road_segment((segment[0], segment[1]),
+                               (segment[2], segment[3]),
+                               prefix='segment_'+str(sindex)+'_')
+    output += '</world></sdf>'
+    return output
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
@@ -112,17 +129,4 @@ if __name__ == '__main__':
     with open(args.FILE, 'rt') as f:
         roads = RoadNetwork(f)
 
-    print("""<?xml version="1.0" ?>
-<sdf version="1.4">
-  <world name="default">
-    <gui><camera name="user_camera"><pose>0 0 9.5 0 1.5 0</pose></camera></gui>
-
-    <include><uri>model://sun</uri></include>
-    <include><uri>model://ground_plane</uri></include>
-""")
-    for sindex in range(roads.number_of_segments()):
-        segment = roads.get_mapped_segment(sindex)
-        print(road_segment((segment[0], segment[1]),
-                           (segment[2], segment[3]),
-                           prefix='segment_'+str(sindex)+'_'))
-    print('</world></sdf>')
+    print(gen_worldsdf(roads))
