@@ -53,7 +53,6 @@ class Polytope(object):
         return np.array(zip(mins, maxs)).flatten()
 
     def plot(self, ax, alpha=1.0, color=None):
-
         """
 
         Derived from plotting routines in the Python polytope package
