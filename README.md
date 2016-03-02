@@ -16,6 +16,9 @@ Summary of organization
 * `examples/` : contains example controllers and other demonstrations. An
   introduction to the examples is given below.
 
+* `remote/` : scripts, configurations, etc. for running some or all of the
+  benchmarks and supporting infrastructure remotely.
+
 
 Documentation
 -------------
