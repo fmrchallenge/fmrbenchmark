@@ -23,3 +23,4 @@ For newcomers, a good place to begin is the :doc:`intro`.
    dubins_traffic
    cart_clearing
    contributing
+   developersguide
