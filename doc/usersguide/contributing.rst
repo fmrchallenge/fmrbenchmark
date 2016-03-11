@@ -20,7 +20,8 @@ There are many ways to contribute. Major concerns to keep in mind:
   `Apache License, Version 2.0 <http://opensource.org/licenses/Apache-2.0>`_.
 
 Please report potential bugs or request features using the `issue tracker
-<https://github.com/fmrchallenge/fmrbenchmark/issues>`_.
+<https://github.com/fmrchallenge/fmrbenchmark/issues>`_. Guidelines for
+participating in development are given in :doc:`developersguide`.
 
 
 Proposing benchmarks
@@ -41,44 +42,8 @@ cases, there are three parts involved in the inclusion of a benchmark:
 3. details and practical considerations for using it as part of a competition.
 
 
-.. _contributing-dev-section:
-
-Development
------------
-
 Please report potential bugs or request features using the `issue tracker
-<https://github.com/fmrchallenge/fmrbenchmark/issues>`_. Bugfixes and other
-corrections, implementations of new features, improvements to documentation,
-etc. should be offered as `pull requests
-<https://github.com/fmrchallenge/fmrbenchmark/pulls>`_. Patches can be submitted
-through other media if you prefer, but please try to make it easy to use and
-understand your proposed changes.
-
-The benchmarks are primarily implemented in C++ and C. Unless there are strong
-motivations to use a different programming language, we prefer these for
-well-known reasons: they are fast, mature, standard, etc. Besides C and C++,
-several core tools for analysis of results are in `Python
-<https://www.python.org>`_ and rely on widely-used numerical and scientific
-Python packages, among others. Observe that "tools for analysis" are not part of
-the benchmarks per se.
-
-Examples can be expressed in any programming language or depend on any tool,
-including dependencies that have restrictive licenses. However, as with
-everything else in the repository, the example itself must be under the standard
-"BSD 3-clause license" or a comparable open-source license (including public
-domain dedication). If you are going to contribute examples having dependencies
-that are not free as in freedom, please carefully document the special
-requirements for running the example controller.
-
-In terms of planning, the project is currently sufficiently small to where it is
-enough to have a combination of the issue tracker and direct communication via
-private email or at meetings.
-
-Style
-~~~~~
-
-Eventually we may create official style guidelines, but for now, please skim the
-source code to get an indication of the preferred style.
+<https://github.com/fmrchallenge/fmrbenchmark/issues>`_.
 
 
 Working on physical variants of the problem domains
@@ -96,10 +61,10 @@ no public disclosure of details). However, this project is a joint effort that
 is not under the purview of a single grant nor institution. Thus an important
 manner of contribution is to realize physical variants of the benchmarks in your
 own lab and then give feedback about missing details, subtle considerations,
-etc. There is not a dedicated mailing list yet, so the best ways to contribute
-here are the `issue tracker <https://github.com/fmrchallenge/fmrbenchmark/issues>`_,
-as noted in the :ref:`contributing-dev-section` section, and via `email to the
-authors <http://fmrchallenge.org/#contact>`_.
+etc. Any of the venues listed above (at the beginning of :doc:`contributing`)
+can be used to provide comments. Also, the authors can be `emailed directly
+<http://fmrchallenge.org/#contact>`_.
+
 
 Providing computing resources
 -----------------------------
