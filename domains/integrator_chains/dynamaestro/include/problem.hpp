@@ -120,7 +120,7 @@ std::string Problem::int_to_str( int x, int zero_padding )
 }
 
 Problem::Problem()
-    : numdim_output(0), highest_order_deriv(0), Y(NULL), U(NULL)
+    : numdim_output(0), highest_order_deriv(0), Y(nullptr), U(nullptr)
 { }
 
 Problem::~Problem()

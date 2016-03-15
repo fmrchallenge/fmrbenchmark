@@ -286,7 +286,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
                         | (append_mode ?
                            std::ios_base::app : std::ios_base::trunc) );
     bool first_trial = true;
-    std::pair<int, Problem *> tp( -1, NULL );
+    std::pair<int, Problem *> tp( -1, nullptr );
 
     ros::Rate polling_rate( 100 );
     while (get_trial_number() < 0 && ros::ok())
@@ -407,7 +407,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 
 void TGThread::start_monitoring( std::string filename, bool append_mode )
 {
-    assert( scribethread == NULL );
+    assert( scribethread == nullptr );
     scribethread = new boost::thread( boost::bind( &TGThread::tgt_scribe,
                                                    this, _1, append_mode ),
                                       filename );
@@ -420,7 +420,7 @@ void TGThread::stop_monitoring()
         ROS_INFO( "dynamaestro: Waiting for scribe thread to finish..." );
         scribethread->join();
         delete scribethread;
-        scribethread = NULL;
+        scribethread = nullptr;
     }
 }
 
@@ -469,7 +469,7 @@ bool TGThread::parse_array_str( const std::string &param_name, Eigen::VectorXd &
         buffer.push_back( current_value );
     }
 
-    char *prev_endptr = NULL;
+    char *prev_endptr = nullptr;
     int read_count = 1;
     while (prev_endptr != endptr) {
         prev_endptr = endptr;
@@ -580,11 +580,11 @@ TGThread::TGThread( ros::NodeHandle &nh )
     : nh_(nh),
       fresh_input(false),
       U(),
-      probinstance(NULL),
+      probinstance(nullptr),
       labeler(),
       trial_number(-1),
       dmmode(paused),
-      scribethread(NULL)
+      scribethread(nullptr)
 {
     mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
     problemJSONpub = nh_.advertise<dynamaestro::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
@@ -692,7 +692,7 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
 
 void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
 {
-    assert( probinstance != NULL );
+    assert( probinstance != nullptr );
 
     mtx_.lock();
 
@@ -937,9 +937,9 @@ void TGThread::run()
     nh_.setParam( "period", -1.0 );
     fresh_input = false;
     labeler.clear();
-    if (scribethread == NULL)
+    if (scribethread == nullptr)
         delete probinstance;
-    probinstance = NULL;
+    probinstance = nullptr;
 }
 
 void tgthread( ros::NodeHandle &nhp )
@@ -974,7 +974,7 @@ int main( int argc, char **argv )
     ros::init( argc, argv, "dynamaestro" );
     ros::NodeHandle nh( "~" );
 
-    time_t seed = time( NULL );
+    time_t seed = time( nullptr );
     srand( seed );
     ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
