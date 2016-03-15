@@ -55,6 +55,12 @@ a case, the problem domain, variant, and instance are all the same.
 Support for platforms and programming languanges
 ------------------------------------------------
 
+There are no generic installation instructions. Instead, instructions and
+requirements are described separately for each benchmark. Though there are
+shared dependencies and some similar preparations, separately treating each
+facilitates users who are only interested in some parts of the repository. E.g.,
+try the :doc:`integrator_chains`.
+
 While it may be possible to build the benchmarks and infrastructure on other
 platforms, the current target is `Ubuntu <http://www.ubuntu.com>`_ 14.04
 running Linux x86_64 and the following:
