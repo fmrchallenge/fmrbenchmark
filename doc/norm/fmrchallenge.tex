@@ -371,18 +371,19 @@ use, like a magnet or some suction mechanism, such as a Universal Jamming
 Gripper \cite{AmendBRJL12}.
 
 The scenario will be as follows. The robot is required to process objects laid
-out on a cart that is brought to it and sort them into bins. Carts arrive after
+out on a wheeled cart that is brought to it and sort them into bins. Carts arrive after
 the robot indicates that it is ready, and carts are removed once a robot
 declares that it is done. Scoring will be based on how many carts can be
 processed correctly (described below) in a fixed amount of time.
 
 The top surface of the cart will be unwalled but divided into an object
-placement grid. Each object can occupy multiple cells in the grid. Each object
-has a priority level (possibly shared with other objects) which determines the
-order of processing. Processing involves picking up the object and waiting for a
-signal to determine which of a set of bins to deposit it in. Polygonal bounding
-boxes for the objects will be provided after a small delay once the cart
-arrives, to simulate solving the vision problem.
+placement grid. The size of the grid will vary; an example is a $5 \times 4$
+arrangement, which has 20 parts total. Each object can occupy multiple cells in the
+grid. Each object has a priority level (possibly shared with other objects)
+which determines the order of processing. Processing involves picking up the
+object and waiting for a signal to determine which of a set of bins to deposit
+it in. Polygonal bounding boxes for the objects will be provided after a small
+delay once the cart arrives, to simulate solving the vision problem.
 
 The gripping process is automatic and regarded as a subroutine, so that teams
 need only place the gripper within a certain region above the object then
@@ -424,6 +425,9 @@ is brought to it and sort them into bins. There are several possible variants:
 \item cart is removed once a robot declares that it is done.
 \item carts arrive at a randomly time-varying rate, whether or not the robot is ready for the next.
 \end{itemize}
+A part of the specification will include space tolerances, e.g., the size of the
+cart, the size of the grid on it in which parts may be placed, and minimum
+clearance distances to be maintained during performance of the task.
 
 
 \subsection{Implementation plan for the challenge}
