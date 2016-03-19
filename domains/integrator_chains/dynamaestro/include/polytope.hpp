@@ -1,7 +1,7 @@
 #ifndef POLYTOPE_H
 #define POLYTOPE_H
 
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 #include <vector>
 

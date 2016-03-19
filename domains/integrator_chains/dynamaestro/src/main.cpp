@@ -30,7 +30,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <errno.h>
-#include <assert.h>
+#include <cassert>
 
 #include <Eigen/Dense>
 #include <boost/thread/thread.hpp>

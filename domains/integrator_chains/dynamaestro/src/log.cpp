@@ -10,7 +10,7 @@
 #include "dynamaestro/LabelStamped.h"
 
 #include <unistd.h>
-#include <assert.h>
+#include <cassert>
 
 
 /** Transcribe state messages (VectorStamped) into other types.
