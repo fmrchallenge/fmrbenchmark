@@ -28,6 +28,9 @@ class Polytope {
        The polytope is a closed set. No numerical tolerance is used. */
     bool is_in( Eigen::VectorXd X ) const;
 
+    /** Intersect two polytopes that are defined in the same dimension space. */
+    Polytope operator&( const Polytope &P2 );
+
     // Factory functions
     /** Create random Polytope in R^n using Eigen::MatrixXd::Random().
 
@@ -149,6 +152,21 @@ bool Polytope::is_in( Eigen::VectorXd X ) const
     } else {
         return false;
     }
+}
+
+Polytope Polytope::operator&( const Polytope &P2 )
+{
+    assert( this->H.cols() == P2.H.cols() );
+
+    Eigen::MatrixXd H( this->H.rows() + P2.H.rows(), this->H.cols() );
+    Eigen::VectorXd K( this->H.rows() + P2.H.rows(), 1 );
+
+    H.topRows( this->H.rows() ) = this->H;
+    K.topRows( this->H.rows() ) = this->K;
+    H.bottomRows( P2.H.rows() ) = P2.H;
+    K.bottomRows( P2.H.rows() ) = P2.K;
+
+    return Polytope( H, K );
 }
 
 Polytope::Polytope( Eigen::MatrixXd incoming_H, Eigen::VectorXd incoming_K )
