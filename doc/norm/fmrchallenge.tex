@@ -128,7 +128,12 @@ Sections~\ref{sec:scalingcinteg}, \ref{sec:trafficdubins}, and
 \ref{sec:cartclearing} (one per section).  Within a problem domain, a problem
 \textit{instance} is a particular workspace, arrangement of obstacles, labeling
 of the workspace, selection of parameters for the robot dynamics, and a task
-formula.
+formula. A problem instance is defined as a particular selection of values
+consistent with a problem domain. It can include refining details due to
+particular constraints of the problem variant. E.g., while the problem is
+defined in terms of dense-time, an instance may have a sampling period, which
+together with application of inputs using zero-order hold implies a system
+discretization.
 
 Each problem domain may have one or more \textit{variants}, which concern
 different manners of implementation or random instance generation.  E.g., the
