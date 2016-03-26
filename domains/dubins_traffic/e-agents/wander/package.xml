@@ -2,7 +2,9 @@
 <package>
   <name>wander</name>
   <version>0.0.0</version>
-  <description>package for running adversarial cars that wander about the network of roads. based on code by SCL originally developed for me132a.</description>
+  <description>package for running adversarial cars that wander about the
+  network of roads. based on code by SCL originally developed for
+  me132a.</description>
 
   <maintainer email="vasu@caltech.edu">Vasu</maintainer>
   <license>public domain, or equivalent in jurisdictions that do not allow it</license>
