@@ -6,6 +6,7 @@
     name="$(anon vehicle0)"
     args="0"
     ns="vehicle0"
+    output="screen"
   >
     <remap
       from="cmd_vel"
@@ -19,6 +20,7 @@
     name="$(anon vehicle1)"
     args="100"
     ns="vehicle1"
+    output="screen"
   >
     <remap
       from="cmd_vel"
