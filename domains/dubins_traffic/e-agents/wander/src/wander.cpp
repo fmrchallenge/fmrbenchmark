@@ -198,7 +198,7 @@ int main( int argc, char **argv )
 
 
     // Configure turning rate and other motion parameters here
-    double turning_rate = 0.2;  // rad/s
+    double turning_rate = 0.9;  // rad/s
     double forward_speed = 0.5;  // m/s
 
     // Thresholds for switching among modes of motion
@@ -230,6 +230,10 @@ int main( int argc, char **argv )
 
             angle_diff = atan2( waypoints[current_index]->x[1] - current_pose[1],
                                 waypoints[current_index]->x[0] - current_pose[0] ) - current_pose[2];
+            while (angle_diff >= M_PI)
+                angle_diff -= 2*M_PI;
+            while (angle_diff < -M_PI)
+                angle_diff += 2*M_PI;
 
             if (sqrt( (waypoints[current_index]->x[0] - current_pose[0])*(waypoints[current_index]->x[0] - current_pose[0])
                       + (waypoints[current_index]->x[1] - current_pose[1])*(waypoints[current_index]->x[1] - current_pose[1]) ) < min_reach_err) {
