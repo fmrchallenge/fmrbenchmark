@@ -19,7 +19,7 @@
 #include "sensor_msgs/LaserScan.h"
 
 
-double min_dist = 0.5;
+const double min_dist = 0.5;
 bool safe_to_move;
 
 
