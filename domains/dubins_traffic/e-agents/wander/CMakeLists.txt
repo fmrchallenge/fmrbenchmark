@@ -4,7 +4,6 @@ add_compile_options (-std=c++11)
 
 find_package (catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   tf
   nav_msgs
   geometry_msgs
@@ -24,7 +23,4 @@ install (DIRECTORY launch
 )
 install (TARGETS wander
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-catkin_install_python (PROGRAMS scripts/wander.py
-                       DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
