@@ -20,3 +20,9 @@ Dependencies
 
 On Ubuntu, Eigen can be obtained by installing the "libeigen3-dev" deb package
 (https://packages.debian.org/jessie/libeigen3-dev).
+
+Several ROS packages for the Kobuki by Yujin Robot are required.
+
+* `kobuki_node <http://wiki.ros.org/kobuki_node>`_ and dependencies.
+* `kobuki_description <http://wiki.ros.org/kobuki_description>`_ and dependencies.
+* `kobuki_gazebo_plugins <http://wiki.ros.org/kobuki_gazebo_plugins>`_
