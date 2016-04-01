@@ -1,6 +1,13 @@
 Problem domain: Scaling chains of integrators
 =============================================
 
+Summary
+-------
+
+This domain involves controlling chains of integrators so that all trajectories
+repeatedly reach several regions while avoiding others.
+
+
 Organization of sources
 -----------------------
 
