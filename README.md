@@ -1,5 +1,12 @@
+The [fmrbenchmark repository](https://github.com/fmrchallenge/fmrbenchmark) is
+part of a project to develop benchmark problems for research in so-called formal
+methods for robotics.  This effort is stimulated by competitions, and the main
+website is http://fmrchallenge.org
+
 Topical README files are provided in some directories.  For example,
-`domains/dubins_traffic/README.md`.
+`domains/dubins_traffic/README.md`.  In the documentation, `$FMRBENCHMARK`
+represents an absolute path to your copy of the fmrbenchmark repository.
+
 
 Summary of organization
 -----------------------
