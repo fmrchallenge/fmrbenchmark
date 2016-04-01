@@ -33,9 +33,14 @@ Documentation
 The directory `doc/` contains sources for several components of documentation.
 
 * `doc/norm/` : Normative problem domain descriptions and competition rules.
-  Building requires [LaTeX](http://www.latex-project.org).
+  Building requires [LaTeX](http://www.latex-project.org). Releases are
+  available at http://fmrchallenge.org/norm
+
 * `doc/api/` : API manual. Building requires [Doxygen](http://www.doxygen.org).
+  Releases are available at http://api.fmrchallenge.org
+
 * `doc/usersguide/` : User's Guide. Building requires [Sphinx](http://sphinx-doc.org).
+  Releases are available at http://docs.fmrchallenge.org
 
 If the appropriate tools are installed, as noted above, then go to the desired
 directory and run `make`.
