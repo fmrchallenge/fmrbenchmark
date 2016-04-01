@@ -8,7 +8,8 @@ Organization of sources
 
 * analysis/ tools for evaluating and reviewing results.
 
-* fmrb_sci_examples/ examples of partial or complete solutions.
+* $FMRBENCHMARK/examples/integrator_chains_examples/ examples of partial or
+  complete solutions.
 
 
 Components of the benchmark
