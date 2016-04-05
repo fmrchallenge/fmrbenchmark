@@ -101,6 +101,7 @@ required for this example.
 
 .. code-block:: none
 
+  ln -s $FMRBENCHMARK/domains/integrator_chains/integrator_chains_msgs
   ln -s $FMRBENCHMARK/domains/integrator_chains/dynamaestro
   ln -s $FMRBENCHMARK/examples/sci_concrete_examples
 
