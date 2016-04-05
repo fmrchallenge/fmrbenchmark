@@ -18,14 +18,7 @@ if (CATKIN_ENV)
   target_link_libraries (dm ${Boost_LIBRARIES})
 
   add_definitions (-DUSE_ROS)
-  find_package (catkin REQUIRED COMPONENTS roscpp tf std_msgs geometry_msgs message_generation)
-
-  add_message_files (DIRECTORY msg FILES
-    VectorStamped.msg Vector.msg LabelStamped.msg
-    ProblemInstanceJSON.msg
-  )
-  add_service_files (DIRECTORY srv FILES DMMode.srv)
-  generate_messages (DEPENDENCIES std_msgs)
+  find_package (catkin REQUIRED COMPONENTS roscpp tf integrator_chains_msgs)
 
   catkin_package ()
   include_directories (include ${catkin_INCLUDE_DIRS})

@@ -6,8 +6,8 @@
 #include <ros/ros.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PointStamped.h>
-#include "dynamaestro/VectorStamped.h"
-#include "dynamaestro/LabelStamped.h"
+#include "integrator_chains_msgs/VectorStamped.h"
+#include "integrator_chains_msgs/LabelStamped.h"
 
 #include <unistd.h>
 #include <cassert>
@@ -32,7 +32,7 @@ private:
     ros::NodeHandle &nh_;
     ros::Publisher pubPointStamped;
     ros::Subscriber subVectorStamped;
-    void statecb( const dynamaestro::VectorStamped &vs );
+    void statecb( const integrator_chains_msgs::VectorStamped &vs );
 
     int mapped_i0, mapped_i1, mapped_i2;
 };
@@ -60,7 +60,7 @@ DMTranscriber::DMTranscriber( ros::NodeHandle &nh, int i0, int i1, int i2 )
     subVectorStamped = nh_.subscribe( "/dynamaestro/state", 1, &DMTranscriber::statecb, this );
 }
 
-void DMTranscriber::statecb( const dynamaestro::VectorStamped &vs )
+void DMTranscriber::statecb( const integrator_chains_msgs::VectorStamped &vs )
 {
     geometry_msgs::PointStamped pt;
     pt.header.frame_id = vs.header.frame_id;
@@ -102,7 +102,7 @@ private:
     ros::NodeHandle &nh_;
     ros::Publisher pubLabelingNoRep;
     ros::Subscriber subLabeledOutput;
-    void labelcb( const dynamaestro::LabelStamped &ls );
+    void labelcb( const integrator_chains_msgs::LabelStamped &ls );
     std::vector<std::string> prevlabel;
     bool initialized;
 };
@@ -110,16 +110,16 @@ private:
 WordEvents::WordEvents( ros::NodeHandle &nh )
     : nh_(nh), initialized(false)
 {
-    pubLabelingNoRep = nh_.advertise<dynamaestro::LabelStamped>( "loutput_norep", 10, true );
+    pubLabelingNoRep = nh_.advertise<integrator_chains_msgs::LabelStamped>( "loutput_norep", 10, true );
     subLabeledOutput = nh_.subscribe( "/dynamaestro/loutput", 10, &WordEvents::labelcb, this );
 }
 
-void WordEvents::labelcb( const dynamaestro::LabelStamped &ls )
+void WordEvents::labelcb( const integrator_chains_msgs::LabelStamped &ls )
 {
     if (!initialized || ls.label != prevlabel) {
         initialized = true;
         prevlabel = ls.label;
-        dynamaestro::LabelStamped echoed_ls = ls;
+        integrator_chains_msgs::LabelStamped echoed_ls = ls;
         pubLabelingNoRep.publish( echoed_ls );
     }
 }

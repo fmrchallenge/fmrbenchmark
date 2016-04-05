@@ -14,10 +14,10 @@
 
 #ifdef USE_ROS
 #include <ros/ros.h>
-#include "dynamaestro/VectorStamped.h"
-#include "dynamaestro/LabelStamped.h"
-#include "dynamaestro/ProblemInstanceJSON.h"
-#include "dynamaestro/DMMode.h"
+#include "integrator_chains_msgs/VectorStamped.h"
+#include "integrator_chains_msgs/LabelStamped.h"
+#include "integrator_chains_msgs/ProblemInstanceJSON.h"
+#include "integrator_chains_msgs/DMMode.h"
 #endif
 
 #include "problem.hpp"
@@ -199,9 +199,9 @@ class TGThread {
 public:
     TGThread( ros::NodeHandle &nh );
     ~TGThread();
-    void inputcb( const dynamaestro::VectorStamped &vs );
-    bool mode_request( dynamaestro::DMMode::Request &req,
-                       dynamaestro::DMMode::Response &res );
+    void inputcb( const integrator_chains_msgs::VectorStamped &vs );
+    bool mode_request( integrator_chains_msgs::DMMode::Request &req,
+                       integrator_chains_msgs::DMMode::Response &res );
     void run();
     void pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y );
 
@@ -274,7 +274,7 @@ private:
     Queue<ros::Time> times_recording;
     Queue<Problem *> instances_recording;
     Queue<Eigen::VectorXd> inputs_recording;
-    Queue<dynamaestro::VectorStamped *> states_recording;
+    Queue<integrator_chains_msgs::VectorStamped *> states_recording;
     boost::thread *scribethread;
     void tgt_scribe( std::string filename, bool append_mode );
 };
@@ -381,7 +381,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
                 outf << "," << std::endl;
             }
 
-            std::pair<int, dynamaestro::VectorStamped *> tstate = states_recording.dequeue();
+            std::pair<int, integrator_chains_msgs::VectorStamped *> tstate = states_recording.dequeue();
 
             outf << "[" << tstate.second->header.stamp.sec
                  << ", " << tstate.second->header.stamp.nsec;
@@ -587,9 +587,9 @@ TGThread::TGThread( ros::NodeHandle &nh )
       scribethread(nullptr)
 {
     mode_srv = nh_.advertiseService( "mode", &TGThread::mode_request, this );
-    problemJSONpub = nh_.advertise<dynamaestro::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
-    statepub = nh_.advertise<dynamaestro::VectorStamped>( "state", 10, true );
-    loutpub = nh_.advertise<dynamaestro::LabelStamped>( "loutput", 10, true );
+    problemJSONpub = nh_.advertise<integrator_chains_msgs::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
+    statepub = nh_.advertise<integrator_chains_msgs::VectorStamped>( "state", 10, true );
+    loutpub = nh_.advertise<integrator_chains_msgs::LabelStamped>( "loutput", 10, true );
     inputsub = nh_.subscribe( "input", 1, &TGThread::inputcb, this );
 }
 
@@ -606,7 +606,7 @@ TGThread::~TGThread()
 
 void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
 {
-    dynamaestro::VectorStamped *pt = new dynamaestro::VectorStamped();
+    integrator_chains_msgs::VectorStamped *pt = new integrator_chains_msgs::VectorStamped();
     pt->header.frame_id = std::string( "map" );
     pt->header.stamp = ros::Time::now();
     for (int i = 0; i < tg.get_state_dim(); i++) {
@@ -617,7 +617,7 @@ void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
     statepub.publish( *pt );
 
     std::list<std::string> label = labeler.get_label( Y );
-    dynamaestro::LabelStamped lbl;
+    integrator_chains_msgs::LabelStamped lbl;
     lbl.header.frame_id = pt->header.frame_id;
     lbl.header.stamp = pt->header.stamp;
     lbl.label.resize( label.size() );
@@ -636,17 +636,17 @@ void TGThread::pubstate( const TrajectoryGenerator &tg, Eigen::VectorXd &Y )
     }
 }
 
-bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
-                             dynamaestro::DMMode::Response &res )
+bool TGThread::mode_request( integrator_chains_msgs::DMMode::Request &req,
+                             integrator_chains_msgs::DMMode::Response &res )
 {
     switch (req.mode) {
-    case dynamaestro::DMMode::Request::UNPAUSE:
+    case integrator_chains_msgs::DMMode::Request::UNPAUSE:
         if (dmmode != running)
             dmmode = running;
         res.result = true;
         break;
 
-    case dynamaestro::DMMode::Request::READY:
+    case integrator_chains_msgs::DMMode::Request::READY:
         if (dmmode == ready) {
             res.result = true;
         } else {
@@ -654,7 +654,7 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
         }
         break;
 
-    case dynamaestro::DMMode::Request::START:
+    case integrator_chains_msgs::DMMode::Request::START:
         if (dmmode == ready) {
             dmmode = waiting;
             res.result = true;
@@ -663,7 +663,7 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
         }
         break;
 
-    case dynamaestro::DMMode::Request::PAUSE:
+    case integrator_chains_msgs::DMMode::Request::PAUSE:
         if (dmmode == running) {
             dmmode = paused;
             fresh_input = false;
@@ -671,13 +671,13 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
         res.result = true;
         break;
 
-    case dynamaestro::DMMode::Request::RESTART:
+    case integrator_chains_msgs::DMMode::Request::RESTART:
         dmmode = restarting;
-        ROS_INFO( "dynamaestro: Restarting trial..." );
+        ROS_INFO( "integrator_chains_msgs: Restarting trial..." );
         res.result = true;
         break;
 
-    case dynamaestro::DMMode::Request::RESET:
+    case integrator_chains_msgs::DMMode::Request::RESET:
         dmmode = resetting;
         ROS_INFO( "dynamaestro: Stopping current trial and generating a new instance..." );
         res.result = true;
@@ -690,7 +690,7 @@ bool TGThread::mode_request( dynamaestro::DMMode::Request &req,
     return true;
 }
 
-void TGThread::inputcb( const dynamaestro::VectorStamped &vs )
+void TGThread::inputcb( const integrator_chains_msgs::VectorStamped &vs )
 {
     assert( probinstance != nullptr );
 
@@ -837,7 +837,7 @@ void TGThread::run()
     }
     assert( dmmode == waiting );
 
-    dynamaestro::ProblemInstanceJSON probinstance_msg;
+    integrator_chains_msgs::ProblemInstanceJSON probinstance_msg;
     probinstance_msg.stamp = ros::Time::now();
     probinstance_msg.problemjson = probinstance->dumpJSON();
     problemJSONpub.publish( probinstance_msg );
@@ -916,7 +916,7 @@ void TGThread::run()
         rate.sleep();
     }
     dmmode = resetting;
-    dynamaestro::VectorStamped pt;
+    integrator_chains_msgs::VectorStamped pt;
     // Send empty state message to indicate that trial has ended.
     statepub.publish( pt );
 
