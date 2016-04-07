@@ -8,6 +8,15 @@ This domain involves navigation in a small network of two-lane roads with
 vehicles that have Dubins car dynamics.
 
 
+Organization of sources
+-----------------------
+
+* e-agents/ agents that implement adversarial (environment) strategies on other cars.
+
+* dub_sim/ main code for the simulation variant, including Gazebo SDF models and
+  roslaunch files.
+
+
 Installation
 ------------
 
