@@ -26,3 +26,9 @@ Several ROS packages for the Kobuki by Yujin Robot are required.
 * `kobuki_node <http://wiki.ros.org/kobuki_node>`_ and dependencies.
 * `kobuki_description <http://wiki.ros.org/kobuki_description>`_ and dependencies.
 * `kobuki_gazebo_plugins <http://wiki.ros.org/kobuki_gazebo_plugins>`_
+
+Supplementary prerequisites
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+As for the :doc:`integrator_chains` benchmark, there is code that is relevant
+but not required for this benchmark.
