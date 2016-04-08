@@ -1,4 +1,4 @@
-/* log.cpp - logging and transcription of messages to standard formats.
+/* log.cpp - logging and transcription of integrator_chains messages to standard formats.
  *
  * SCL; 2015
  */
