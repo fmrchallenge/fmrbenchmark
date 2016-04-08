@@ -1,11 +1,16 @@
 import math
+import json
 
 
 class RoadNetwork(object):
-    def __init__(self, rnd_file):
-        """
+    def __init__(self, rnd_file, is_json=True):
+        """Instantiate road network description
 
         rnd_file can be string (file name) or file-like object.
+
+        Note that two containers are recognized: JSON and
+        plaintext. If the argument is_json=True (default) the file is
+        parsed as JSON. Otherwise, the plaintext format is used.
         """
         if getattr(rnd_file, 'readline', None) is None:
             rnd_file = open(rnd_file, 'rt')
@@ -15,30 +20,41 @@ class RoadNetwork(object):
         self.segments = list()
         self.transform = (0, 0, 0)
 
-        reading_segments = False
-        for line in rnd_file:
-            line = line.strip()
-            if len(line) == 0 or line.startswith('#'):
-                continue  # Ignore comments, blank lines
-            comment_index = line.find('#')
-            if comment_index > 0:
-                line = line[:comment_index]  # Strip trailing comments
-            if not reading_segments:
-                if line.startswith('version'):
-                    self.version = int(line.split(':')[1])
-                    assert self.version == 0, 'Unrecognized format version'
-                elif line.startswith('length'):
-                    self.length = float(line.split(':')[1])
-                    assert self.length > 0, 'Unit side length must be positive'
-                elif line.startswith('transform'):
-                    self.transform = tuple([float(x) for x in line.split(':')[1].split()])
-                    assert len(self.transform) == 3, 'Map transform must be a 3-tuple'
-                elif line.startswith('segments'):
-                    reading_segments = True
+        if is_json:
+            rndjson =json.load(rnd_file)
+            self.version = rndjson['version']
+            assert self.version == 0, 'Unrecognized format version'
+            self.length = rndjson['length']
+            self.transform = tuple([float(x) for x in rndjson['transform']])
+            self.segments = rndjson['segments']
+
+        else:
+            reading_segments = False
+            for line in rnd_file:
+                line = line.strip()
+                if len(line) == 0 or line.startswith('#'):
+                    continue  # Ignore comments, blank lines
+                comment_index = line.find('#')
+                if comment_index > 0:
+                    line = line[:comment_index]  # Strip trailing comments
+                if not reading_segments:
+                    if line.startswith('version'):
+                        self.version = int(line.split(':')[1])
+                        assert self.version == 0, 'Unrecognized format version'
+                    elif line.startswith('length'):
+                        self.length = float(line.split(':')[1])
+                    elif line.startswith('transform'):
+                        self.transform = tuple([float(x) for x in line.split(':')[1].split()])
+                    elif line.startswith('segments'):
+                        reading_segments = True
+                    else:
+                        raise ValueError('Unrecognized file entry.')
                 else:
-                    raise ValueError('Unrecognized file entry.')
-            else:
-                self.segments.append([int(x) for x in line.split()])
+                    self.segments.append([int(x) for x in line.split()])
+
+
+        assert self.length > 0, 'Unit side length must be positive'
+        assert len(self.transform) == 3, 'Map transform must be a 3-tuple'
 
     def number_of_segments(self):
         return len(self.segments)
