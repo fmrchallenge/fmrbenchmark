@@ -13,6 +13,8 @@ While below we include pointers to the main websites for dependencies, many are
 available via packages for your OS and may already be installed, especially if
 you have ROS on Ubuntu 14.04. Supported platforms are described in the :doc:`intro`.
 
+.. _integrator-chains-depend-label:
+
 Dependencies
 ~~~~~~~~~~~~
 
@@ -84,8 +86,8 @@ Controller examples
 ~~~~~~~~~~~~~~~~~~~
 
 Note that the ``lqr.py`` controller requires the Python Control System Library
-(``control``) and a standard scientific Python stack including NumPy. These and
-other dependencies are described above.
+(``control``) and a standard scientific Python stack including NumPy. Obtaining
+these is described above in the Section :ref:`integrator-chains-depend-label`.
 
 Create a catkin workspace.
 
