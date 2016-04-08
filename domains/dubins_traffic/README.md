@@ -20,12 +20,9 @@ Organization of sources
 Installation
 ------------
 
-A good start is the "desktop-full" configuration of ROS Indigo.  Additional
-dependencies:
-* [kobuki_node](http://wiki.ros.org/kobuki_node) and dependencies.
-* [kobuki_description](http://wiki.ros.org/kobuki_description) and dependencies.
-* [Kobuki Gazebo plugin](http://wiki.ros.org/kobuki_gazebo_plugins)
+More details are provided in the [User's Guide](http://docs.fmrchallenge.org).
 
+A good start is the "desktop-full" configuration of ROS Indigo.
 If you are on Ubuntu 14.04, try
 
     apt-get install ros-indigo-kobuki-node ros-indigo-kobuki-description ros-indigo-kobuki-gazebo
@@ -56,4 +53,3 @@ where the `source` command assumes that you are using the Z shell; try
 
 References
 ----------
-
