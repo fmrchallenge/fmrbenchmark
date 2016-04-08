@@ -30,5 +30,5 @@ Several ROS packages for the Kobuki by Yujin Robot are required.
 Supplementary prerequisites
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-As for the :doc:`integrator_chains` benchmark, there is code that is relevant
-but not required for this benchmark.
+As for the :doc:`integrator_chains`, there is code that is relevant but not
+required for this benchmark.
