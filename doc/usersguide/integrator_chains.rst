@@ -122,6 +122,8 @@ whenever a new shell session is created, you must first ::
 
   source install/setup.zsh
 
+where the ``source`` command assumes that you are using the Z shell; try
+``setup.bash`` if you use Bash.
 To initiate the performance of a collection of trials defined by the
 configuration file ``mc-small-out3-order3.json`` in the ROS package
 ``sci_concrete_examples`` of example controllers, ::
