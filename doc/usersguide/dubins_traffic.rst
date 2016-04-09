@@ -46,8 +46,48 @@ As for the :doc:`integrator_chains`, there is code that is relevant but not
 required for this benchmark.
 
 
-Tutorial
---------
+Tutorials
+---------
 
 In the below code, ``$FMRBENCHMARK`` is the absolute path to a copy of the
 fmrbenchmark repository on your machine.
+
+Launching a problem instance of the simulation variant
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Create a catkin workspace.
+
+.. code-block:: none
+
+  mkdir -p dubsim_workspace/src
+  cd dubsim_workspace/src
+
+At this step you should be in the root of your workspace, i.e., the directory
+named ``dubplay``.  Finally build everything, and launch the straightroad example.
+
+Create symbolic links to the ROS packages in the fmrbenchmark repository
+required for this example.
+
+.. code-block:: none
+
+  ln -s $FMRBENCHMARK/domains/dubins_traffic/dub_sim
+  ln -s $FMRBENCHMARK/domains/dubins_traffic/e-agents/wander
+
+Build and install it within the catkin workspace.
+
+.. code-block:: none
+
+  cd ..
+  catkin_make install
+
+Because the installation is local to the catkin workspace, before beginning and
+whenever a new shell session is created, you must first ::
+
+  source install/setup.zsh
+
+where the ``source`` command assumes that you are using the Z shell; try
+``setup.bash`` if you use Bash.
+Finally, launch a small static environment of two vehicles on a straight road
+segment. ::
+
+  roslaunch dub_sim straightroad.launch
