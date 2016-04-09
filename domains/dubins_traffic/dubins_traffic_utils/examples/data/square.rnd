@@ -12,4 +12,7 @@ segments:
 1 1 1 0
 1 0 0 0
 
+# If segments (above) is not defined, then shape results in a complete
+# 4-connected grid having shape[0] rows and shape[1] columns.
+# If segmenst is defined, then shape must be consistent with it.
 shape: 2 2
