@@ -8,8 +8,8 @@ from control import lqr
 import roslib; roslib.load_manifest('sci_concrete_examples')
 import rospy
 from std_msgs.msg import Header
-from dynamaestro.msg import VectorStamped, Vector, ProblemInstanceJSON
-from dynamaestro.srv import DMMode, DMModeRequest
+from integrator_chains_msgs.msg import VectorStamped, Vector, ProblemInstanceJSON
+from integrator_chains_msgs.srv import DMMode, DMModeRequest
 
 from fmrb import integrator_chains
 
