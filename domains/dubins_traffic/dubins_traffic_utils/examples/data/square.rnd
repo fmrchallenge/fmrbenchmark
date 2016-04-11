@@ -4,15 +4,16 @@ length: 5
 transform: 0 0 0  # x y theta, as a point in SE(2); rotation is in radians.
 # Unlike segment coordinates, the transform is not scaled by length.
 
+# If segments (below) is not defined, then shape results in a complete
+# 4-connected grid having shape[0] rows and shape[1] columns.
+# If segmenst is defined, then shape must be consistent with it.
+shape: 2 2
+
 # Segment coordinates as used in the "segments" field are scaled by
 # the length value and then transformed.
+# If segments is defined, it must be the last part of the file.
 segments:
 0 0 0 1  # A segment of road from (x0, y0) to (x1, y1)
 0 1 1 1
 1 1 1 0
 1 0 0 0
-
-# If segments (above) is not defined, then shape results in a complete
-# 4-connected grid having shape[0] rows and shape[1] columns.
-# If segmenst is defined, then shape must be consistent with it.
-shape: 2 2
