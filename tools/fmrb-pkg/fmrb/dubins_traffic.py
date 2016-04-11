@@ -19,6 +19,7 @@ class RoadNetwork(object):
         self.length = None
         self.segments = list()
         self.transform = (0, 0, 0)
+        self.shape = None
 
         if is_json:
             rndjson =json.load(rnd_file)
@@ -26,7 +27,10 @@ class RoadNetwork(object):
             assert self.version == 0, 'Unrecognized format version'
             self.length = rndjson['length']
             self.transform = tuple([float(x) for x in rndjson['transform']])
-            self.segments = rndjson['segments']
+            if 'segments' in rndjson:
+                self.segments = rndjson['segments']
+            if 'shape' in rndjson:
+                self.shape = tuple(rndjson['shape'])
 
         else:
             reading_segments = False
@@ -47,14 +51,50 @@ class RoadNetwork(object):
                         self.transform = tuple([float(x) for x in line.split(':')[1].split()])
                     elif line.startswith('segments'):
                         reading_segments = True
+                    elif line.startswith('shape'):
+                        self.shape = tuple([float(x) for x in line.split(':')[1].split()])
                     else:
                         raise ValueError('Unrecognized file entry.')
                 else:
                     self.segments.append([int(x) for x in line.split()])
 
-
         assert self.length > 0, 'Unit side length must be positive'
         assert len(self.transform) == 3, 'Map transform must be a 3-tuple'
+        if self.shape is not None:
+            assert len(self.shape) == 2, 'Shape must be a 2-tuple'
+            assert self.shape[0] >= 1 and self.shape[1] >= 1, 'Shape must have positive elements'
+        if len(self.segments) > 0:
+            segments_shape = [0, 4]
+            # extrema elements: x_min, x_max, y_min, y_max
+            extrema = [self.segments[0][0], self.segments[0][1],
+                       self.segments[0][0], self.segments[0][1]]
+            for segment in self.segments:
+                assert len(segment) == segments_shape[1], 'Mismatch in row length of segments'
+                segments_shape[0] += 1
+                extrema[0] = min(segment[0], segment[2], extrema[0])
+                extrema[1] = max(segment[0], segment[2], extrema[1])
+                extrema[2] = min(segment[1], segment[3], extrema[2])
+                extrema[3] = max(segment[1], segment[3], extrema[3])
+            if self.shape is None:
+                self.shape = (extrema[3] - extrema[2],
+                              extrema[1] - extrema[0])
+            else:
+                assert self.shape == (extrema[3] - extrema[2]+1,
+                                      extrema[1] - extrema[0]+1), 'Shape and segments fields are not consistent'
+        elif self.shape is not None:
+            self.segments = []
+            for x in range(self.shape[1]-1):
+                for y in range(self.shape[0]-1):
+                    self.segments.append([x, y, x+1, y])
+                    self.segments.append([x, y, x, y+1])
+            for x in range(self.shape[1]-1):
+                self.segments.append([x, self.shape[0]-1,
+                                      x+1, self.shape[0]-1])
+            for y in range(self.shape[0]-1):
+                self.segments.append([self.shape[1]-1, y,
+                                      self.shape[1]-1, y+1])
+        else:
+            raise ValueError('At least one of segments or shape must be defined')
 
     def number_of_segments(self):
         return len(self.segments)
