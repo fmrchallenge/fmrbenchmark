@@ -2,7 +2,7 @@
 from __future__ import print_function
 import argparse
 
-from fmrb.dubins_traffic import gen_worldsdf
+from fmrb.dubins_traffic import gen_worldsdf, RoadNetwork
 
 
 if __name__ == '__main__':
