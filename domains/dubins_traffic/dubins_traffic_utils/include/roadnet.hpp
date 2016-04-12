@@ -12,6 +12,8 @@
    This class serves a similar purpose to the class RoadNetwork in
    dubins_traffic.py of the fmrb Python package. However, this is considered the
    reference implementation.
+
+   \ingroup dubins_traffic
  */
 class RoadNetwork
 {

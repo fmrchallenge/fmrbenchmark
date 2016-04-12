@@ -17,4 +17,8 @@ about whether or how parts of the API may change.
 
 For details, consult the API module \ref integrator_chains.
 
+\subsection sec_dubins_traffic Traffic network of Dubins cars
+
+For details, consult the API module \ref dubins_traffic.
+
 */
