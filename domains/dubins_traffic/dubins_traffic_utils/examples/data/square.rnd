@@ -6,7 +6,7 @@ transform: 0 0 0  # x y theta, as a point in SE(2); rotation is in radians.
 
 # If segments (below) is not defined, then shape results in a complete
 # 4-connected grid having shape[0] rows and shape[1] columns.
-# If segmenst is defined, then shape must be consistent with it.
+# If segments is defined, then shape must be consistent with it.
 shape: 2 2
 
 # Segment coordinates as used in the "segments" field are scaled by
