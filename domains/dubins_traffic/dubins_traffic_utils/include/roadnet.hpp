@@ -36,6 +36,9 @@ public:
     friend std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd );
 
 private:
+    void populate_4grid( int shape0, int shape1 );
+
+private:
     int version;
     double length;
     Eigen::Vector3d transform;
@@ -43,13 +46,8 @@ private:
     std::vector<int> shape;
 };
 
-RoadNetwork::RoadNetwork( double length_,
-                          const Eigen::Vector3d &transform_,
-                          int shape0, int shape1 )
-    : version(0), length(length_), transform(transform_),
-      shape( {shape0, shape1} )
+void RoadNetwork::populate_4grid( int shape0, int shape1 )
 {
-    assert( length > 0 );
     assert( shape0 >= 1 && shape1 >= 1 );
     for (int x = 0; x < shape1-1; x++) {
         for (int y = 0; y < shape0-1; y++) {
@@ -61,6 +59,16 @@ RoadNetwork::RoadNetwork( double length_,
         segments.push_back( Eigen::Vector4d( x, shape0-1, x+1, shape0-1 ) );
     for (int y = 0; y < shape0-1; y++)
         segments.push_back( Eigen::Vector4d( shape1-1, y, shape1-1, y+1 ) );
+}
+
+RoadNetwork::RoadNetwork( double length_,
+                          const Eigen::Vector3d &transform_,
+                          int shape0, int shape1 )
+    : version(0), length(length_), transform(transform_),
+      shape( {shape0, shape1} )
+{
+    assert( length > 0 );
+    populate_4grid( shape0, shape1 );
 }
 
 RoadNetwork::RoadNetwork( std::istream &rndjson )
