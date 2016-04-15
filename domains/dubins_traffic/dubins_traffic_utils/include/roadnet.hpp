@@ -172,6 +172,9 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
             break;
         }
     }
+
+    assert( length > 0 );
+    populate_4grid( shape[0], shape[1] );
 }
 
 std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd )
