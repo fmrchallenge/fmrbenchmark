@@ -1,0 +1,16 @@
+<package>
+  <name>dubins_traffic_utils</name>
+  <version>0.0.1</version>
+  <description>
+    logging, monitors, etc. for the "Traffic network of Dubins cars" problem domain.
+  </description>
+  <maintainer email="slivingston@cds.caltech.edu">SCL</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>boost</build_depend>
+  <run_depend>boost</run_depend>
+  <run_depend>roscpp</run_depend>
+  <build_depend>dubins_traffic_msgs</build_depend>
+</package>
