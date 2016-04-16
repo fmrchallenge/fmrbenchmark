@@ -129,7 +129,7 @@ def road_segment(x1, x2, prefix='straightroad'):
     output += '<link name="'+prefix+'link1">'+nl
     output += '<visual name="'+prefix+'bar1">'+nl
     output += '<pose>{X} {Y} 0 0 0 {ANGLE}</pose>'.format(X=center[0], Y=center[1], ANGLE=angle)+nl
-    output += '<geometry><box><size>{LENGTH} 1.2 0.001</size></box></geometry>'.format(LENGTH=length)+nl
+    output += '<geometry><box><size>{LENGTH} 1.2 0.001</size></box></geometry>'.format(LENGTH=length+1.2)+nl
     output += """
           <material>
 	    <ambient>0.2 0.2 0.2 1</ambient>
@@ -143,7 +143,7 @@ def road_segment(x1, x2, prefix='straightroad'):
     output += '<link name="'+prefix+'link2">'+nl
     output += '<visual name="'+prefix+'bar2">'+nl
     output += '<pose>{X} {Y} 0 0 0 {ANGLE}</pose>'.format(X=center[0], Y=center[1], ANGLE=angle)+nl
-    output += '<geometry><box><size>{LENGTH} 0.12 0.0015</size></box></geometry>'.format(LENGTH=length)+nl
+    output += '<geometry><box><size>{LENGTH} 0.12 0.0015</size></box></geometry>'.format(LENGTH=length+0.12)+nl
     output += """
           <material>
 	    <ambient>0.5 0.5 0 1</ambient>
