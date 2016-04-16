@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <utility>
 #include <string>
 #include <cmath>
 #include <cassert>
@@ -159,11 +160,46 @@ int main( int argc, char **argv )
     RoadNetwork rd( infile );
     assert( rd.number_of_segments() > 0 );
 
-    Eigen::Vector4d road_segment = rd.mapped_segment( 0 );
+    std::vector< std::pair<size_t, bool> > visited_indices = {std::pair<size_t, bool>( 0, true )};
+    Eigen::Vector4d road_segment = rd.mapped_segment( visited_indices.back().first );
 
     std::vector<Eigen::Vector2d> waypoints = { Eigen::Vector2d( road_segment(0), road_segment(1) ),
                                                Eigen::Vector2d( road_segment(2), road_segment(3) ) };
 
+    while (true) {
+        std::vector<size_t> end_indices;
+        if (visited_indices.back().second) {  // Direction on previous segment?
+            end_indices = rd.segments_at_end( visited_indices.back().first );
+        } else {
+            end_indices = rd.segments_at_start( visited_indices.back().first );
+        }
+        if (end_indices.size() == 0)  // Dead-end
+            break;
+        std::vector<size_t>::iterator end_it;
+        for (end_it = end_indices.begin(); end_it != end_indices.end(); end_it++) {
+            std::vector< std::pair<size_t, bool> >::iterator visited_it;
+            for (visited_it = visited_indices.begin();
+                 visited_it != visited_indices.end(); visited_it++) {
+                if ((*visited_it).first == *end_it)
+                    break;
+            }
+            if (visited_it == visited_indices.end())
+                break;
+        }
+        if (end_it != end_indices.end()) {
+            Eigen::Vector4d this_segment = rd.mapped_segment( *end_it );
+            if ((this_segment.segment<2>(0) - waypoints.back()).norm() < 1e-6) {
+                waypoints.push_back( this_segment.segment<2>(2) );
+                visited_indices.push_back( std::pair<size_t, bool>( *end_it, true ) );
+            } else {
+                assert( (this_segment.segment<2>(2) - waypoints.back()).norm() < 1e-6 );
+                waypoints.push_back( this_segment.segment<2>(0) );
+                visited_indices.push_back( std::pair<size_t, bool>( *end_it, false ) );
+            }
+        } else {
+            break;
+        }
+    }
 
     // Configure turning rate and other motion parameters here
     double turning_rate = 0.9;  // rad/s

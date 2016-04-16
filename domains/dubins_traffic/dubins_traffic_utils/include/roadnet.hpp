@@ -59,16 +59,16 @@ private:
     int version;
     double length;
     Eigen::Vector3d transform;
-    std::vector<Eigen::Vector4d> segments;
+    std::vector<Eigen::Vector4i> segments;
     std::vector<int> shape;
 };
 
 std::vector<size_t> RoadNetwork::segments_at_end( size_t idx, bool reverse ) const
 {
     assert( idx >= 0 && idx < number_of_segments() );
-    size_t offset = 0;
+    int offset = 0;
     if (reverse)
-        size_t offset = -2;
+        offset = -2;
     std::vector<size_t> end_indices;
     for (size_t jj = 0; jj < number_of_segments(); jj++) {
         if (jj == idx)
@@ -89,8 +89,8 @@ const Eigen::Vector4d RoadNetwork::mapped_segment( size_t idx ) const
 {
     Eigen::Vector4d mapped;
     for (size_t offset = 0; offset < 2; offset++)
-        map_point( segments[idx](offset), segments[idx](offset+1),
-                   mapped(offset), mapped(offset+1) );
+        map_point( segments[idx](2*offset), segments[idx](2*offset+1),
+                   mapped(2*offset), mapped(2*offset+1) );
     return mapped;
 }
 
@@ -112,14 +112,14 @@ void RoadNetwork::populate_4grid( int shape0, int shape1 )
     assert( shape0 >= 1 && shape1 >= 1 );
     for (int x = 0; x < shape1-1; x++) {
         for (int y = 0; y < shape0-1; y++) {
-            segments.push_back( Eigen::Vector4d( x, y, x+1, y ) );
-            segments.push_back( Eigen::Vector4d( x, y, x, y+1 ) );
+            segments.push_back( Eigen::Vector4i( x, y, x+1, y ) );
+            segments.push_back( Eigen::Vector4i( x, y, x, y+1 ) );
         }
     }
     for (int x = 0; x < shape1-1; x++)
-        segments.push_back( Eigen::Vector4d( x, shape0-1, x+1, shape0-1 ) );
+        segments.push_back( Eigen::Vector4i( x, shape0-1, x+1, shape0-1 ) );
     for (int y = 0; y < shape0-1; y++)
-        segments.push_back( Eigen::Vector4d( shape1-1, y, shape1-1, y+1 ) );
+        segments.push_back( Eigen::Vector4i( shape1-1, y, shape1-1, y+1 ) );
 }
 
 RoadNetwork::RoadNetwork( double length_,
