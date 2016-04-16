@@ -7,8 +7,19 @@
 
 int main()
 {
-    Eigen::Vector3d transform( 0.0, 0.0, 0.0 );
+    Eigen::Vector3d transform( 1.0, 0.0, 1.6 );
     RoadNetwork rd( 2.0, transform, 2, 3 );
     std::cout << rd << std::endl;
+
+    double x, y;
+    rd.map_point( 0, 0, x, y );
+    std::cout << "(0, 0) -> (" << x << ", " << y << ")" << std::endl;
+
+    rd.map_point( 1, 2, x, y );
+    std::cout << "(1, 2) -> (" << x << ", " << y << ")" << std::endl;
+
+    for (size_t idx = 0; idx < rd.number_of_segments(); idx++)
+        std::cout << rd.mapped_segment( idx ).transpose() << std::endl;
+
     return 0;
 }

@@ -1,6 +1,7 @@
 #ifndef ROADNET_H
 #define ROADNET_H
 
+#include <cmath>
 #include <string>
 #include <vector>
 #include <iostream>
@@ -35,6 +36,19 @@ public:
     /** Output in RND format using JSON container to given stream. */
     friend std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd );
 
+    int number_of_segments() const
+        { return segments.size(); }
+
+    /** Get mapped road segment. */
+    const Eigen::Vector4d mapped_segment( size_t idx ) const;
+
+    /** Map point in local coordinates through transform and scaling.
+
+       This function does not check whether the given point is on some segment.
+     */
+    void map_point( const int x, const int y,
+                    double &mapped_x, double &mapped_y ) const;
+
 private:
     void populate_4grid( int shape0, int shape1 );
 
@@ -45,6 +59,28 @@ private:
     std::vector<Eigen::Vector4d> segments;
     std::vector<int> shape;
 };
+
+const Eigen::Vector4d RoadNetwork::mapped_segment( size_t idx ) const
+{
+    Eigen::Vector4d mapped;
+    for (size_t offset = 0; offset < 2; offset++)
+        map_point( segments[idx](offset), segments[idx](offset+1),
+                   mapped(offset), mapped(offset+1) );
+    return mapped;
+}
+
+void RoadNetwork::map_point( const int x, const int y,
+                             double &mapped_x, double &mapped_y ) const
+{
+    double costheta = std::cos( transform(2) );
+    double sintheta = std::sin( transform(2) );
+    mapped_x = length*x;
+    mapped_y = length*y;
+    double new_x = costheta*mapped_x - sintheta*mapped_y;
+    double new_y = sintheta*mapped_x + costheta*mapped_y;
+    mapped_x = new_x + transform(0);
+    mapped_y = new_y + transform(1);
+}
 
 void RoadNetwork::populate_4grid( int shape0, int shape1 )
 {
