@@ -42,7 +42,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     with open(args.FILE, 'rt') as f:
-        roads = dubins_traffic.RoadNetwork(f, is_json=False)
+        roads = dubins_traffic.RoadNetwork(f)
 
     tempfd_sdf, tempfname_sdf = tempfile.mkstemp()
     worldsdffile = os.fdopen(tempfd_sdf, 'w+')
