@@ -4,7 +4,7 @@
     pkg="wander"
     type="wander"
     name="$(anon vehicle0)"
-    args="0"
+    args="$(find dubins_traffic_utils)/examples/data/square.json"
     ns="vehicle0"
     output="screen"
   >
@@ -18,7 +18,7 @@
     pkg="wander"
     type="wander"
     name="$(anon vehicle1)"
-    args="100"
+    args="$(find dubins_traffic_utils)/examples/data/square.json"
     ns="vehicle1"
     output="screen"
   >

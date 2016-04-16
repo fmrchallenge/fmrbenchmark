@@ -6,9 +6,13 @@
 */
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <cmath>
+#include <cassert>
+
+#include "dubins_traffic_utils/roadnet.hpp"
 
 #include "ros/ros.h"
 #include "tf/tf.h"
@@ -137,64 +141,28 @@ bool OdomWatcher::get_pose_estimate( double *x )
 }
 
 
-
-class PositionR2 {
-public:
-    PositionR2( double x0, double x1 )
-    {
-        x[0] = x0;
-        x[1] = x1;
-    }
-
-    double x[2];
-};
-
-
 int main( int argc, char **argv )
 {
     /*************************************************************/
     unsigned int seed;
 
     if (argc <= 1) {
-          fprintf(stderr, "Usage: %s <seed> \n", argv[0]);
-          exit(EXIT_FAILURE);
-        }
-
-        seed = atoi(argv[1]);
-    srand(seed);
-
-    // Generate a random series of waypoints on a grid.
-    std::vector<PositionR2 *> waypoints;
-    int numWaypts = 10;
-    int x,y;
-    int r1,r2;
-
-    // Assumes initial position is (0,0) on the grid.
-    // TODO: use initial pose estimate from gazebo
-    x = 0;
-    y = 0;
-
-    int cell_size = 3; //size of grid cell in meters, assuming square cells
-
-    for (int i=0; i<numWaypts; i++) {
-      r1 = rand() % 2; //move in x or y
-      r2 = rand() % 2; //positive or negative increment on grid
-
-      if (r1==0) {
-        if (r2==0) {
-          x = x + cell_size;
-        } else {
-          x = x - cell_size;
-        }
-      } else {
-        if (r2==0) {
-          y = y + cell_size;
-        } else {
-          y = y - cell_size;
-        }
-      }
-      waypoints.push_back( new PositionR2( x, y ) );
+        std::cerr << "Usage: " << argv[0] << " FILE" << std::endl;
+        return 1;
     }
+
+    std::ifstream infile( argv[1] );
+    if (!infile.is_open()) {
+        std::cerr << "Failed to open " << argv[1] << std::endl;
+        return 1;
+    }
+    RoadNetwork rd( infile );
+    assert( rd.number_of_segments() > 0 );
+
+    Eigen::Vector4d road_segment = rd.mapped_segment( 0 );
+
+    std::vector<Eigen::Vector2d> waypoints = { Eigen::Vector2d( road_segment(0), road_segment(1) ),
+                                               Eigen::Vector2d( road_segment(2), road_segment(3) ) };
 
 
     // Configure turning rate and other motion parameters here
@@ -228,15 +196,15 @@ int main( int argc, char **argv )
 
         if (safe_to_move && pose_watcher.get_pose_estimate( current_pose )) {
 
-            angle_diff = atan2( waypoints[current_index]->x[1] - current_pose[1],
-                                waypoints[current_index]->x[0] - current_pose[0] ) - current_pose[2];
+            angle_diff = atan2( waypoints[current_index](1) - current_pose[1],
+                                waypoints[current_index](0) - current_pose[0] ) - current_pose[2];
             while (angle_diff >= M_PI)
                 angle_diff -= 2*M_PI;
             while (angle_diff < -M_PI)
                 angle_diff += 2*M_PI;
 
-            if (sqrt( (waypoints[current_index]->x[0] - current_pose[0])*(waypoints[current_index]->x[0] - current_pose[0])
-                      + (waypoints[current_index]->x[1] - current_pose[1])*(waypoints[current_index]->x[1] - current_pose[1]) ) < min_reach_err) {
+            if (sqrt( (waypoints[current_index](0) - current_pose[0])*(waypoints[current_index](0) - current_pose[0])
+                      + (waypoints[current_index](1) - current_pose[1])*(waypoints[current_index](1) - current_pose[1]) ) < min_reach_err) {
                 std::cout << "Reached waypoint " << current_index << std::endl;
                 current_index = (current_index+1) % waypoints.size();
             } else if (fabs( angle_diff ) > min_angle_err) {
@@ -257,13 +225,6 @@ int main( int argc, char **argv )
         ros::spinOnce();
         rate.sleep();
     }
-
-
-    /* It would be better to use something like Boost shared_ptr, but to avoid
-       introducing extra external dependencies, we garbage collect manually. */
-    for (std::vector<PositionR2 *>::iterator it_waypt = waypoints.begin();
-         it_waypt != waypoints.end(); it_waypt++)
-        delete *it_waypt;
 
     return 0;
 }

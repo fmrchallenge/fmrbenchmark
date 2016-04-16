@@ -8,9 +8,14 @@ find_package (catkin REQUIRED COMPONENTS
   nav_msgs
   geometry_msgs
   sensor_msgs
+  dubins_traffic_utils
 )
 
+find_package (Eigen3 REQUIRED)
+include_directories (${EIGEN3_INCLUDE_DIR})
+
 catkin_package ()
+
 include_directories (
   ${catkin_INCLUDE_DIRS}
 )
