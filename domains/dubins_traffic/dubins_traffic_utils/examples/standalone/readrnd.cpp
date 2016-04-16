@@ -13,6 +13,11 @@ int main( int argc, char *argv[] )
 
     std::string buf;
     std::ifstream infile( argv[1] );
+    if (!infile.is_open()) {
+        std::cerr << "Failed to open " << argv[1] << std::endl;
+        return 1;
+    }
+
     RoadNetwork rnd( infile );
     std::cout << rnd << std::endl;
 
