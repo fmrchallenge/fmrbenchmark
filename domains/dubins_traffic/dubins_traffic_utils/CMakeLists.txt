@@ -24,8 +24,13 @@ if (CATKIN_ENV)
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 
-  install (FILES example/data/square.rnd example/data/square.json
-    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/example/data
+  install (DIRECTORY include/
+    DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+    FILES_MATCHING PATTERN "*.hpp"
+  )
+
+  install (FILES examples/data/square.rnd examples/data/square.json
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/examples/data
   )
 else (CATKIN_ENV)
   message (WARNING "Not all components can be built as standalone.")
