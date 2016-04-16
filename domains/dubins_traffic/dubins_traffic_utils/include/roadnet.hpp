@@ -42,6 +42,9 @@ public:
     /** Get mapped road segment. */
     const Eigen::Vector4d mapped_segment( size_t idx ) const;
 
+    std::vector<size_t> segments_at_start( size_t idx ) const;
+    std::vector<size_t> segments_at_end( size_t idx, bool reverse = false ) const;
+
     /** Map point in local coordinates through transform and scaling.
 
        This function does not check whether the given point is on some segment.
@@ -59,6 +62,28 @@ private:
     std::vector<Eigen::Vector4d> segments;
     std::vector<int> shape;
 };
+
+std::vector<size_t> RoadNetwork::segments_at_end( size_t idx, bool reverse ) const
+{
+    assert( idx >= 0 && idx < number_of_segments() );
+    size_t offset = 0;
+    if (reverse)
+        size_t offset = -2;
+    std::vector<size_t> end_indices;
+    for (size_t jj = 0; jj < number_of_segments(); jj++) {
+        if (jj == idx)
+            continue;
+        if (segments[idx].segment<2>(2+offset) == segments[jj].segment<2>(0)
+            || segments[idx].segment<2>(2+offset) == segments[jj].segment<2>(2))
+            end_indices.push_back( jj );
+    }
+    return end_indices;
+}
+
+std::vector<size_t> RoadNetwork::segments_at_start( size_t idx ) const
+{
+    return segments_at_end( idx, true );
+}
 
 const Eigen::Vector4d RoadNetwork::mapped_segment( size_t idx ) const
 {
