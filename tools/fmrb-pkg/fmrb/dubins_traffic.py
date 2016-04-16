@@ -22,7 +22,7 @@ class RoadNetwork(object):
         self.shape = None
 
         if is_json:
-            rndjson =json.load(rnd_file)
+            rndjson = json.load(rnd_file)
             self.version = rndjson['version']
             assert self.version == 0, 'Unrecognized format version'
             self.length = rndjson['length']
