@@ -47,8 +47,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('FILE', type=str, help='road network description file')
     args = parser.parse_args()
+    rnd_path = os.path.abspath(args.FILE)
 
-    with open(args.FILE, 'rt') as f:
+    with open(rnd_path, 'rt') as f:
         roads = dubins_traffic.RoadNetwork(f)
 
     tempfd_sdf, tempfname_sdf = tempfile.mkstemp()
@@ -58,7 +59,7 @@ if __name__ == '__main__':
 
     tempfd, tempfname = tempfile.mkstemp()
     launchfile = os.fdopen(tempfd, 'w+')
-    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=args.FILE))
+    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=rnd_path))
     launchfile.seek(0)
     try:
         launchp = subprocess.Popen(['roslaunch', '-'], stdin=launchfile)
