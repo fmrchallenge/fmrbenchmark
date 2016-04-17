@@ -6,13 +6,18 @@ class RoadNetwork(object):
     def __init__(self, rnd_file, is_json=True):
         """Instantiate road network description
 
-        rnd_file can be string (file name) or file-like object.
+        rnd_file can be string (file name) or file-like object, or
+        dict. In the former case, attempt to read it as RND file in
+        the plaintext or JSON container (depending on is_json
+        parameter). In the latter case (i.e., dict object), treat it
+        as a file in the JSON container that is already loaded.
 
         Note that two containers are recognized: JSON and
         plaintext. If the argument is_json=True (default) the file is
         parsed as JSON. Otherwise, the plaintext format is used.
         """
-        if getattr(rnd_file, 'readline', None) is None:
+        if (getattr(rnd_file, 'readline', None) is None
+            and isinstance(rnd_file, (str, unicode))):
             rnd_file = open(rnd_file, 'rt')
 
         self.version = None
@@ -22,7 +27,10 @@ class RoadNetwork(object):
         self.shape = None
 
         if is_json:
-            rndjson = json.load(rnd_file)
+            if isinstance(rnd_file, dict):
+                rndjson = rnd_file
+            else:
+                rndjson = json.load(rnd_file)
             self.version = rndjson['version']
             assert self.version == 0, 'Unrecognized format version'
             self.length = rndjson['length']
