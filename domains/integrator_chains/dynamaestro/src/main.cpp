@@ -718,7 +718,7 @@ void TGThread::run()
 
     int nominal_duration = duration_bounds(0);
     if (duration_bounds(0) == duration_bounds(1))
-        nominal_duration += rand() % (1+duration_bounds(1)-duration_bounds(1));
+        nominal_duration += std::rand() % (1+duration_bounds(1)-duration_bounds(1));
 
     Eigen::Vector2i numdim_output_bounds;
     if (!parse_range_str( "output_dim_bounds", numdim_output_bounds )) {
@@ -975,7 +975,7 @@ int main( int argc, char **argv )
     ros::NodeHandle nh( "~" );
 
     time_t seed = time( nullptr );
-    srand( seed );
+    std::srand( seed );
     ROS_INFO( "dynamaestro: Using %ld as the PRNG seed.", seed );
 
     boost::thread tgmain( tgthread, nh );

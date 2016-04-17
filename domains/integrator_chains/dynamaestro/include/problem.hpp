@@ -217,25 +217,25 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
     prob->numdim_output = numdim_output_bounds(0);
     if (numdim_output_bounds(1) != numdim_output_bounds(0))
-        prob->numdim_output += (rand()
+        prob->numdim_output += (std::rand()
                                 % (1+numdim_output_bounds(1)
                                    - numdim_output_bounds(0)));
 
     prob->highest_order_deriv = highest_order_deriv_bounds(0);
     if (highest_order_deriv_bounds(1) != highest_order_deriv_bounds(0))
-        prob->highest_order_deriv += (rand()
+        prob->highest_order_deriv += (std::rand()
                                       % (1+highest_order_deriv_bounds(1)
                                          - highest_order_deriv_bounds(0)));
 
     int number_goals = number_goals_bounds(0);
     if (number_goals_bounds(1) != number_goals_bounds(0))
-        number_goals += (rand()
+        number_goals += (std::rand()
                          % (1+number_goals_bounds(1)
                             - number_goals_bounds(0)));
 
     int number_obstacles = number_obstacles_bounds(0);
     if (number_obstacles_bounds(1) != number_obstacles_bounds(0))
-        number_obstacles += (rand()
+        number_obstacles += (std::rand()
                          % (1+number_obstacles_bounds(1)
                             - number_obstacles_bounds(0)));
 
@@ -250,7 +250,7 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
         assert( Xinit_bounds(2*i+1) >= Xinit_bounds(2*i) );
         prob->Xinit(i) = Xinit_bounds(2*i);
         if (Xinit_bounds(2*i+1) != Xinit_bounds(2*i))
-            prob->Xinit(i) += (double(rand())/RAND_MAX)*(Xinit_bounds(2*i+1) - Xinit_bounds(2*i));
+            prob->Xinit(i) += (double(std::rand())/RAND_MAX)*(Xinit_bounds(2*i+1) - Xinit_bounds(2*i));
     }
 
     Eigen::VectorXd box_bounds(2*prob->numdim_output);
@@ -258,9 +258,9 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
     for (i = 0; i < number_goals; i++) {
         for (j = 0; j < prob->numdim_output; j++) {
             box_bounds(2*j) = Y_box(2*j)
-                + (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
             box_bounds(2*j+1) = Y_box(2*j)
-                + (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
             if (box_bounds(2*j+1) < box_bounds(2*j)) {
                 double tmp = box_bounds(2*j+1);
                 box_bounds(2*j+1) = box_bounds(2*j);
@@ -274,9 +274,9 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
     for (i = 0; i < number_obstacles; i++) {
         for (j = 0; j < prob->numdim_output; j++) {
             box_bounds(2*j) = Y_box(2*j)
-                + (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
             box_bounds(2*j+1) = Y_box(2*j)
-                + (double(rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
             if (box_bounds(2*j+1) < box_bounds(2*j)) {
                 double tmp = box_bounds(2*j+1);
                 box_bounds(2*j+1) = box_bounds(2*j);
@@ -289,7 +289,7 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
     prob->period = period_bounds(0);
     if (period_bounds(1) != period_bounds(0))
-        prob->period += double(rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
+        prob->period += double(std::rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
 
     return prob;
 }
