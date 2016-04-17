@@ -144,7 +144,6 @@ bool OdomWatcher::get_pose_estimate( double *x )
 
 int main( int argc, char **argv )
 {
-    /*************************************************************/
     unsigned int seed;
 
     if (argc <= 1) {
@@ -208,8 +207,6 @@ int main( int argc, char **argv )
     // Thresholds for switching among modes of motion
     double min_angle_err = 0.1;  // Minimum relative angle to drive forward toward waypoint
     double min_reach_err = 0.3;  // Distance from waypoint before it is declared as "reached"
-
-    /*************************************************************/
 
     safe_to_move = true;
     ros::init( argc, argv, "Oscar", ros::init_options::AnonymousName );
