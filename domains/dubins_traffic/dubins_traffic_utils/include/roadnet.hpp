@@ -140,11 +140,10 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
     state parser = waiting;
     std::string buf;
     std::string rndjson_str;
-    rndjson >> buf;
-    while (!rndjson.eof()) {
-        rndjson_str.append( buf );
+    do {
         rndjson >> buf;
-    }
+        rndjson_str.append( buf );
+    } while (!rndjson.eof());
 
     size_t pos = 0, nextpos;
     while (pos < rndjson_str.size()) {
