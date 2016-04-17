@@ -107,8 +107,6 @@ if __name__ == '__main__':
     tempfd_rnd, tempfname_rnd = tempfile.mkstemp()
     tmprndfile = os.fdopen(tempfd_rnd, 'w+')
     if isinstance(rnd_path, dict):
-        x = json.dumps(rnd_path)
-        print(x)
         json.dump(rnd_path, tmprndfile)
     else:
         with open(rnd_path, 'rt') as fp:
