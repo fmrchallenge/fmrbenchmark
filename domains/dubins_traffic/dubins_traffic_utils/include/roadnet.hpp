@@ -69,15 +69,15 @@ std::vector<size_t> RoadNetwork::segments_at_end( size_t idx, bool reverse ) con
     int offset = 0;
     if (reverse)
         offset = -2;
-    std::vector<size_t> end_indices;
+    std::vector<size_t> adjacent_indices;
     for (size_t jj = 0; jj < number_of_segments(); jj++) {
         if (jj == idx)
             continue;
         if (segments[idx].segment<2>(2+offset) == segments[jj].segment<2>(0)
             || segments[idx].segment<2>(2+offset) == segments[jj].segment<2>(2))
-            end_indices.push_back( jj );
+            adjacent_indices.push_back( jj );
     }
-    return end_indices;
+    return adjacent_indices;
 }
 
 std::vector<size_t> RoadNetwork::segments_at_start( size_t idx ) const
