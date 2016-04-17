@@ -8,6 +8,8 @@ import json
 import tempfile
 import subprocess
 import os
+import sys
+from time import gmtime, strftime
 
 from fmrb import dubins_traffic
 
@@ -45,12 +47,70 @@ def gen_roslaunch(worldsdf_filename, rnd_path):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('FILE', type=str, help='road network description file')
+    parser.add_argument('FILE', type=str, help='trials configuration file')
+    parser.add_argument('-f', type=str,
+                        dest='DATAFILE', default=None,
+                        help=('name of file in which to save trial data. '
+                              'If not given, then data will not be saved. '
+                              'If the file exists, quit without modifying it.'))
+    parser.add_argument('-F', type=str, metavar='DATAFILE',
+                        dest='DATAFILE_fuerte', default=None,
+                        help=('like `-f` switch but overwrite the file '
+                              'if it already exists.'))
+    parser.add_argument('--rnd', type=str, metavar='FILE', dest='rnd_path',
+                        help=('road network description file. The path given '
+                              'here will override the road network '
+                              'description or path in the configuration file '
+                              '(if any).'))
     args = parser.parse_args()
-    rnd_path = os.path.abspath(args.FILE)
 
-    with open(rnd_path, 'rt') as f:
-        roads = dubins_traffic.RoadNetwork(f)
+    if (args.DATAFILE is not None) and os.path.exists(args.DATAFILE):
+        print('Requested file "'+args.DATAFILE+'" already exists.')
+        print('(Use `-F` if you want to overwrite it.)')
+        sys.exit(-1)
+    if args.DATAFILE_fuerte is not None:
+        args.DATAFILE = args.DATAFILE_fuerte
+
+    with open(args.FILE, 'r') as f:
+        trialconf = json.load(f)
+
+    assert trialconf['version'] == 0, 'Unrecognized version of the dubins_traffic trials configuration format: '+str(trialconf['version'])
+    assert trialconf['problem_domain'] == 'dubins_traffic', 'This trial-runner is for the dubins_traffic problem domain, but the given configuration file is for: '+str(trialconf['problem_domain'])
+
+    if args.DATAFILE is not None:
+        with open(args.DATAFILE, 'w') as f:
+            f.write('{"version": 0,\n')
+            f.write('"date": "'+strftime('%Y-%m-%d %H:%M:%S', gmtime())+'",\n')
+            f.write('"trialconf": ')
+            json.dump(trialconf, f)
+            f.write(',\n')
+
+
+    if args.rnd_path is not None:
+        rnd_path = args.rnd_path
+    elif 'rnd' not in trialconf:
+        print('ERROR: Road network description not provided in trials configuration file nor at command-line.')
+        sys.exit(-1)
+    else:
+        rnd_path = trialconf['rnd']
+
+    if isinstance(rnd_path, dict):
+        roads = dubins_traffic.RoadNetwork(rnd_path)
+    else:
+        os.path.abspath(rnd_path)
+        with open(rnd_path, 'rt') as fp:
+            roads = dubins_traffic.RoadNetwork(fp)
+
+    tempfd_rnd, tempfname_rnd = tempfile.mkstemp()
+    tmprndfile = os.fdopen(tempfd_rnd, 'w+')
+    if isinstance(rnd_path, dict):
+        x = json.dumps(rnd_path)
+        print(x)
+        json.dump(rnd_path, tmprndfile)
+    else:
+        with open(rnd_path, 'rt') as fp:
+            tmprndfile.write(fp.read())
+    tmprndfile.close()
 
     tempfd_sdf, tempfname_sdf = tempfile.mkstemp()
     worldsdffile = os.fdopen(tempfd_sdf, 'w+')
@@ -59,7 +119,7 @@ if __name__ == '__main__':
 
     tempfd, tempfname = tempfile.mkstemp()
     launchfile = os.fdopen(tempfd, 'w+')
-    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=rnd_path))
+    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=tempfname_rnd))
     launchfile.seek(0)
     try:
         launchp = subprocess.Popen(['roslaunch', '-'], stdin=launchfile)
@@ -70,3 +130,7 @@ if __name__ == '__main__':
     launchfile.close()
     os.unlink(tempfname)
     os.unlink(tempfname_sdf)
+
+    if args.DATAFILE is not None:
+        with open(args.DATAFILE, 'a') as f:
+            f.write('}')
