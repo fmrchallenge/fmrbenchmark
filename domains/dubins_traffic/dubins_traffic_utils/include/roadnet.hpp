@@ -138,6 +138,8 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
 {
     enum state {waiting, rd_version, rd_length, rd_transform, rd_segments, rd_shape};
     state parser = waiting;
+    bool found_version = false;
+    bool found_length = false, found_transform = false, found_shape = false;
     std::string buf;
     std::string rndjson_str;
     do {
@@ -146,18 +148,27 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
     } while (!rndjson.eof());
 
     size_t pos = 0, nextpos;
-    while (pos < rndjson_str.size()) {
+    while (true) {
         if (parser == waiting) {
-            if ((nextpos = rndjson_str.find( "version", pos )) != std::string::npos) {
+            pos = 0;
+            if (!found_version
+                && (nextpos = rndjson_str.find( "version", pos )) != std::string::npos) {
+                found_version = true;
                 parser = rd_version;
                 pos = nextpos + 7;
-            } else if ((nextpos = rndjson_str.find( "length", pos )) != std::string::npos) {
+            } else if (!found_length
+                       && (nextpos = rndjson_str.find( "length", pos )) != std::string::npos) {
+                found_length = true;
                 parser = rd_length;
                 pos = nextpos + 6;
-            } else if ((nextpos = rndjson_str.find( "transform", pos )) != std::string::npos) {
+            } else if (!found_transform
+                       && (nextpos = rndjson_str.find( "transform", pos )) != std::string::npos) {
+                found_transform = true;
                 parser = rd_transform;
                 pos = nextpos + 9;
-            } else if ((nextpos = rndjson_str.find( "shape", pos )) != std::string::npos) {
+            } else if (!found_shape
+                       && (nextpos = rndjson_str.find( "shape", pos )) != std::string::npos) {
+                found_shape = true;
                 parser = rd_shape;
                 pos = nextpos + 5;
             } else {
@@ -233,6 +244,7 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
         }
     }
 
+    assert( version == 0 );
     assert( length > 0 );
     populate_4grid( shape[0], shape[1] );
 }
