@@ -14,7 +14,7 @@ from time import gmtime, strftime
 from fmrb import dubins_traffic
 
 
-def gen_roslaunch(worldsdf_filename, rnd_path):
+def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
     nl = '\n'
     idt = ' '*2
     output = '<launch>'+nl
@@ -27,18 +27,20 @@ def gen_roslaunch(worldsdf_filename, rnd_path):
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 """
-    for eagent_index in range(2):
+    for eagent in trialconf['e-agents']:
         output += """
   <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
-    <arg name="namespace" value="vehicle{EAGENT_INDEX}" />
+    <arg name="namespace" value="{EAGENT_NAME}" />
     <arg name="init_pose" value="-x {X} -y {Y} -z 0 -Y 0" />
   </include>
-  <node pkg="wander" type="wander"
-   name="$(anon vehicle{EAGENT_INDEX})" ns="vehicle{EAGENT_INDEX}"
+  <node pkg="{EAGENT_PKG}" type="{EAGENT_TYPE}"
+   name="$(anon {EAGENT_NAME})" ns="{EAGENT_NAME}"
    args="{RNDPATH}">
     <remap from="cmd_vel" to="mobile_base/commands/velocity" />
   </node>
-""".format(EAGENT_INDEX=eagent_index,
+""".format(EAGENT_NAME=eagent['name'],
+           EAGENT_PKG=eagent['type'].split('/')[0],
+           EAGENT_TYPE='/'.join(eagent['type'].split('/')[1:]),
            X=int(random.random()*10), Y=int(random.random()*10),
            RNDPATH=rnd_path)
 
@@ -119,7 +121,8 @@ if __name__ == '__main__':
 
     tempfd, tempfname = tempfile.mkstemp()
     launchfile = os.fdopen(tempfd, 'w+')
-    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=tempfname_rnd))
+    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=tempfname_rnd,
+                                   trialconf=trialconf))
     launchfile.seek(0)
     try:
         launchp = subprocess.Popen(['roslaunch', '-'], stdin=launchfile)
