@@ -78,6 +78,8 @@ if __name__ == '__main__':
     with open(args.FILE, 'r') as f:
         trialconf = json.load(f)
 
+    assert trialconf['version'] == 0, 'Unrecognized version of the integrator_chains trials configuration format: '+str(trialconf['version'])
+
     if args.DATAFILE is not None:
         with open(args.DATAFILE, 'w') as f:
             f.write('{"version": 0,\n')
