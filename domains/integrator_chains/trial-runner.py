@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run trials; collect results.
+"""Run trials and collect results for the Problem domain: Scaling chains of integrators.
 """
 
 from __future__ import print_function

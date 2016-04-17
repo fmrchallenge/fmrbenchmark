@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Run trials; collect results.
+"""Run trials and collect results for the Problem domain: Traffic network of Dubins cars.
 """
 from __future__ import print_function
 import argparse
