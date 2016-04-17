@@ -1,5 +1,6 @@
 {
   "version": 0,
+  "problem_domain": "integrator_chains",
   "number_trials": 5,
   "output_dim_bounds": [1, 3],
   "number_integrators_bounds": [1, 3],

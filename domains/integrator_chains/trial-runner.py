@@ -79,6 +79,7 @@ if __name__ == '__main__':
         trialconf = json.load(f)
 
     assert trialconf['version'] == 0, 'Unrecognized version of the integrator_chains trials configuration format: '+str(trialconf['version'])
+    assert trialconf['problem_domain'] == 'integrator_chains', 'This trial-runner is for the integrator_chains problem domain, but the given configuration file is for: '+str(trialconf['problem_domain'])
 
     if args.DATAFILE is not None:
         with open(args.DATAFILE, 'w') as f:
