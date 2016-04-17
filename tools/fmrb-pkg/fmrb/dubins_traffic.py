@@ -115,12 +115,49 @@ class RoadNetwork(object):
             mapped_segment[offset+1] = new_y + self.transform[1]
         return tuple(mapped_segment)
 
+    def has_intersection_end(self, index, reverse=False):
+        if index < 0 or index > len(self.segments)-1:
+            raise ValueError('index out of bounds [0,'
+                             +str(len(self.segments)-1)+']: '
+                             +str(index))
+        offset = 0
+        if reverse:
+            offset = -2
+        number_adjacent = 0
+        for jj in range(len(self.segments)):
+            if index == jj:
+                continue
+            if (self.segments[index][(2+offset):(2+offset+2)] == self.segments[jj][:2]
+                or self.segments[index][(2+offset):(2+offset+2)] == self.segments[jj][2:]):
+                number_adjacent += 1
+                if number_adjacent >= 2:
+                    return True
+        return number_adjacent >= 2
 
-def road_segment(x1, x2, prefix='straightroad'):
+    def has_intersection_start(self, index):
+        return self.has_intersection_end(index, reverse=True)
+
+
+def road_segment(x1, x2, prefix='straightroad',
+                 x1_intersection=False, x2_intersection=False):
     assert len(x1) == 2 and len(x2) == 2
 
     center = ((x1[0] + x2[0])/2.0, (x1[1] + x2[1])/2.0)
     length = math.sqrt((x1[0]-x2[0])**2 + (x1[1]-x2[1])**2)
+    if x1_intersection and x2_intersection:
+        lane_marker_center = center
+        lane_marker_length = length-1.2
+    elif x1_intersection and (not x2_intersection):
+        lane_marker_length = length-0.6+0.06
+        lane_marker_center = (x2[0] + (lane_marker_length/2.0 - 0.06)*(x1[0]-x2[0])/length,
+                              x2[1] + (lane_marker_length/2.0 - 0.06)*(x1[1]-x2[1])/length)
+    elif (not x1_intersection) and x2_intersection:
+        lane_marker_length = length-0.6+0.06
+        lane_marker_center = (x1[0] + (lane_marker_length/2.0 - 0.06)*(x2[0]-x1[0])/length,
+                              x1[1] + (lane_marker_length/2.0 - 0.06)*(x2[1]-x1[1])/length)
+    else:
+        lane_marker_center = center+0.12
+        lane_marker_length = length
     angle = math.atan2(x2[1]-x1[1], x2[0]-x1[0])
     nl = '\n'
     idt = ' '*2
@@ -142,8 +179,8 @@ def road_segment(x1, x2, prefix='straightroad'):
 """
     output += '<link name="'+prefix+'link2">'+nl
     output += '<visual name="'+prefix+'bar2">'+nl
-    output += '<pose>{X} {Y} 0 0 0 {ANGLE}</pose>'.format(X=center[0], Y=center[1], ANGLE=angle)+nl
-    output += '<geometry><box><size>{LENGTH} 0.12 0.0015</size></box></geometry>'.format(LENGTH=length+0.12)+nl
+    output += '<pose>{X} {Y} 0 0 0 {ANGLE}</pose>'.format(X=lane_marker_center[0], Y=lane_marker_center[1], ANGLE=angle)+nl
+    output += '<geometry><box><size>{LENGTH} 0.12 0.0015</size></box></geometry>'.format(LENGTH=lane_marker_length)+nl
     output += """
           <material>
 	    <ambient>0.5 0.5 0 1</ambient>
@@ -169,6 +206,8 @@ def gen_worldsdf(roads):
         segment = roads.get_mapped_segment(sindex)
         output += road_segment((segment[0], segment[1]),
                                (segment[2], segment[3]),
-                               prefix='segment_'+str(sindex)+'_')
+                               prefix='segment_'+str(sindex)+'_',
+                               x1_intersection=roads.has_intersection_start(sindex),
+                               x2_intersection=roads.has_intersection_end(sindex))
     output += '</world></sdf>'
     return output
