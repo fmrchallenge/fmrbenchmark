@@ -27,8 +27,9 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 """
-    for eagent in trialconf['e-agents']:
-        output += """
+    if 'e-agents' in trialconf:
+        for eagent in trialconf['e-agents']:
+            output += """
   <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
     <arg name="namespace" value="{EAGENT_NAME}" />
     <arg name="init_pose" value="-x {X} -y {Y} -z 0 -Y 0" />
