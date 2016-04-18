@@ -12,6 +12,7 @@
 #include <string>
 #include <cmath>
 #include <cassert>
+#include <unistd.h>
 
 #include "dubins_traffic_utils/roadnet.hpp"
 
@@ -144,7 +145,7 @@ bool OdomWatcher::get_pose_estimate( double *x )
 
 int main( int argc, char **argv )
 {
-    unsigned int seed;
+    std::srand( getpid() );
 
     if (argc <= 1) {
         std::cerr << "Usage: " << argv[0] << " FILE" << std::endl;
@@ -159,6 +160,11 @@ int main( int argc, char **argv )
     RoadNetwork rd( infile );
     assert( rd.number_of_segments() > 0 );
 
+    std::pair<size_t, bool> current_segment_idx( std::rand() % rd.number_of_segments(), true );
+    Eigen::Vector4d road_segment = rd.mapped_segment( current_segment_idx.first );
+    std::vector<Eigen::Vector2d> waypoints = { Eigen::Vector2d( road_segment(0), road_segment(1) ),
+                                               Eigen::Vector2d( road_segment(2), road_segment(3) ) };
+/* Pre-generated list of waypoints. This routine will be provided later as an alternative mode.
     std::vector< std::pair<size_t, bool> > visited_indices = {std::pair<size_t, bool>( 0, true )};
     Eigen::Vector4d road_segment = rd.mapped_segment( visited_indices.back().first );
 
@@ -199,6 +205,7 @@ int main( int argc, char **argv )
             break;
         }
     }
+*/
 
     // Configure turning rate and other motion parameters here
     double turning_rate = 0.9;  // rad/s
@@ -238,8 +245,37 @@ int main( int argc, char **argv )
 
             if (sqrt( (waypoints[current_index](0) - current_pose[0])*(waypoints[current_index](0) - current_pose[0])
                       + (waypoints[current_index](1) - current_pose[1])*(waypoints[current_index](1) - current_pose[1]) ) < min_reach_err) {
-                std::cout << "Reached waypoint " << current_index << std::endl;
-                current_index = (current_index+1) % waypoints.size();
+                std::cout << "Reached waypoint " << waypoints[current_index].transpose() << std::endl;
+                // current_index = (current_index+1) % waypoints.size();
+                if (current_index < 1) {
+                    current_index++;
+                } else {
+                    std::vector<size_t> end_indices;
+                    if (current_segment_idx.second) {  // Direction on previous segment?
+                        end_indices = rd.segments_at_end( current_segment_idx.first );
+                    } else {
+                        end_indices = rd.segments_at_start( current_segment_idx.first );
+                    }
+                    if (end_indices.size() == 0) { // Dead-end
+                        Eigen::Vector2d tmp = waypoints[0];
+                        waypoints[0] = waypoints[current_index];
+                        waypoints[current_index] = tmp;
+                        current_segment_idx.second = current_segment_idx.second ? false : true;
+                    } else {
+
+                        current_segment_idx.first = end_indices[std::rand() % end_indices.size()];
+                        Eigen::Vector4d this_segment = rd.mapped_segment( current_segment_idx.first );
+                        if ((this_segment.segment<2>(0) - waypoints[current_index]).norm() < 1e-6) {
+                            waypoints[current_index] = this_segment.segment<2>(2);
+                            current_segment_idx.second = true;
+                        } else {
+                            assert( (this_segment.segment<2>(2) - waypoints[current_index]).norm() < 1e-6 );
+                            waypoints[current_index] = this_segment.segment<2>(0);
+                            current_segment_idx.second = false;
+                        }
+
+                    }
+                }
             } else if (fabs( angle_diff ) > min_angle_err) {
 
                 if (angle_diff > 0) {
