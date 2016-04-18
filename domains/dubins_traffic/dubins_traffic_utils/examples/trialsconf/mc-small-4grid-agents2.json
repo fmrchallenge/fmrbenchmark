@@ -1,0 +1,17 @@
+{
+  "version": 0,
+  "problem_domain": "dubins_traffic",
+  "rnd": {
+    "version": 0,
+
+    "length": 3,
+    "transform": [0, 0, 0],
+
+    "shape": [3, 4]
+},
+
+  "e-agents": [{"type": "wander/wander", "name": "agent0"},
+               {"type": "wander/wander", "name": "agent1"}],
+
+  "number_trials": 1
+}
