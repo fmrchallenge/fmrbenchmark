@@ -61,9 +61,7 @@ Create a catkin workspace.
 
   mkdir -p dubsim_workspace/src
   cd dubsim_workspace/src
-
-At this step you should be in the root of your workspace, i.e., the directory
-named ``dubplay``.  Finally build everything, and launch the straightroad example.
+  catkin_init_workspace
 
 Create symbolic links to the ROS packages in the fmrbenchmark repository
 required for this example.
