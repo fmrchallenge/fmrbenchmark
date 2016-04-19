@@ -90,4 +90,4 @@ where the ``source`` command assumes that you are using the Z shell; try
 Finally, launch a small static environment of two vehicles on a straight road
 segment. ::
 
-  roslaunch dub_sim straightroad.launch
+  python $FMRBENCHMARK/domains/dubins_traffic/trial-runner.py -f mydata.json $(rospack find dubins_traffic_utils)/examples/trialsconf/mc-small-4grid-agents2.json
