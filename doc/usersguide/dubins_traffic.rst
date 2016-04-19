@@ -70,6 +70,8 @@ required for this example.
 
 .. code-block:: none
 
+  ln -s $FMRBENCHMARK/domains/dubins_traffic/dubins_traffic_msgs
+  ln -s $FMRBENCHMARK/domains/dubins_traffic/dubins_traffic_utils
   ln -s $FMRBENCHMARK/domains/dubins_traffic/dub_sim
   ln -s $FMRBENCHMARK/domains/dubins_traffic/e-agents/wander
 
