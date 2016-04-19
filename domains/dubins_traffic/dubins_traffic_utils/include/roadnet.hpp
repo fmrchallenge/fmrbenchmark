@@ -40,7 +40,7 @@ public:
         { return segments.size(); }
 
     /** Get mapped road segment. */
-    const Eigen::Vector4d mapped_segment( size_t idx ) const;
+    const Eigen::Vector4d mapped_segment( size_t idx, int lane = 0 ) const;
 
     std::vector<size_t> segments_at_start( size_t idx ) const;
     std::vector<size_t> segments_at_end( size_t idx, bool reverse = false ) const;
@@ -85,12 +85,27 @@ std::vector<size_t> RoadNetwork::segments_at_start( size_t idx ) const
     return segments_at_end( idx, true );
 }
 
-const Eigen::Vector4d RoadNetwork::mapped_segment( size_t idx ) const
+const Eigen::Vector4d RoadNetwork::mapped_segment( size_t idx, int lane ) const
 {
     Eigen::Vector4d mapped;
     for (size_t offset = 0; offset < 2; offset++)
         map_point( segments[idx](2*offset), segments[idx](2*offset+1),
                    mapped(2*offset), mapped(2*offset+1) );
+
+    if (lane != 0) {
+        const double lane_width = 0.6;
+
+        Eigen::Vector2d orthog( mapped(1) - mapped(3), mapped(2) - mapped(0) );
+        Eigen::Vector2d offset = orthog/orthog.norm()*lane_width;
+        if (lane > 0) {
+            offset *= lane-0.3;
+        } else {  // lane < 0
+            offset *= lane+0.3;
+        }
+        for (size_t idx = 0; idx < 4; idx++)
+            mapped(idx) += offset(idx%2);
+
+    }
     return mapped;
 }
 

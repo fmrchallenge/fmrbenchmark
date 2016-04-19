@@ -161,7 +161,7 @@ int main( int argc, char **argv )
     assert( rd.number_of_segments() > 0 );
 
     std::pair<size_t, bool> current_segment_idx( std::rand() % rd.number_of_segments(), true );
-    Eigen::Vector4d road_segment = rd.mapped_segment( current_segment_idx.first );
+    Eigen::Vector4d road_segment = rd.mapped_segment( current_segment_idx.first, current_segment_idx.second ? -1 : 1 );
     std::vector<Eigen::Vector2d> waypoints = { Eigen::Vector2d( road_segment(0), road_segment(1) ),
                                                Eigen::Vector2d( road_segment(2), road_segment(3) ) };
 /* Pre-generated list of waypoints. This routine will be provided later as an alternative mode.
@@ -212,8 +212,8 @@ int main( int argc, char **argv )
     double forward_speed = 0.5;  // m/s
 
     // Thresholds for switching among modes of motion
-    double min_angle_err = 0.1;  // Minimum relative angle to drive forward toward waypoint
-    double min_reach_err = 0.3;  // Distance from waypoint before it is declared as "reached"
+    double min_angle_err = 0.07;  // Minimum relative angle to drive forward toward waypoint
+    double min_reach_err = 0.075;  // Distance from waypoint before it is declared as "reached"
 
     safe_to_move = true;
     ros::init( argc, argv, "Oscar", ros::init_options::AnonymousName );
@@ -263,16 +263,18 @@ int main( int argc, char **argv )
                         current_segment_idx.second = current_segment_idx.second ? false : true;
                     } else {
 
-                        current_segment_idx.first = end_indices[std::rand() % end_indices.size()];
                         Eigen::Vector4d this_segment = rd.mapped_segment( current_segment_idx.first );
+                        waypoints[current_index] = this_segment.segment<2>( current_segment_idx.second ? 2 : 0 );
+                        current_segment_idx.first = end_indices[std::rand() % end_indices.size()];
+                        this_segment = rd.mapped_segment( current_segment_idx.first );
                         if ((this_segment.segment<2>(0) - waypoints[current_index]).norm() < 1e-6) {
-                            waypoints[current_index] = this_segment.segment<2>(2);
                             current_segment_idx.second = true;
                         } else {
                             assert( (this_segment.segment<2>(2) - waypoints[current_index]).norm() < 1e-6 );
-                            waypoints[current_index] = this_segment.segment<2>(0);
                             current_segment_idx.second = false;
                         }
+                        this_segment = rd.mapped_segment( current_segment_idx.first, current_segment_idx.second ? -1 : 1 );
+                        waypoints[current_index] = this_segment.segment<2>( current_segment_idx.second ? 2 : 0 );
 
                     }
                 }
