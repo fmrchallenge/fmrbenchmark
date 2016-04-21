@@ -17,6 +17,7 @@ include_directories (${EIGEN3_INCLUDE_DIR})
 catkin_package ()
 
 include_directories (
+  ${dubins_traffic_utils_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
 

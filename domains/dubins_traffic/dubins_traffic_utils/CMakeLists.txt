@@ -16,7 +16,7 @@ if (CATKIN_ENV)
   add_executable (monitor src/monitor.cpp)
 
   find_package (catkin REQUIRED dubins_traffic_msgs)
-  catkin_package ()
+  catkin_package (INCLUDE_DIRS include)
 
   include_directories (include ${catkin_INCLUDE_DIRS})
   target_link_libraries (monitor ${catkin_LIBRARIES})

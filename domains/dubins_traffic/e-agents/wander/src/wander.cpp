@@ -14,7 +14,7 @@
 #include <cassert>
 #include <unistd.h>
 
-#include "dubins_traffic_utils/roadnet.hpp"
+#include "roadnet.hpp"
 
 #include "ros/ros.h"
 #include "tf/tf.h"
