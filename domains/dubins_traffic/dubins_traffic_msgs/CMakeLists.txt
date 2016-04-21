@@ -8,4 +8,4 @@ add_message_files (DIRECTORY msg FILES
 )
 generate_messages (DEPENDENCIES std_msgs)
 
-catkin_package ()
+catkin_package (CATKIN_DEPENDS message_runtime std_msgs)
