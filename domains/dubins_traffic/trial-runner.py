@@ -31,7 +31,9 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
 """.format(RND_PATH=rnd_path)
 
     if 'e-agents' in trialconf:
+        eagent_names = []
         for eagent in trialconf['e-agents']:
+            eagent_names.append(eagent['name'])
             output += """
   <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
     <arg name="namespace" value="{EAGENT_NAME}" />
@@ -47,6 +49,7 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
            EAGENT_TYPE='/'.join(eagent['type'].split('/')[1:]),
            X=int(random.random()*10), Y=int(random.random()*10),
            RNDPATH=rnd_path)
+        output += '<param name="dubins_traffic/e-agents" value="{0}" />\n'.format(', '.join(eagent_names))
 
     return output+nl+'</launch>'
 
