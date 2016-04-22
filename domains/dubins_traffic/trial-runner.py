@@ -26,7 +26,10 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
   </include>
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
-"""
+
+  <param name="dubins_traffic/rnd" textfile="{RND_PATH}" />
+""".format(RND_PATH=rnd_path)
+
     if 'e-agents' in trialconf:
         for eagent in trialconf['e-agents']:
             output += """
