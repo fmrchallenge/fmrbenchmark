@@ -32,6 +32,9 @@ if (CATKIN_ENV)
   install (FILES examples/data/square.rnd examples/data/square.json
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/examples/data
   )
+  install (DIRECTORY examples/trialsconf
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/examples
+  )
 else (CATKIN_ENV)
   message (WARNING "Not all components can be built as standalone.")
 
