@@ -21,8 +21,8 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
     output += '<include file="$(find gazebo_ros)/launch/empty_world.launch">'
     output += '<arg name="world_name" value="'+worldsdf_filename+'" />'
     output += """
-    <arg name="headless" value="false" />
-    <arg name="gui" value="true" />
+    <arg name="headless" value="true" />
+    <arg name="gui" value="false" />
   </include>
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
