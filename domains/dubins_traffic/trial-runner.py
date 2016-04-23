@@ -49,7 +49,11 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
            EAGENT_TYPE='/'.join(eagent['type'].split('/')[1:]),
            X=int(random.random()*10), Y=int(random.random()*10),
            RNDPATH=rnd_path)
-        output += '<param name="dubins_traffic/e-agents" value="{0}" />\n'.format(', '.join(eagent_names))
+        output += '<param name="dubins_traffic/e_agents" value="{0}" />\n'.format(','.join(eagent_names))
+
+    else:
+        # Empty implies no e-agents.
+        output += '<param name="dubins_traffic/e_agents" value="" />\n'
 
     return output+nl+'</launch>'
 
