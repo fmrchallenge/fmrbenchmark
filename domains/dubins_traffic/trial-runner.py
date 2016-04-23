@@ -14,7 +14,7 @@ from time import gmtime, strftime
 from fmrb import dubins_traffic
 
 
-def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
+def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None):
     nl = '\n'
     idt = ' '*2
     output = '<launch>'+nl
@@ -31,6 +31,10 @@ def gen_roslaunch(worldsdf_filename, rnd_path, trialconf):
 
   <param name="dubins_traffic/rnd" textfile="{RND_PATH}" />
 """.format(RND_PATH=rnd_path)
+
+    if results_filename is not None:
+        results_path = os.path.abspath(results_filename)
+        output += '  <param name="dubins_traffic/results_file" value="'+results_path+'" />\n'
 
     if 'e-agents' in trialconf:
         eagent_names = []
@@ -132,8 +136,9 @@ if __name__ == '__main__':
 
     tempfd, tempfname = tempfile.mkstemp()
     launchfile = os.fdopen(tempfd, 'w+')
-    launchfile.write(gen_roslaunch(tempfname_sdf, rnd_path=tempfname_rnd,
-                                   trialconf=trialconf))
+    launchfile.write(gen_roslaunch(trialconf,
+                                   tempfname_sdf, rnd_path=tempfname_rnd,
+                                   results_filename=args.DATAFILE))
     launchfile.seek(0)
     try:
         launchp = subprocess.Popen(['roslaunch', '-'], stdin=launchfile)
