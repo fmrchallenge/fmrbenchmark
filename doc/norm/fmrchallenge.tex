@@ -450,16 +450,19 @@ We are exploring several simulation environments for this domain, including the 
 We are also exploring the possibility of a physical testbed on-site.
 
 \section{Evaluation}
-Our goal is to allow maximal flexibility of solution form, and allow entries to be provided as black-box 
-programs with defined interfaces. A static evaluation proving that the solution is correct would violate this 
-ideal by, for example, requiring submissions to be expressed in part using Promela, so that they could be 
-checked with Spin, or provide a linearized-form closed system in order to generate a certificate via SOS
-programming.
 
-Instead, the evaluation will be \emph{dynamic}, i.e., submissions will be evaluated by running them. It will also be 
-\emph{trial-based}, i.e., each controller will be run for a fixed set of trials that each have the adversary playing a 
-particular strategy. Some care will be made to cover the set of environment strategies.
+In this section, methods of evaluation are presented.
 
+\subsection{Dynamic, trial-based, opaque}
+
+The evaluation will be \emph{dynamic}, i.e., submissions will be evaluated by
+running them. It will also be \emph{trial-based}, i.e., each controller will be
+run for a fixed set of trials that each have the adversary playing a particular
+strategy. Some care will be made to cover the set of environment
+strategies. Submitted controllers are required to use a communication interface
+defining control commands, sensor values, state labels, and other details of
+input and output appropriate for the problem domain. Controllers are not
+otherwise constrained, and thus are described as \emph{opaque}.
 
 \subsection{Trajectory durations}
 Since the semantics of LTL is over infinite executions, the duration for which each trial will be run must be specified. 
@@ -503,6 +506,17 @@ to each team.
 \subsection{Scheduling Trials}
 Teams will not be allowed to modify their solutions once the trials for a specific domain have begun. The order of executing
 controllers will be randomized for each round of trials.
+
+\section{Drafts of evaluation methods}
+
+This section is non-normative.\newline
+
+Static evaluation methods prove that a submitted solution is correct without
+running it, for example, by requiring part of the solution to be expressed using
+Promela and thus amenable to model-checking by Spin, or by requiring controllers
+to linear or polynomial systems that have reachability or safety that can be
+demonstrated by certificates (e.g., using SOS programming).
+
 
 \section*{Acknowledgments}
 
