@@ -25,6 +25,7 @@ int main( int argc, char **argv )
         if (!ros::ok())
             return 0;
     }
+    RoadNetwork rnd( rndjson );
 
     std::string eagents_str;
     while (!nh.getParam( "/dubins_traffic/e_agents", eagents_str )) {

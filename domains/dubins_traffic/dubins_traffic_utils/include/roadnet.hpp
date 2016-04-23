@@ -32,6 +32,7 @@ public:
         to define a 4-connected grid using shape.
      */
     RoadNetwork( std::istream &rndjson );
+    RoadNetwork( const std::string &rndjson );
 
     /** Output in RND format using JSON container to given stream. */
     friend std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd );
@@ -54,6 +55,7 @@ public:
 
 private:
     void populate_4grid( int shape0, int shape1 );
+    void parse_json( const std::string &rndjson );
 
 private:
     int version;
@@ -147,14 +149,17 @@ RoadNetwork::RoadNetwork( double length_,
     populate_4grid( shape0, shape1 );
 }
 
+RoadNetwork::RoadNetwork( const std::string &rndjson )
+    : version(-1), length(1.0), transform(0.0, 0.0, 0.0),
+      shape( {2, 2} )
+{
+    parse_json( rndjson );
+}
+
 RoadNetwork::RoadNetwork( std::istream &rndjson )
     : version(-1), length(1.0), transform(0.0, 0.0, 0.0),
       shape( {2, 2} )
 {
-    enum state {waiting, rd_version, rd_length, rd_transform, rd_segments, rd_shape};
-    state parser = waiting;
-    bool found_version = false;
-    bool found_length = false, found_transform = false, found_shape = false;
     std::string buf;
     std::string rndjson_str;
     do {
@@ -162,27 +167,37 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
         rndjson_str.append( buf );
     } while (!rndjson.eof());
 
+    parse_json( rndjson_str );
+}
+
+void RoadNetwork::parse_json( const std::string &rndjson )
+{
+    enum state {waiting, rd_version, rd_length, rd_transform, rd_segments, rd_shape};
+    state parser = waiting;
+    bool found_version = false;
+    bool found_length = false, found_transform = false, found_shape = false;
+
     size_t pos = 0, nextpos;
     while (true) {
         if (parser == waiting) {
             pos = 0;
             if (!found_version
-                && (nextpos = rndjson_str.find( "version", pos )) != std::string::npos) {
+                && (nextpos = rndjson.find( "version", pos )) != std::string::npos) {
                 found_version = true;
                 parser = rd_version;
                 pos = nextpos + 7;
             } else if (!found_length
-                       && (nextpos = rndjson_str.find( "length", pos )) != std::string::npos) {
+                       && (nextpos = rndjson.find( "length", pos )) != std::string::npos) {
                 found_length = true;
                 parser = rd_length;
                 pos = nextpos + 6;
             } else if (!found_transform
-                       && (nextpos = rndjson_str.find( "transform", pos )) != std::string::npos) {
+                       && (nextpos = rndjson.find( "transform", pos )) != std::string::npos) {
                 found_transform = true;
                 parser = rd_transform;
                 pos = nextpos + 9;
             } else if (!found_shape
-                       && (nextpos = rndjson_str.find( "shape", pos )) != std::string::npos) {
+                       && (nextpos = rndjson.find( "shape", pos )) != std::string::npos) {
                 found_shape = true;
                 parser = rd_shape;
                 pos = nextpos + 5;
@@ -191,10 +206,10 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
             }
 
         } else if (parser == rd_version || parser == rd_length) {
-            if ((nextpos = rndjson_str.find( ":", pos )) != std::string::npos) {
+            if ((nextpos = rndjson.find( ":", pos )) != std::string::npos) {
                 pos = nextpos + 1;
                 try {
-                    int parsed_int = std::stoi( rndjson_str.substr( pos ) );
+                    int parsed_int = std::stoi( rndjson.substr( pos ) );
                     switch (parser) {
                     case rd_version:
                         version = parsed_int;
@@ -205,7 +220,7 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
                     }
                 } catch (std::invalid_argument) {
                     std::cout << "stoi() conversion failed on \""
-                              << rndjson_str.substr( pos ) << "\"" << std::endl;
+                              << rndjson.substr( pos ) << "\"" << std::endl;
                 }
                 parser = waiting;
             } else {
@@ -214,18 +229,18 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
 
         } else if (parser == rd_transform || parser == rd_shape) {
             std::vector<double> parsed_numbers;
-            if ((nextpos = rndjson_str.find( "[", pos )) != std::string::npos) {
+            if ((nextpos = rndjson.find( "[", pos )) != std::string::npos) {
                 pos = nextpos + 1;
                 while (true) {
                     try {
-                        parsed_numbers.push_back( std::stod( rndjson_str.substr( pos ) ) );
+                        parsed_numbers.push_back( std::stod( rndjson.substr( pos ) ) );
                     } catch (std::invalid_argument) {
                         std::cout << "stod() conversion failed on \""
-                                  << rndjson_str.substr( pos ) << "\"" << std::endl;
+                                  << rndjson.substr( pos ) << "\"" << std::endl;
                     }
 
-                    size_t closingpos = rndjson_str.find( "]", pos );
-                    nextpos = rndjson_str.find( ",", pos );
+                    size_t closingpos = rndjson.find( "]", pos );
+                    nextpos = rndjson.find( ",", pos );
                     if (closingpos == std::string::npos) {
                         break;  // Missing ] implies malformed array.
                     } else if (nextpos != std::string::npos && nextpos < closingpos) {
@@ -263,6 +278,7 @@ RoadNetwork::RoadNetwork( std::istream &rndjson )
     assert( length > 0 );
     populate_4grid( shape[0], shape[1] );
 }
+
 
 std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd )
 {
