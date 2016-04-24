@@ -25,7 +25,9 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
     <arg name="gui" value="false" />
   </include>
 
-  <node pkg="dubins_traffic_utils" type="monitor" name="$(anon monitor)" output="screen" />
+  <node pkg="dubins_traffic_utils" type="monitor" name="$(anon monitor)" output="screen">
+    <remap from="$(anon monitor)/loutput" to="loutput" />
+  </node>
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 
