@@ -164,8 +164,8 @@ def road_segment(x1, x2, prefix='straightroad',
         lane_marker_center = (x1[0] + (lane_marker_length/2.0 - 0.06)*(x2[0]-x1[0])/length,
                               x1[1] + (lane_marker_length/2.0 - 0.06)*(x2[1]-x1[1])/length)
     else:
-        lane_marker_center = center+0.12
-        lane_marker_length = length
+        lane_marker_center = center
+        lane_marker_length = length+0.12
     angle = math.atan2(x2[1]-x1[1], x2[0]-x1[0])
     nl = '\n'
     idt = ' '*2
