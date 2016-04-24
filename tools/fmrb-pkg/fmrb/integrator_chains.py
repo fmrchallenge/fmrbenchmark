@@ -1,8 +1,9 @@
 import json
-import matplotlib as mpl
 import numpy as np
 
-import cdd
+# inline:
+#   matplotlib
+#   cdd
 
 
 class Polytope(object):
@@ -31,6 +32,7 @@ class Polytope(object):
         available. This option provides a way to skip memoization and
         is equivalent to calling cache_clear() and then getVrep().
         """
+        import cdd
         if (not force) and (self.V is not None):
             return self.V.copy()
         Hmat = cdd.Matrix(np.hstack((self.K.reshape(self.K.shape[0], 1), -self.H)), number_type='float')
@@ -58,6 +60,7 @@ class Polytope(object):
         Derived from plotting routines in the Python polytope package
         <https://pypi.python.org/pypi/polytope>.
         """
+        import matplotlib as mpl
         if color is None:
             color = np.random.random_sample(3)
         ax.add_patch(mpl.patches.Polygon(self.getVrep(), closed=True,
