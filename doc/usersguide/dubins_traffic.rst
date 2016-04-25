@@ -102,7 +102,16 @@ vehicles, also known as e-agents (where ``e'' abbreviates ``environment''). ::
 
   python $FMRBENCHMARK/domains/dubins_traffic/trial-runner.py -f mydata.json $(rospack find dubins_traffic_utils)/examples/trialsconf/mc-small-4grid-agents2.json
 
+This will cause trial data to be saved to the file ``mydata.json`` in the local directory from where the above command is executed. 
+
 The Gazebo server is launched without a GUI frontend, which is also known as
-running headless. A local viewer can be launched using ::
+running headless. 
+A local viewer can be launched using ::
 
   gzclient
+
+In a separate terminal, run your controller. For example, assuming your controller
+is contained in the package your_controller with launch file foo.launch,
+in a separate terminal, run ::
+
+  roslaunch your_controller foo.launch
