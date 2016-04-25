@@ -101,3 +101,8 @@ Finally, launch a small 4-grid road network with two adversarially controlled
 vehicles, also known as e-agents (where ``e'' abbreviates ``environment''). ::
 
   python $FMRBENCHMARK/domains/dubins_traffic/trial-runner.py -f mydata.json $(rospack find dubins_traffic_utils)/examples/trialsconf/mc-small-4grid-agents2.json
+
+The Gazebo server is launched without a GUI frontend, which is also known as
+running headless. A local viewer can be launched using ::
+
+  gzclient
