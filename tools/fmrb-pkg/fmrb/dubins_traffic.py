@@ -1,6 +1,9 @@
 import math
 import json
 
+# inline:
+#   matplotlib
+
 
 class RoadNetwork(object):
     def __init__(self, rnd_file, is_json=True):
@@ -144,6 +147,13 @@ class RoadNetwork(object):
 
     def has_intersection_start(self, index):
         return self.has_intersection_end(index, reverse=True)
+
+    def plot(self, ax):
+        import matplotlib as mpl
+        for idx in range(self.number_of_segments()):
+            road = self.get_mapped_segment(idx)
+            ax.plot([road[0], road[2]],
+                    [road[1], road[3]], 'ko-')
 
 
 def road_segment(x1, x2, prefix='straightroad',
