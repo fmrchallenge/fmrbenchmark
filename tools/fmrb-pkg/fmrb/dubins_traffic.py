@@ -15,9 +15,9 @@ class RoadNetwork(object):
         parameter). In the latter case (i.e., dict object), treat it
         as a file in the JSON container that is already loaded.
 
-        Note that two containers are recognized: JSON and
-        plaintext. If the argument is_json=True (default) the file is
-        parsed as JSON. Otherwise, the plaintext format is used.
+        Note that two containers are recognized: JSON and plaintext.
+        If the argument is_json=True (default) the file is parsed as
+        JSON. Otherwise, the plaintext format is used.
         """
         if (getattr(rnd_file, 'readline', None) is None
             and isinstance(rnd_file, (str, unicode))):
