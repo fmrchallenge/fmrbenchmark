@@ -28,6 +28,17 @@ Several ROS packages for the Kobuki by Yujin Robot are required.
 * `kobuki_node <http://wiki.ros.org/kobuki_node>`_ and dependencies.
 * `kobuki_description <http://wiki.ros.org/kobuki_description>`_ and dependencies.
 
+* ``fmrb`` Python package under ``tools/fmrb-pkg/`` in the repository. 
+
+Install ``fmrb`` from your copy of the repository, e.g., ::
+
+  cd tools/fmrb-pkg
+  pip install -e .
+
+or `get it from PyPI <https://pypi.python.org/pypi/fmrb>`_, ::
+
+  pip install fmrb
+
 Dependencies of the simulation variant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
