@@ -96,7 +96,8 @@ whenever a new shell session is created, you must first ::
 
 where the ``source`` command assumes that you are using the Z shell; try
 ``setup.bash`` if you use Bash.
-Finally, launch a small static environment of two vehicles on a straight road
-segment. ::
+
+Finally, launch a small 4-grid road network with two adversarially controlled
+vehicles, also known as e-agents (where ``e'' abbreviates ``environment''). ::
 
   python $FMRBENCHMARK/domains/dubins_traffic/trial-runner.py -f mydata.json $(rospack find dubins_traffic_utils)/examples/trialsconf/mc-small-4grid-agents2.json
