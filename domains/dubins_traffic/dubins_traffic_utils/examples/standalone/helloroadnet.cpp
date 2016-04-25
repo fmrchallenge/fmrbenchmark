@@ -13,13 +13,13 @@ int main()
 
     double x, y;
     rd.map_point( 0, 0, x, y );
-    std::cout << "(0, 0) -> (" << x << ", " << y << ")" << std::endl;
+    std::cerr << "(0, 0) -> (" << x << ", " << y << ")" << std::endl;
 
     rd.map_point( 1, 2, x, y );
-    std::cout << "(1, 2) -> (" << x << ", " << y << ")" << std::endl;
+    std::cerr << "(1, 2) -> (" << x << ", " << y << ")" << std::endl;
 
     for (size_t idx = 0; idx < rd.number_of_segments(); idx++)
-        std::cout << rd.mapped_segment( idx ).transpose() << std::endl;
+        std::cerr << rd.mapped_segment( idx ).transpose() << std::endl;
 
     return 0;
 }
