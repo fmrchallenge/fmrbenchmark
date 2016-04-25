@@ -12,10 +12,17 @@ from fmrb import dubins_traffic
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('FILE', type=str,
-                        help='road network description file')
+                        help=('road network description file; '
+                              'if `-`, then read from stdin.'))
     args = parser.parse_args()
 
-    rnd = dubins_traffic.RoadNetwork(args.FILE)
+    if args.FILE == '-':
+        fp = sys.stdin
+    else:
+        fp = open(args.FILE, 'rt')
+    rnd = dubins_traffic.RoadNetwork(fp)
+    if fp is not sys.stdin:
+        fp.close()
 
     ax = plt.axes()
     rnd.plot(ax)
