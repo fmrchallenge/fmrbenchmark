@@ -3,14 +3,69 @@
  * SCL; 2016
  */
 
-#include <ros/ros.h>
-
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 #include <unistd.h>
 
+#include <ros/ros.h>
+#include <geometry_msgs/Pose.h>
+#include <gazebo_msgs/ModelStates.h>
+
+#include "dubins_traffic_msgs/LabelStamped.h"
 #include "roadnet.hpp"
+
+
+class Labeler {
+public:
+    Labeler( ros::NodeHandle &nh_,
+             RoadNetwork &rnd_, const std::vector<std::string> &eagent_names_ );
+
+private:
+    std::vector<std::string> eagent_names;
+    RoadNetwork &rnd;
+    ros::NodeHandle &nh;
+    ros::Subscriber subModelStates;
+    ros::Publisher pubLabeledOutput;
+    void labelcb( const gazebo_msgs::ModelStates &models );
+};
+
+Labeler::Labeler( ros::NodeHandle &nh_,
+                  RoadNetwork &rnd_, const std::vector<std::string> &eagent_names_ )
+    : nh(nh_), rnd(rnd_), eagent_names( eagent_names_ )
+{
+    subModelStates = nh.subscribe( "/gazebo/model_states", 1, &Labeler::labelcb, this );
+    pubLabeledOutput = nh.advertise<dubins_traffic_msgs::LabelStamped>( "loutput", 1, true );
+}
+
+void Labeler::labelcb( const gazebo_msgs::ModelStates &models )
+{
+    std::vector<std::string> label;
+
+    for (size_t idx = 0; idx < models.name.size(); idx++) {
+        for (size_t agent_idx = 0; agent_idx < eagent_names.size(); agent_idx++) {
+            if (models.name[idx] == eagent_names[agent_idx]) {
+
+                size_t nearest = rnd.get_nearest( models.pose[idx].position.x, models.pose[idx].position.y );
+
+                std::ostringstream out;
+                out << eagent_names[agent_idx]
+                    << "_"
+                    << rnd.get_segment_str( nearest );
+                label.push_back( out.str() );
+
+                break;
+            }
+        }
+    }
+
+    dubins_traffic_msgs::LabelStamped msg;
+    msg.header.frame_id = std::string( "map" );
+    msg.header.stamp = ros::Time::now();
+    msg.label = label;
+    pubLabeledOutput.publish( msg );
+}
 
 
 int main( int argc, char **argv )
@@ -48,6 +103,9 @@ int main( int argc, char **argv )
         }
 
     }
+
+    Labeler labeler( nh, rnd, eagent_names );
+    ros::spin();
 
     return 0;
 }

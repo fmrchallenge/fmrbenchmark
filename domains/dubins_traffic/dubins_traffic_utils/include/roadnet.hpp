@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <sstream>
 #include <cassert>
 
 #include <Eigen/Dense>
@@ -52,6 +53,14 @@ public:
      */
     void map_point( const int x, const int y,
                     double &mapped_x, double &mapped_y ) const;
+
+    /** Get index of segment nearest to x,y point. */
+    size_t get_nearest( double x, double y ) const;
+
+    /** Get minimum distance from point to center of road segment. */
+    double get_mindist( size_t idx, double x, double y ) const;
+
+    std::string get_segment_str( size_t idx ) const;
 
 private:
     void populate_4grid( int shape0, int shape1 );
@@ -277,6 +286,38 @@ void RoadNetwork::parse_json( const std::string &rndjson )
     assert( version == 0 );
     assert( length > 0 );
     populate_4grid( shape[0], shape[1] );
+}
+
+size_t RoadNetwork::get_nearest( double x, double y ) const
+{
+    size_t min_idx;
+    double min_dist = -1.0;
+    for (size_t idx = 0; idx < number_of_segments(); idx++) {
+        double this_dist = get_mindist( idx, x, y );
+        if (min_dist < 0 || this_dist < min_dist) {
+            min_idx = idx;
+            min_dist = this_dist;
+        }
+    }
+    return min_idx;
+}
+
+double RoadNetwork::get_mindist( size_t idx, double x, double y ) const
+{
+    assert( idx >= 0 && idx < number_of_segments() );
+    Eigen::Vector4d road = mapped_segment( idx );
+    Eigen::Vector2d pt( x, y );
+    return ((road.segment<2>(0) + road.segment<2>(2))/2.0 - pt).norm();
+}
+
+std::string RoadNetwork::get_segment_str( size_t idx ) const
+{
+    assert( idx >= 0 && idx < number_of_segments() );
+    std::ostringstream out;
+    out << "s_";
+    out << segments[idx](0) << "_" << segments[idx](1);
+    out << "_" << segments[idx](2) << "_" << segments[idx](3);
+    return out.str();
 }
 
 

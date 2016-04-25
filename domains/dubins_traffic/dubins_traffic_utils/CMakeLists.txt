@@ -15,7 +15,7 @@ if (CATKIN_ENV)
 
   add_executable (monitor src/monitor.cpp)
 
-  find_package (catkin REQUIRED roscpp dubins_traffic_msgs)
+  find_package (catkin REQUIRED roscpp geometry_msgs gazebo_msgs dubins_traffic_msgs)
   catkin_package (INCLUDE_DIRS include)
 
   include_directories (include ${catkin_INCLUDE_DIRS})
