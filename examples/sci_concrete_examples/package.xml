@@ -1,6 +1,6 @@
 <package>
   <name>sci_concrete_examples</name>
-  <version>0.0.0</version>
+  <version>0.0.2</version>
   <description>
     examples for the "scaling chains of integrators" problem domain.
   </description>
