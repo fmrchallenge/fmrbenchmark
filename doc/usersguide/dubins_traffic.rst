@@ -110,6 +110,11 @@ A local viewer can be launched using ::
 
   gzclient
 
+The vehicle to be controlled has the ROS namespace ``/ego``. The e-agents have
+namespaces defined in the trials configuration file. In the example
+mc-small-4grid-agents2.json used in this tutorial, these are ``/agent0`` and
+``/agent1``.
+
 In a separate terminal, run your controller. For example, assuming your controller
 is contained in the package your_controller with launch file foo.launch,
 in a separate terminal, run ::
