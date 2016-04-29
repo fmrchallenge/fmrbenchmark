@@ -308,6 +308,17 @@ double RoadNetwork::get_mindist( size_t idx, double x, double y ) const
     Eigen::Vector4d road = mapped_segment( idx );
     Eigen::Vector2d pt( x, y );
     return ((road.segment<2>(0) + road.segment<2>(2))/2.0 - pt).norm();
+    // road(2) -= road(0);
+    // road(3) -= road(1);
+    // pt -= road.segment<2>(0);
+    // if (road.segment<2>(2).dot( pt ) < 0) {
+    //     return pt.norm();
+    // } else if (pt.dot( road.segment<2>(2) - pt ) < 0) {
+    //     return (road.segment<2>(2) - pt).norm();
+    // } else {
+    //     Eigen::Vector2d unitv = road.segment<2>(2)/road.segment<2>(2).norm();
+    //     return (pt - pt.dot( unitv )*unitv).norm();
+    // }
 }
 
 std::string RoadNetwork::get_segment_str( size_t idx ) const
