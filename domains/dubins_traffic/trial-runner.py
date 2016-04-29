@@ -32,6 +32,11 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 
   <param name="dubins_traffic/rnd" textfile="{RND_PATH}" />
+
+  <include file="$(find dub_sim)/launch/includes/scopedbase.launch.xml">
+    <arg name="namespace" value="ego" />
+    <arg name="init_pose" value="-x 0 -y 0 -z 0 -Y 0" />
+  </include>
 """.format(RND_PATH=rnd_path)
 
     if results_filename is not None:
