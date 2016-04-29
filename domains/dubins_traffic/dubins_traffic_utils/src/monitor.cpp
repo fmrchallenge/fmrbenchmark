@@ -58,6 +58,13 @@ void Labeler::labelcb( const gazebo_msgs::ModelStates &models )
                 break;
             }
         }
+        if (models.name[idx] == "ego") {
+            size_t nearest = rnd.get_nearest( models.pose[idx].position.x, models.pose[idx].position.y );
+            std::ostringstream out;
+            out << "ego_"
+                << rnd.get_segment_str( nearest );
+            label.push_back( out.str() );
+        }
     }
 
     dubins_traffic_msgs::LabelStamped msg;
