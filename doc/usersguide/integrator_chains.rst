@@ -159,4 +159,8 @@ To get the labeling of the trajectory for trial 0, modulo repetition, ::
 
   $FMRBENCHMARK/domains/integrator_chains/analysis/tdstat.py -t 0 --wordmodrep mydata.json
 
+To check if the trajectory for trial 0 satisfies the corresponding reach-avoid specification::
+
+  $FMRBENCHMARK/domains/integrator_chains/analysis/tdstat.py -t 0 --checksat mydata.json
+
 To get a description of options, try ``tdstat.py -h``.
