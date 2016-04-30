@@ -32,7 +32,7 @@ def get_labeling(td, trial_index, modrep=False):
             word.append(y_label)
     return word
 
-def check_sat(td, trial_index, modrep=False):
+def check_sat(td, trial_index):
 # checks satisfaction of reach-avoid specifications, i.e. 
 # of the form /\_i G(not obs_i) /\ /\_j F(goal_j)
     try:
