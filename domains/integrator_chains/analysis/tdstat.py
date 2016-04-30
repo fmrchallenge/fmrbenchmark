@@ -32,6 +32,30 @@ def get_labeling(td, trial_index, modrep=False):
             word.append(y_label)
     return word
 
+def check_sat(td, trial_index, modrep=False):
+# checks satisfaction of reach-avoid specifications, i.e. 
+# of the form /\_i G(not obs_i) /\ /\_j F(goal_j)
+    try:
+        traj = np.array(td['trials'][trial_index]['trajectory'])
+    except KeyError:
+        print('Trial '+str(trial_index)+' does not have an associated trajectory.')
+        sys.exit(-1)
+    prob = integrator_chains.Problem.loadJSONdict(td['trials'][trial_index]['problem_instance'])
+    goals_satisfied = [0]*len(prob.goals)
+    word = []
+    for row in traj:
+        y = row[2:(2+prob.output_dim)]
+        y_label = []
+        for lpolytope in prob.obstacles:
+            if lpolytope.contains(y):
+		return False
+        for i in range(len(prob.goals)):
+		lpolytope = prob.goals[i]
+		if lpolytope.contains(y):
+                    goals_satisfied[i] = 1
+    return all(goals_satisfied)
+
+
 
 def plot_trajectory(td, trial_index, state_indices):
     prob = integrator_chains.Problem.loadJSONdict(td['trials'][trial_index]['problem_instance'])
@@ -250,6 +274,10 @@ if __name__ == '__main__':
     parser.add_argument('--wordmodrep', action='store_true',
                         dest='get_labeling_norep', default=False,
                         help='like `--word` switch but without repetition.')
+    parser.add_argument('--checksat', action='store_true',
+                        dest='check_sat', default=False,
+                        help=('check whether the trajectory for the requested '
+                              'trial satisfies the reach-avoid specifiction.'))
     args = parser.parse_args()
 
     with open(args.FILE, 'r') as f:
@@ -280,5 +308,7 @@ if __name__ == '__main__':
         print(json.dumps(get_labeling(td, args.T)))
     elif args.get_labeling_norep:
         print(json.dumps(get_labeling(td, args.T, modrep=True)))
+    elif args.check_sat:
+        print(json.dumps(check_sat(td, args.T, modrep=True)))
     else:
         print(json.dumps(td['trials'][args.T]))
