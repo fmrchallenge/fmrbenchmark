@@ -187,6 +187,10 @@ def get_summary(td, include_trials=False):
             prob = integrator_chains.Problem.loadJSONdict(td['trials'][k]['problem_instance'])
 
             summary += idt+'output dimensions: '+str(prob.output_dim)+nl
+	    summary += idt+'no. of integrators: '+str(prob.number_integrators)+nl
+	    summary += idt+'no. of goals: '+str(prob.number_integrators)+nl
+	    summary += idt+'no. of obstacles: '+str(prob.number_integrators)+nl
+
             start_time = td['trials'][k]['start_time'][0]+td['trials'][k]['start_time'][1]*1e-9
 
             summary += idt+'nominal duration (s): '+str(td['trials'][k]['duration'])+nl
