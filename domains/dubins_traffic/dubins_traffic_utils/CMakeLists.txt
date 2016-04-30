@@ -34,6 +34,10 @@ if (CATKIN_ENV)
   )
   install (DIRECTORY examples/trialsconf
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/examples
+    )
+  install (DIRECTORY launch/
+    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+    FILES_MATCHING PATTERN "*.launch"
   )
 else (CATKIN_ENV)
   message (WARNING "Not all components can be built as standalone.")

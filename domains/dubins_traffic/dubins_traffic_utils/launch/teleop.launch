@@ -1,0 +1,16 @@
+<!-- Manual steering of the ego vehicle.
+
+This launch file requires the kobuki_keyop ROS package to be installed. However,
+manual steering is not a part of the benchmark and is provided primarily for
+low-level debugging. Thus, kobuki_keyop is not listed as a dependency in
+package.xml of dubins_traffic_utils.
+
+SCL; 30 Apr 2016
+-->
+<launch>
+  <node pkg="kobuki_keyop" type="keyop" name="keyop" output="screen">
+    <remap from="keyop/motor_power" to="/ego/mobile_base/commands/motor_power" />
+    <remap from="keyop/cmd_vel" to="/ego/mobile_base/commands/velocity" />
+    <param name="angular_vel_step" value="0.33" type="double" />
+  </node>
+</launch>
