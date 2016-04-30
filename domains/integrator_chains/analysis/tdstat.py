@@ -208,9 +208,13 @@ def get_summary(td, include_trials=False):
 
             summary += idt
             try:
-                summary += 'realizable: '+str(td['trials'][k]['realizable'])
+                summary += 'declared realizable: '+str(td['trials'][k]['realizable'])
             except KeyError:
                 summary += 'no declaration of realizability included.'
+            summary += nl
+
+	    summary += idt
+            summary += 'satisfies spec: '+str(check_sat(td, k))
             summary += nl
 
             summary += idt
