@@ -48,11 +48,11 @@ def check_sat(td, trial_index):
         y_label = []
         for lpolytope in prob.obstacles:
             if lpolytope.contains(y):
-		return False
+                return False
         for i in range(len(prob.goals)):
-		lpolytope = prob.goals[i]
-		if lpolytope.contains(y):
-                    goals_satisfied[i] = 1
+            lpolytope = prob.goals[i]
+            if lpolytope.contains(y):
+                goals_satisfied[i] = 1
     return all(goals_satisfied)
 
 
@@ -187,9 +187,9 @@ def get_summary(td, include_trials=False):
             prob = integrator_chains.Problem.loadJSONdict(td['trials'][k]['problem_instance'])
 
             summary += idt+'output dimensions: '+str(prob.output_dim)+nl
-	    summary += idt+'no. of integrators: '+str(prob.number_integrators)+nl
-	    summary += idt+'no. of goals: '+str(prob.number_integrators)+nl
-	    summary += idt+'no. of obstacles: '+str(prob.number_integrators)+nl
+            summary += idt+'no. of integrators: '+str(prob.number_integrators)+nl
+            summary += idt+'no. of goals: '+str(prob.number_integrators)+nl
+            summary += idt+'no. of obstacles: '+str(prob.number_integrators)+nl
 
             start_time = td['trials'][k]['start_time'][0]+td['trials'][k]['start_time'][1]*1e-9
 
@@ -217,7 +217,7 @@ def get_summary(td, include_trials=False):
                 summary += 'no declaration of realizability included.'
             summary += nl
 
-	    summary += idt
+            summary += idt
             summary += 'satisfies spec: '+str(check_sat(td, k))
             summary += nl
 
