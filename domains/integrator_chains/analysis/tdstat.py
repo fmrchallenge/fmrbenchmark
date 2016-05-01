@@ -182,10 +182,30 @@ def get_summary(td, include_trials=False):
         summary += 'extra: (none)'+nl
     summary += 'number of trials: '+str(len(td['trials']))+nl
     if include_trials:
+        sat_correct = 0
+        sat_incorrect = 0
         for k in range(len(td['trials'])):
             summary += 'trial '+str(k)+':'+nl
             prob = integrator_chains.Problem.loadJSONdict(td['trials'][k]['problem_instance'])
 
+            summary += idt
+            try:
+                summary += 'declared realizable: '+str(td['trials'][k]['realizable'])
+            except KeyError:
+                summary += 'no declaration of realizability included.'
+            summary += nl
+
+            sat = check_sat(td, k)
+            
+            summary += idt
+            summary += 'satisfies spec: '+str(sat)
+            summary += nl
+
+            if sat==td['trials'][k]['realizable']:
+                sat_correct = sat_correct+1
+            else:
+                sat_incorrect = sat_incorrect+1
+        
             summary += idt+'output dimensions: '+str(prob.output_dim)+nl
             summary += idt+'no. of integrators: '+str(prob.number_integrators)+nl
             summary += idt+'no. of goals: '+str(prob.number_integrators)+nl
@@ -212,21 +232,13 @@ def get_summary(td, include_trials=False):
 
             summary += idt
             try:
-                summary += 'declared realizable: '+str(td['trials'][k]['realizable'])
-            except KeyError:
-                summary += 'no declaration of realizability included.'
-            summary += nl
-
-            summary += idt
-            summary += 'satisfies spec: '+str(check_sat(td, k))
-            summary += nl
-
-            summary += idt
-            try:
                 summary += 'discrete length of trajectory: '+str(len(td['trials'][k]['trajectory']))
             except KeyError:
                 summary += 'no trajectory included.'
             summary += 2*nl
+
+        summary += idt+'declaration of realizability matches satisfaction by implemetation: '+str(sat_correct)+nl
+        summary += idt+'satisfaction mismatch: '+str(sat_incorrect)+nl
 
     return summary
 
