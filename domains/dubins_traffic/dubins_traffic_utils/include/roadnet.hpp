@@ -41,6 +41,9 @@ public:
     int number_of_segments() const
         { return segments.size(); }
 
+    int number_of_intersections() const
+        { return intersections.size(); }
+
     /** Get mapped road segment. */
     const Eigen::Vector4d mapped_segment( size_t idx, int lane = 0 ) const;
 
@@ -55,12 +58,19 @@ public:
                     double &mapped_x, double &mapped_y ) const;
 
     /** Get index of segment nearest to x,y point. */
-    size_t get_nearest( double x, double y ) const;
+    size_t get_nearest_segment( double x, double y ) const;
 
     /** Get minimum distance from point to center of road segment. */
-    double get_mindist( size_t idx, double x, double y ) const;
+    double get_segment_mindist( size_t idx, double x, double y ) const;
+
+    /** Get index of segment nearest to x,y point. */
+    size_t get_nearest_intersection( double x, double y ) const;
+
+    /** Get minimum distance from point to center of road segment. */
+    double get_intersection_mindist( size_t idx, double x, double y ) const;
 
     std::string get_segment_str( size_t idx ) const;
+    std::string get_intersection_str( size_t idx ) const;
 
 private:
     void populate_4grid( int shape0, int shape1 );
@@ -71,6 +81,7 @@ private:
     double length;
     Eigen::Vector3d transform;
     std::vector<Eigen::Vector4i> segments;
+    std::vector<Eigen::Vector2i> intersections;
     std::vector<int> shape;
 };
 
@@ -146,6 +157,10 @@ void RoadNetwork::populate_4grid( int shape0, int shape1 )
         segments.push_back( Eigen::Vector4i( x, shape0-1, x+1, shape0-1 ) );
     for (int y = 0; y < shape0-1; y++)
         segments.push_back( Eigen::Vector4i( shape1-1, y, shape1-1, y+1 ) );
+
+    for (int x = 0; x < shape1; x++)
+        for (int y = 0; y < shape0; y++)
+            intersections.push_back( Eigen::Vector2i( x, y ) );
 }
 
 RoadNetwork::RoadNetwork( double length_,
@@ -288,12 +303,12 @@ void RoadNetwork::parse_json( const std::string &rndjson )
     populate_4grid( shape[0], shape[1] );
 }
 
-size_t RoadNetwork::get_nearest( double x, double y ) const
+size_t RoadNetwork::get_nearest_segment( double x, double y ) const
 {
     size_t min_idx;
     double min_dist = -1.0;
     for (size_t idx = 0; idx < number_of_segments(); idx++) {
-        double this_dist = get_mindist( idx, x, y );
+        double this_dist = get_segment_mindist( idx, x, y );
         if (min_dist < 0 || this_dist < min_dist) {
             min_idx = idx;
             min_dist = this_dist;
@@ -302,7 +317,7 @@ size_t RoadNetwork::get_nearest( double x, double y ) const
     return min_idx;
 }
 
-double RoadNetwork::get_mindist( size_t idx, double x, double y ) const
+double RoadNetwork::get_segment_mindist( size_t idx, double x, double y ) const
 {
     assert( idx >= 0 && idx < number_of_segments() );
     Eigen::Vector4d road = mapped_segment( idx );
@@ -328,6 +343,38 @@ std::string RoadNetwork::get_segment_str( size_t idx ) const
     out << "s_";
     out << segments[idx](0) << "_" << segments[idx](1);
     out << "_" << segments[idx](2) << "_" << segments[idx](3);
+    return out.str();
+}
+
+size_t RoadNetwork::get_nearest_intersection( double x, double y ) const
+{
+    size_t min_idx;
+    double min_dist = -1.0;
+    for (size_t idx = 0; idx < number_of_intersections(); idx++) {
+        double this_dist = get_intersection_mindist( idx, x, y );
+        if (min_dist < 0 || this_dist < min_dist) {
+            min_idx = idx;
+            min_dist = this_dist;
+        }
+    }
+    return min_idx;
+}
+
+double RoadNetwork::get_intersection_mindist( size_t idx, double x, double y ) const
+{
+    assert( idx >= 0 && idx < number_of_intersections() );
+    double mapped_x, mapped_y;
+    map_point( intersections[idx](0), intersections[idx](1),
+               mapped_x, mapped_y );
+    return std::sqrt( (mapped_x - x)*(mapped_x - x) + (mapped_y - y)*(mapped_y - y) );
+}
+
+std::string RoadNetwork::get_intersection_str( size_t idx ) const
+{
+    assert( idx >= 0 && idx < number_of_intersections() );
+    std::ostringstream out;
+    out << "t_";
+    out << intersections[idx](0) << "_" << intersections[idx](1);
     return out.str();
 }
 

@@ -47,23 +47,43 @@ void Labeler::labelcb( const gazebo_msgs::ModelStates &models )
         for (size_t agent_idx = 0; agent_idx < eagent_names.size(); agent_idx++) {
             if (models.name[idx] == eagent_names[agent_idx]) {
 
-                size_t nearest = rnd.get_nearest( models.pose[idx].position.x, models.pose[idx].position.y );
-
+                size_t nearest = rnd.get_nearest_segment( models.pose[idx].position.x, models.pose[idx].position.y );
+                {
                 std::ostringstream out;
                 out << eagent_names[agent_idx]
                     << "_"
                     << rnd.get_segment_str( nearest );
                 label.push_back( out.str() );
+                }
+
+                nearest = rnd.get_nearest_intersection( models.pose[idx].position.x, models.pose[idx].position.y );
+                {
+                std::ostringstream out;
+                out << eagent_names[agent_idx]
+                    << "_"
+                    << rnd.get_intersection_str( nearest );
+                label.push_back( out.str() );
+                }
 
                 break;
             }
         }
         if (models.name[idx] == "ego") {
-            size_t nearest = rnd.get_nearest( models.pose[idx].position.x, models.pose[idx].position.y );
+            size_t nearest = rnd.get_nearest_segment( models.pose[idx].position.x, models.pose[idx].position.y );
+            {
             std::ostringstream out;
             out << "ego_"
                 << rnd.get_segment_str( nearest );
             label.push_back( out.str() );
+            }
+
+            nearest = rnd.get_nearest_intersection( models.pose[idx].position.x, models.pose[idx].position.y );
+            {
+            std::ostringstream out;
+            out << "ego_"
+                << rnd.get_intersection_str( nearest );
+            label.push_back( out.str() );
+            }
         }
     }
 
