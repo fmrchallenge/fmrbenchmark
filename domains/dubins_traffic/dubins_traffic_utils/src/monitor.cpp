@@ -57,12 +57,12 @@ void Labeler::labelcb( const gazebo_msgs::ModelStates &models )
                 }
 
                 nearest = rnd.get_nearest_intersection( models.pose[idx].position.x, models.pose[idx].position.y );
-                {
-                std::ostringstream out;
-                out << eagent_names[agent_idx]
-                    << "_"
-                    << rnd.get_intersection_str( nearest );
-                label.push_back( out.str() );
+                if (rnd.get_intersection_mindist( nearest, models.pose[idx].position.x, models.pose[idx].position.y) < 1.0) {
+                    std::ostringstream out;
+                    out << eagent_names[agent_idx]
+                        << "_"
+                        << rnd.get_intersection_str( nearest );
+                    label.push_back( out.str() );
                 }
 
                 break;
@@ -78,11 +78,11 @@ void Labeler::labelcb( const gazebo_msgs::ModelStates &models )
             }
 
             nearest = rnd.get_nearest_intersection( models.pose[idx].position.x, models.pose[idx].position.y );
-            {
-            std::ostringstream out;
-            out << "ego_"
-                << rnd.get_intersection_str( nearest );
-            label.push_back( out.str() );
+            if (rnd.get_intersection_mindist( nearest, models.pose[idx].position.x, models.pose[idx].position.y) < 1.0) {
+                std::ostringstream out;
+                out << "ego_"
+                    << rnd.get_intersection_str( nearest );
+                label.push_back( out.str() );
             }
         }
     }
