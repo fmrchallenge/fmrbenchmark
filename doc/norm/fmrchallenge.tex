@@ -296,8 +296,8 @@ The trajectories of car $i$ are solutions of
 \dot{y_i} &= u_i \sin \theta_i \\
 \dot{\theta_i} &= \omega_i
 \end{align}
-where the control inputs are constrained as $u_i(t)\in \{0,u_{\mathrm{max}}\}$ and
-$\omega_i(t) \leq \omega_{\mathrm{max}}$.
+where the control inputs are constrained as $\lvert u_i(t) \rvert \leq u_{\mathrm{max}}$ and
+$\lvert\omega_i(t)\rvert \leq \omega_{\mathrm{max}}$.
 
 
 The workspace is a randomly generated road network constructed as follows.
