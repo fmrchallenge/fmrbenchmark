@@ -63,10 +63,10 @@ public:
     /** Get minimum distance from point to center of road segment. */
     double get_segment_mindist( size_t idx, double x, double y ) const;
 
-    /** Get index of segment nearest to x,y point. */
+    /** Get index of intersection nearest to x,y point. */
     size_t get_nearest_intersection( double x, double y ) const;
 
-    /** Get minimum distance from point to center of road segment. */
+    /** Get minimum distance from point to center of road intersection. */
     double get_intersection_mindist( size_t idx, double x, double y ) const;
 
     std::string get_segment_str( size_t idx ) const;
