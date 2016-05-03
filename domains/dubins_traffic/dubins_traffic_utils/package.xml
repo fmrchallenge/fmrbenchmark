@@ -1,6 +1,6 @@
 <package>
   <name>dubins_traffic_utils</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>
     logging, monitors, etc. for the "Traffic network of Dubins cars" problem domain.
   </description>

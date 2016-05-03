@@ -1,6 +1,6 @@
 <package>
   <name>dub_sim</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>
 Main package for the simulation variant of the Dubins traffic domain
   </description>

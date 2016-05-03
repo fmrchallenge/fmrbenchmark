@@ -5,7 +5,7 @@ from distutils.core import setup
 # Version
 MAJOR = 0
 MINOR = 0
-MICRO = 2
+MICRO = 3
 
 fmrb_version = '{major}.{minor}.{micro}'.format(major=MAJOR, minor=MINOR, micro=MICRO)
 

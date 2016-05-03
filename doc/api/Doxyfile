@@ -1,6 +1,6 @@
 DOXYFILE_ENCODING      = UTF-8
 PROJECT_NAME           = fmrbenchmark
-PROJECT_NUMBER         = 0.0.2
+PROJECT_NUMBER         = 0.0.3
 OUTPUT_DIRECTORY       = _build
 CREATE_SUBDIRS         = NO
 JAVADOC_AUTOBRIEF      = YES

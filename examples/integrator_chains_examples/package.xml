@@ -1,6 +1,6 @@
 <package>
   <name>integrator_chains_examples</name>
-  <version>0.0.2</version>
+  <version>0.0.3</version>
   <description>
     meta-package that collects example ROS packages for the "Scaling chains of
     integrators" problem domain (benchmark).
