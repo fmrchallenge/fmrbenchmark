@@ -21,6 +21,8 @@ if (CATKIN_ENV)
   find_package (catkin REQUIRED COMPONENTS roscpp tf integrator_chains_msgs)
 
   catkin_package ()
+  add_dependencies (log integrator_chains_msgs_generate_messages_cpp)
+  add_dependencies (dm integrator_chains_msgs_generate_messages_cpp)
   include_directories (include ${catkin_INCLUDE_DIRS})
   target_link_libraries (log ${catkin_LIBRARIES})
   target_link_libraries (dm ${catkin_LIBRARIES})
