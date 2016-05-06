@@ -96,8 +96,8 @@ Create a catkin workspace.
 
 .. code-block:: none
 
-  mkdir -p fmrb_demo/src
-  cd fmrb_demo/src
+  mkdir -p integrators_workspace/src
+  cd integrators_workspace/src
   catkin_init_workspace
 
 
