@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 import time
+import random
 import numpy as np
 import numpy.linalg as la
 from control import lqr
@@ -15,12 +16,15 @@ from fmrb import integrator_chains
 
 
 class StateFeedback:
-    def __init__(self, intopic, outtopic, K=None):
+    def __init__(self, intopic, outtopic, K=None, realizable=True):
         self.error = None
         self.intopic = rospy.Publisher(intopic, VectorStamped, queue_size=1)
         while self.intopic.get_num_connections() == 0 and not rospy.is_shutdown():
             time.sleep(0.5)
-        self.outtopic = rospy.Subscriber(outtopic, VectorStamped, self.read_state)
+        if realizable:
+            self.outtopic = rospy.Subscriber(outtopic, VectorStamped, self.read_state)
+        else:
+            self.outtopic = rospy.Subscriber(outtopic, VectorStamped, self.declare_unrealizable)
         self.K = K
         self.trial_ended = False
 
@@ -32,13 +36,20 @@ class StateFeedback:
         self.intopic.publish(VectorStamped(header=Header(stamp=rospy.Time.now()),
                                            v=Vector(-np.dot(self.K, self.error))))
 
+    def declare_unrealizable(self, vs):
+        self.intopic.publish(VectorStamped(header=Header(stamp=rospy.Time.now()),
+                                           v=Vector([])))
+        if len(vs.v.point) == 0:
+            self.trial_ended = True
+            return
+
     def unregister(self):
         self.outtopic.unregister()
         self.intopic.unregister()
 
 class LQRController(StateFeedback):
     def __init__(self, intopic, outtopic,
-                 A, B, target=None, Q=None, R=None):
+                 A, B, target=None, Q=None, R=None, realizable=True):
         if Q is None:
             Q = np.eye(A.shape[0])
         if R is None:
@@ -47,7 +58,7 @@ class LQRController(StateFeedback):
         if target is not None:
             self.target_state[:target.shape[0]] = target
         K, S, E = lqr(A,B,Q,R)
-        StateFeedback.__init__(self, intopic, outtopic, K)
+        StateFeedback.__init__(self, intopic, outtopic, K, realizable=realizable)
 
 class InstanceMonitor:
     def __init__(self, problemJSON_topic='dynamaestro/probleminstance_JSON'):
@@ -90,9 +101,15 @@ def main(imon):
         target_polytopeV = goal.getVrep()
         targets.append( np.mean(target_polytopeV, axis=0) );
 
+    if random.random() < 0.25:
+        realizable = True
+    else:
+        realizable = False
+
     current = 0
     while not rospy.is_shutdown():
-        lqrc = LQRController("input", "state", A, B, targets[current], Q, R)
+        lqrc = LQRController("input", "state", A, B, targets[current], Q, R,
+                             realizable=realizable)
         while (not rospy.is_shutdown()
                and not lqrc.trial_ended
                and ((lqrc.error is None) or (la.norm(lqrc.error) > 0.01))):

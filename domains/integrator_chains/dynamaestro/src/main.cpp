@@ -149,7 +149,8 @@ public:
     void enqueue( int, T );
     std::pair<int, T> dequeue();
     int size();
-    int peek();
+    int peek_id();
+    T peek();
 private:
     boost::mutex mtx_;
     std::list< std::pair<int, T> > Q;
@@ -184,13 +185,23 @@ int Queue<T>::size()
 }
 
 template <typename T>
-int Queue<T>::peek()
+int Queue<T>::peek_id()
 {
     assert( this->size() > 0 );
     mtx_.lock();
-    int k = Q.back().first;
+    int id = Q.back().first;
     mtx_.unlock();
-    return k;
+    return id;
+}
+
+template <typename T>
+T Queue<T>::peek()
+{
+    assert( this->size() > 0 );
+    mtx_.lock();
+    T value = Q.back().second;
+    mtx_.unlock();
+    return value;
 }
 
 
@@ -288,7 +299,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
     bool first_trial = true;
     std::pair<int, Problem *> tp( -1, nullptr );
 
-    ros::Rate polling_rate( 100 );
+    ros::Rate polling_rate( 1000 );
     while (get_trial_number() < 0 && ros::ok())
         polling_rate.sleep();
 
@@ -318,7 +329,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
             polling_rate.sleep();
 
         // Instance generated and queued but never revealed to the controller?
-        if (states_recording.size() == 0 || states_recording.peek() != tp.first)
+        if (states_recording.size() == 0 || states_recording.peek_id() != tp.first)
             continue;
 
         std::pair<int, ros::Time> tstartt = times_recording.dequeue();
@@ -337,11 +348,12 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
         // Wait for first input to get realizability declaration
         while (ros::ok() && get_trial_number() >= 0
                && inputs_recording.size() == 0
-               && instances_recording.size() == 0)
+               && instances_recording.size() == 0) {
             polling_rate.sleep();
+        }
 
         // Did the controller time-out, and the dm progress to the next trial?
-        if (inputs_recording.size() == 0 || inputs_recording.peek() != tp.first) {
+        if (inputs_recording.size() == 0 || inputs_recording.peek_id() != tp.first) {
             outf << "}" << std::endl;
             continue;
         }
@@ -351,12 +363,17 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
 
         bool at_least_one = false;
         while ((inputs_recording.size() > 0
-                && inputs_recording.peek() == tp.first)
+                && inputs_recording.peek_id() == tp.first)
                || (ros::ok() && get_trial_number() >= 0
                    && !boost::this_thread::interruption_requested()
                    && instances_recording.size() == 0)) {
+            ROS_INFO( "inputs_recording.size() = %d, states_recording.size() = %d",
+                      inputs_recording.size(),
+                      states_recording.size());
 
-            if (inputs_recording.size() == 0 || states_recording.size() == 0) {
+
+            if (inputs_recording.size() == 0
+                || (states_recording.size() == 0 && inputs_recording.peek().size() > 0)) {
                 polling_rate.sleep();
                 continue;
             }
@@ -697,8 +714,12 @@ void TGThread::inputcb( const integrator_chains_msgs::VectorStamped &vs )
     mtx_.lock();
 
     fresh_input = true;
-    for (int i = 0; i < probinstance->get_numdim_output(); i++)
-        U[i] = vs.v.point[i];
+    if (vs.v.point.size() == 0) {
+        U.resize( 0 );  // Controller declares trial as not realizable.
+    } else {
+        for (int i = 0; i < probinstance->get_numdim_output(); i++)
+            U[i] = vs.v.point[i];
+    }
 
     mtx_.unlock();
 }
@@ -874,6 +895,9 @@ void TGThread::run()
                     inputs_recording.enqueue( get_trial_number(), U );
 
                 if (first_input) {
+                    if (scribethread)
+                        times_recording.enqueue( get_trial_number(),
+                                                 ros::Time::now() );
                     first_input = false;
                     if (U.size() == 0) { // Controller declares "unrealizable"
                         mtx_.unlock();
@@ -882,9 +906,6 @@ void TGThread::run()
                     } else {
                         realizable = true;
                     }
-                    if (scribethread)
-                        times_recording.enqueue( get_trial_number(),
-                                                 ros::Time::now() );
                 }
 
                 tg.step( probinstance->period, U );
