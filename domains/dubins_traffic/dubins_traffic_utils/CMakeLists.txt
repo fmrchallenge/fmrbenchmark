@@ -14,13 +14,15 @@ if (CATKIN_ENV)
   message (STATUS "Building for ROS")
 
   add_executable (monitor src/monitor.cpp)
+  add_executable (maestro src/maestro.cpp)
 
-  find_package (catkin REQUIRED roscpp geometry_msgs gazebo_msgs dubins_traffic_msgs)
+  find_package (catkin REQUIRED roscpp geometry_msgs gazebo_msgs std_srvs dubins_traffic_msgs)
   catkin_package (INCLUDE_DIRS include)
 
   include_directories (include ${catkin_INCLUDE_DIRS})
   target_link_libraries (monitor ${catkin_LIBRARIES})
-  install (TARGETS monitor
+  target_link_libraries (maestro ${catkin_LIBRARIES})
+  install (TARGETS monitor maestro
     RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
   )
 
