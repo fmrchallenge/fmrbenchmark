@@ -4,6 +4,8 @@
 
 #include "polytope.hpp"
 
+using namespace integrator_chains;
+
 
 int main()
 {

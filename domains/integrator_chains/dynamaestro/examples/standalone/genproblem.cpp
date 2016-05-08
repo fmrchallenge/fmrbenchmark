@@ -5,6 +5,8 @@
 
 #include "problem.hpp"
 
+using namespace integrator_chains;
+
 
 int main()
 {
