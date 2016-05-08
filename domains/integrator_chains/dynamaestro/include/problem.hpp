@@ -13,6 +13,9 @@
 #include "polytope.hpp"
 
 
+namespace integrator_chains {
+
+
 /** Representation of problem instances.
 
     \ingroup integrator_chains */
@@ -393,6 +396,9 @@ std::list<std::string> Labeler::get_label( const Eigen::VectorXd &X )
 void Labeler::clear()
 {
     regions.clear();
+}
+
+
 }
 
 

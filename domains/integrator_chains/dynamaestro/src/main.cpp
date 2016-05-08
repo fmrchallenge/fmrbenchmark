@@ -37,6 +37,9 @@
 #include <boost/bind.hpp>
 
 
+using namespace integrator_chains;
+
+
 /** Flow computation for the problem domain: scaling chains of integrators.
 
    The trajectories are the solutions of a linear time-invariant control

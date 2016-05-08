@@ -8,6 +8,9 @@
 #include <Eigen/Dense>
 
 
+namespace integrator_chains {
+
+
 /** Basic half-space representation of polytopes.
 
    \ingroup integrator_chains */
@@ -217,6 +220,9 @@ std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P )
     P.dumpJSONcore( out );
     out << " }";
     return out;
+}
+
+
 }
 
 
