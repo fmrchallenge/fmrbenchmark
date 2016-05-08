@@ -116,6 +116,7 @@ void TrajectoryGenerator::clear()
 
 double TrajectoryGenerator::step( double dt, const Eigen::VectorXd &U )
 {
+    assert( U.size() > 0 );
     if (U.size() > numdim_output) {
         ROS_ERROR( "Input vector has too many elements." );
         return 0.0/0.0;
@@ -712,13 +713,13 @@ void TGThread::inputcb( const integrator_chains_msgs::VectorStamped &vs )
 
     mtx_.lock();
 
-    fresh_input = true;
     if (vs.v.point.size() == 0) {
         U.resize( 0 );  // Controller declares trial as not realizable.
-    } else {
+    } else if (U.size() > 0) {
         for (int i = 0; i < probinstance->get_numdim_output(); i++)
             U[i] = vs.v.point[i];
     }
+    fresh_input = true;
 
     mtx_.unlock();
 }
@@ -827,17 +828,15 @@ void TGThread::run()
         probinstance->Xinit.tail( (probinstance->get_highest_order_deriv()-1)*probinstance->get_numdim_output() ).setZero();
     labeler.importProblem( *probinstance );
 
-    U.resize( probinstance->get_numdim_output() );
-    U.setZero();
-
+    U.setZero( probinstance->get_numdim_output() );
     Eigen::VectorXd Y( probinstance->get_numdim_output() );
 
     TrajectoryGenerator tg( probinstance->Xinit,
                             probinstance->get_numdim_output() );
 
     ros::Rate rate( 1/probinstance->period );
-    Eigen::VectorXd defaultU( U );
-    defaultU.setZero();
+    Eigen::VectorXd defaultU;
+    defaultU.setZero( U.size() );
 
     if (scribethread) {
         times_recording.enqueue( get_trial_number(),
@@ -848,6 +847,12 @@ void TGThread::run()
     ros::Duration trial_duration;
 
     ros::Rate polling_rate( 100 );
+
+    /* For this single spinOnce() to successfully clear any remaining input, it
+       must be that the Subscriber to /input has queue length of 1. */
+    ros::spinOnce();
+    fresh_input = false;
+
     dmmode = ready;
     while (dmmode == ready) {
         if (!ros::ok())
