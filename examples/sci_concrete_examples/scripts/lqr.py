@@ -101,7 +101,7 @@ def main(imon):
         target_polytopeV = goal.getVrep()
         targets.append( np.mean(target_polytopeV, axis=0) );
 
-    if random.random() < 0.25:
+    if random.random() < 0.75:
         realizable = True
     else:
         realizable = False
