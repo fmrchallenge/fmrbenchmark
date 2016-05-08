@@ -13,7 +13,7 @@ import os.path
 from time import gmtime, strftime
 
 
-def gen_roslaunch(trialconf, results_filename=None, launch_logger=False):
+def gen_roslaunch(trialconf, results_filename=None, launch_logger=False, debug_dynamaestro=False):
     nl = '\n'
     idt = ' '*2
     output = '<launch>'+nl
@@ -23,10 +23,11 @@ def gen_roslaunch(trialconf, results_filename=None, launch_logger=False):
         pass
 
     output += """
-  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen">
+  <node pkg="dynamaestro" name="dynamaestro" type="dm" output="screen" {DM_PREFIX}>
     <remap from="dynamaestro/input" to="input" />
     <remap from="dynamaestro/state" to="state" />
-"""
+""".format(DM_PREFIX=('launch-prefix="gdb --args"' if debug_dynamaestro
+                      else ''))
 
     for key in ['output_dim_bounds', 'number_integrators_bounds',
                 'number_goals_bounds', 'number_obstacles_bounds',
@@ -43,7 +44,7 @@ def gen_roslaunch(trialconf, results_filename=None, launch_logger=False):
 
     if launch_logger:
         output += """
-  <node pkg="dynamaestro" name="logger" type="log" output="screen">
+  <node pkg="dynamaestro" name="logger" type="log" output="log">
     <remap from="dynamaestro/state" to="state" />
   </node>
 """
@@ -66,6 +67,9 @@ if __name__ == '__main__':
                         dest='DATAFILE_fuerte', default=None,
                         help=('like `-f` switch but overwrite the file '
                               'if it already exists.'))
+    parser.add_argument('--debug', action='store_true',
+                        dest='debug_dynamaestro', default=False,
+                        help='run dm through gdb.')
     args = parser.parse_args()
 
     if (args.DATAFILE is not None) and os.path.exists(args.DATAFILE):
@@ -93,10 +97,15 @@ if __name__ == '__main__':
     launchfile = os.fdopen(tempfd, 'w+')
     launchfile.write(gen_roslaunch(trialconf,
                                    results_filename=args.DATAFILE,
-                                   launch_logger=args.launch_logger))
+                                   launch_logger=args.launch_logger,
+                                   debug_dynamaestro=args.debug_dynamaestro))
+    launchfile.flush()
     launchfile.seek(0)
     try:
-        launchp = subprocess.Popen(['roslaunch', '-'], stdin=launchfile)
+        if args.debug_dynamaestro:
+            launchp = subprocess.Popen(['roslaunch', tempfname])
+        else:
+            launchp = subprocess.Popen(['roslaunch', '-'], stdin=launchfile)
         launchp.wait()
     except KeyboardInterrupt:
         launchp.terminate()
