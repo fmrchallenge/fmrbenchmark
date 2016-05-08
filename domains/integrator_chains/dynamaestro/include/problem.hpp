@@ -399,7 +399,7 @@ void Labeler::clear()
 }
 
 
-}
+} // namespace integrator_chains
 
 
 #endif  // ifndef PROBLEM_H

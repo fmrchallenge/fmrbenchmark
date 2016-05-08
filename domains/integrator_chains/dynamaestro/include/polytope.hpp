@@ -223,7 +223,7 @@ std::ostream & operator<<( std::ostream &out, const LabeledPolytope &P )
 }
 
 
-}
+} // namespace integrator_chains
 
 
 #endif  // ifndef POLYTOPE_H
