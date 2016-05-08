@@ -370,10 +370,6 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
                || (ros::ok() && get_trial_number() >= 0
                    && !boost::this_thread::interruption_requested()
                    && instances_recording.size() == 0)) {
-            ROS_INFO( "inputs_recording.size() = %d, states_recording.size() = %d",
-                      inputs_recording.size(),
-                      states_recording.size());
-
 
             if (inputs_recording.size() == 0
                 || (states_recording.size() == 0 && inputs_recording.peek().size() > 0)) {
