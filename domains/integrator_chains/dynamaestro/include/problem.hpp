@@ -1,5 +1,5 @@
-#ifndef PROBLEM_H
-#define PROBLEM_H
+#ifndef INTEGRATOR_CHAINS_PROBLEM_H
+#define INTEGRATOR_CHAINS_PROBLEM_H
 
 #include <vector>
 #include <list>
