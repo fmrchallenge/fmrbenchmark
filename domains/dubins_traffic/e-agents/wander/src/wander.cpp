@@ -24,6 +24,8 @@
 #include "geometry_msgs/Twist.h"
 #include "sensor_msgs/LaserScan.h"
 
+using namespace dubins_traffic;
+
 
 const double min_dist = 0.5;
 bool safe_to_move;

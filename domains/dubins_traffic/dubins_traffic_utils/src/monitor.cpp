@@ -17,6 +17,9 @@
 #include "roadnet.hpp"
 
 
+using namespace dubins_traffic;
+
+
 class Labeler {
 public:
     Labeler( ros::NodeHandle &nh_,

@@ -11,6 +11,9 @@
 #include <Eigen/Dense>
 
 
+namespace dubins_traffic {
+
+
 /** Road network description
 
    This class serves a similar purpose to the class RoadNetwork in
@@ -401,6 +404,9 @@ std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd )
     }
     out << "] }";
 }
+
+
+} // namespace dubins_traffic
 
 
 #endif
