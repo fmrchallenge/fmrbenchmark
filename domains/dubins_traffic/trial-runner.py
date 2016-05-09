@@ -42,6 +42,11 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
   </include>
 """.format(RND_PATH=rnd_path)
 
+    try:
+        output += idt+'<param name="number_trials" value="'+str(trialconf['number_trials'])+'" />'
+    except KeyError:
+        pass
+
     if results_filename is not None:
         results_path = os.path.abspath(results_filename)
         output += '  <param name="dubins_traffic/results_file" value="'+results_path+'" />\n'
