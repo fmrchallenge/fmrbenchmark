@@ -42,7 +42,6 @@ def check_sat(td, trial_index):
         sys.exit(-1)
     prob = integrator_chains.Problem.loadJSONdict(td['trials'][trial_index]['problem_instance'])
     goals_satisfied = [0]*len(prob.goals)
-    word = []
     for row in traj:
         y = row[2:(2+prob.output_dim)]
         y_label = []
