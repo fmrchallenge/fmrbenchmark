@@ -26,11 +26,11 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
     <arg name="paused" value="true" />
   </include>
 
-  <node pkg="dubins_traffic_utils" type="monitor" name="$(anon monitor)" output="screen">
+  <node pkg="dubins_traffic_utils" type="monitor" name="$(anon monitor)" output="log">
     <remap from="$(anon monitor)/loutput" to="loutput" />
   </node>
 
-  <node pkg="dubins_traffic_utils" type="maestro" name="dubins_traffic_maestro" output="log" />
+  <node pkg="dubins_traffic_utils" type="maestro" name="dubins_traffic_maestro" output="screen" />
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 
@@ -46,6 +46,12 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
         output += idt+'<param name="number_trials" value="'+str(trialconf['number_trials'])+'" />'
     except KeyError:
         pass
+
+    for key in ['duration_bounds']:
+        try:
+            output += 2*idt+'<param name="'+key+'" value="'+' '.join([str(x) for x in trialconf[key]])+'" />'+nl
+        except KeyError:
+            pass
 
     if results_filename is not None:
         results_path = os.path.abspath(results_filename)
