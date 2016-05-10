@@ -74,11 +74,11 @@ bool Maestro::parse_range_str( const std::string param_name, Eigen::Vector2i &ra
 }
 
 Maestro::Maestro( ros::NodeHandle &nh_, Problem &problem_ )
-    : nh(nh_), problem(problem_), gazebo_paused( true )
+    : nh(nh_), problem(problem_), gazebo_paused( true ), mmode(resetting)
 {
     problemJSONpub = nh.advertise<integrator_chains_msgs::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
     mode_srv = nh.advertiseService( "mode", &Maestro::mode_request, this );
-    set_model_state = nh.advertise<gazebo_msgs::ModelState>( "/gazebo/set_model_state", 1, true );
+    set_model_state = nh.advertise<gazebo_msgs::ModelState>( "/gazebo/set_model_state", 1, false );
 }
 
 bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
@@ -100,7 +100,13 @@ bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
         break;
 
     case dubins_traffic_msgs::MMode::Request::START:
-        if (mmode == ready) {
+        if (gazebo_paused) {
+            gazebo_toggle = nh.serviceClient<std_srvs::Empty>( "/gazebo/unpause_physics" );
+            std_srvs::Empty empty;
+            if (gazebo_toggle.call( empty ))
+                gazebo_paused = false;
+        }
+        if (mmode == ready && !gazebo_paused) {
             mmode = waiting;
             res.result = true;
         } else {
@@ -123,8 +129,6 @@ bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
 
 void Maestro::perform_trial()
 {
-    ros::Rate polling_rate( 1000 );
-
     Eigen::Vector2i duration_bounds;
     if (!parse_range_str( "duration_bounds", duration_bounds )) {
         duration_bounds << 30, 90;
@@ -144,8 +148,6 @@ void Maestro::perform_trial()
         if (!ros::ok())
             return;
         ros::spinOnce();
-        polling_rate.sleep();
-
     }
     assert( mmode == waiting );
 
@@ -157,6 +159,7 @@ void Maestro::perform_trial()
                       probinstance_msg.stamp.nsec );
     ros::spinOnce();
 
+    ros::Rate polling_rate( 1000 );
     while (ros::ok() && mmode != resetting && (trial_duration = ros::Time::now() - startt).toSec() < nominal_duration) {
         if (mmode == waiting) {
             mmode = running;
@@ -212,7 +215,7 @@ int main( int argc, char **argv )
 
     Maestro maestro( nh, problem );
     maestro.main();
-    ros::spin();
+    nh.shutdown();
 
     return 0;
 }
