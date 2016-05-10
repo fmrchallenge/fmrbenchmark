@@ -4,9 +4,6 @@ add_compile_options (-std=c++11)
 
 include_directories (include)
 
-find_package (Boost REQUIRED COMPONENTS thread)
-include_directories (${Boost_INCLUDE_DIRS})
-
 find_package (Eigen3 REQUIRED)
 include_directories (${EIGEN3_INCLUDE_DIR})
 
