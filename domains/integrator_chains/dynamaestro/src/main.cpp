@@ -738,8 +738,8 @@ void TGThread::run()
               duration_bounds(0), duration_bounds(1) );
 
     int nominal_duration = duration_bounds(0);
-    if (duration_bounds(0) == duration_bounds(1))
-        nominal_duration += std::rand() % (1+duration_bounds(1)-duration_bounds(1));
+    if (duration_bounds(0) != duration_bounds(1))
+        nominal_duration += std::rand() % (1+duration_bounds(1)-duration_bounds(0));
 
     Eigen::Vector2i numdim_output_bounds;
     if (!parse_range_str( "output_dim_bounds", numdim_output_bounds )) {
