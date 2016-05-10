@@ -35,6 +35,8 @@ def main(imon):
            and (imon.last_updated is None or start_time > imon.last_updated)):
         time.sleep(0.5)
 
+    assert mmode(MModeRequest.RESET)
+
 
 if __name__ == "__main__":
     rospy.init_node("lqr", anonymous=True)
