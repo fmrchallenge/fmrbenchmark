@@ -18,7 +18,7 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    RoadNetwork rnd( infile );
+    dubins_traffic::RoadNetwork rnd( infile );
     std::cout << rnd << std::endl;
 
     return 0;

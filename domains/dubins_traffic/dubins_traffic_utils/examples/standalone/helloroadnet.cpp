@@ -8,7 +8,7 @@
 int main()
 {
     Eigen::Vector3d transform( 1.0, 0.0, 1.6 );
-    RoadNetwork rd( 2.0, transform, 2, 3 );
+    dubins_traffic::RoadNetwork rd( 2.0, transform, 2, 3 );
     std::cout << rd << std::endl;
 
     double x, y;
