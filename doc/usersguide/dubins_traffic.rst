@@ -3,6 +3,7 @@ Problem domain: Traffic network of Dubins cars
 
 Often referred to as "the second domain," the basic setting is navigation in a
 small network of roads with vehicles that follow unicycle-like dynamics.
+Every road network is a 4-connected grid, subject to a rigid-body transformation: as such, the segments may not be axis-aligned. 
 
 
 Preparations
@@ -117,7 +118,18 @@ mc-small-4grid-agents2.json used in this tutorial, these are ``/agent0`` and
 ``/agent1``.
 
 In a separate terminal, run your controller. For example, assuming your controller
-is contained in the package your_controller with launch file foo.launch,
+is contained in the package ``your_controller`` with launch file ``foo.launch``,
 in a separate terminal, run ::
 
   roslaunch your_controller foo.launch
+
+Support code for working with road network descriptions is available in ``roadnet.hpp`` and ``dubins_traffic.py``. 
+
+For example, try
+
+.. code-block:: none
+
+  analysis/plotp.py dubins_traffic_utils/examples/data/square.json
+
+from the directory ``$FMRBENCHMARK/domains/dubins_traffic/``.
+
