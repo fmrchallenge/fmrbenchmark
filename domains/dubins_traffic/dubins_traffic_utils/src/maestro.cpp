@@ -134,8 +134,8 @@ void Maestro::perform_trial()
               duration_bounds(0), duration_bounds(1) );
 
     int nominal_duration = duration_bounds(0);
-    if (duration_bounds(0) == duration_bounds(1))
-        nominal_duration += std::rand() % (1+duration_bounds(1)-duration_bounds(1));
+    if (duration_bounds(0) != duration_bounds(1))
+        nominal_duration += std::rand() % (1+duration_bounds(1)-duration_bounds(0));
 
     ros::Duration trial_duration;
 
