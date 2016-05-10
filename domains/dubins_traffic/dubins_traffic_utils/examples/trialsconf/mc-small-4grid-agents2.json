@@ -14,4 +14,5 @@
                {"type": "wander/wander", "name": "agent1"}],
 
   "number_trials": 1
+  "duration_bounds": [5, 10]
 }

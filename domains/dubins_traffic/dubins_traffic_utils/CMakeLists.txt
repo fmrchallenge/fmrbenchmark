@@ -4,9 +4,6 @@ add_compile_options (-std=c++11)
 
 include_directories (include)
 
-find_package (Boost REQUIRED COMPONENTS thread)
-include_directories (${Boost_INCLUDE_DIRS})
-
 find_package (Eigen3 REQUIRED)
 include_directories (${EIGEN3_INCLUDE_DIR})
 
@@ -16,7 +13,7 @@ if (CATKIN_ENV)
   add_executable (monitor src/monitor.cpp)
   add_executable (maestro src/maestro.cpp)
 
-  find_package (catkin REQUIRED roscpp geometry_msgs gazebo_msgs std_srvs dubins_traffic_msgs)
+  find_package (catkin REQUIRED roscpp geometry_msgs gazebo_msgs std_srvs integrator_chains_msgs dubins_traffic_msgs)
   catkin_package (INCLUDE_DIRS include)
 
   include_directories (include ${catkin_INCLUDE_DIRS})

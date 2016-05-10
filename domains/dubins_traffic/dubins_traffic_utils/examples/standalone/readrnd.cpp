@@ -3,6 +3,8 @@
 
 #include "roadnet.hpp"
 
+using namespace dubins_traffic;
+
 
 int main( int argc, char *argv[] )
 {

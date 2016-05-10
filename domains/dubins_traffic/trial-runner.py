@@ -24,13 +24,12 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
     <arg name="headless" value="true" />
     <arg name="gui" value="false" />
     <arg name="paused" value="true" />
+    <arg name="use_sim_time" value="false" />
   </include>
 
-  <node pkg="dubins_traffic_utils" type="monitor" name="$(anon monitor)" output="screen">
+  <node pkg="dubins_traffic_utils" type="monitor" name="$(anon monitor)" output="log">
     <remap from="$(anon monitor)/loutput" to="loutput" />
   </node>
-
-  <node pkg="dubins_traffic_utils" type="maestro" name="dubins_traffic_maestro" output="log" />
 
   <param name="robot_description" command="$(find xacro)/xacro.py '$(find dub_sim)/urdf/lasermounted.urdf.xacro'" />
 
@@ -47,6 +46,15 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
     except KeyError:
         pass
 
+    output += idt+'<node pkg="dubins_traffic_utils" type="maestro" name="dubins_traffic_maestro" output="screen">'
+    for key in ['duration_bounds']:
+        try:
+            output += 2*idt+'<param name="'+key+'" value="'+' '.join([str(x) for x in trialconf[key]])+'" />'+nl
+        except KeyError:
+            pass
+
+    output += idt+'</node>'
+
     if results_filename is not None:
         results_path = os.path.abspath(results_filename)
         output += '  <param name="dubins_traffic/results_file" value="'+results_path+'" />\n'
@@ -62,7 +70,7 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
   </include>
   <node pkg="{EAGENT_PKG}" type="{EAGENT_TYPE}"
    name="$(anon {EAGENT_NAME})" ns="{EAGENT_NAME}"
-   args="{RNDPATH}">
+   args="{RNDPATH}" output="log">
     <remap from="cmd_vel" to="mobile_base/commands/velocity" />
   </node>
 """.format(EAGENT_NAME=eagent['name'],
