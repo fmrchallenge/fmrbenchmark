@@ -1,8 +1,4 @@
-/* Program that generates a series of waypoints on a grid relative to the initial position,
- * and  issues velocity commands for following this series of waypoints
- *
- * SCL; 6 Mar 2015
- * VR; 3 May, 26 May 2015
+/* e-agent that moves along road segments and randomly turns at intersections.
 */
 
 #include <iostream>
