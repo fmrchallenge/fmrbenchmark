@@ -24,7 +24,7 @@ using namespace dubins_traffic;
 
 
 const double min_dist = 0.5;
-bool safe_to_move;
+bool safe_to_move = true;
 
 
 void laser_cb( const sensor_msgs::LaserScan &scan )
@@ -53,16 +53,20 @@ public:
      */
     bool get_pose_estimate( double *x );
 
+    bool is_near_ego_vehicle() const
+        { return near_ego_vehicle; }
+
 private:
     double last_mspose[3];
     bool valid_mspose;
     std::string model_name;
     ros::Subscriber mssub;
+    bool near_ego_vehicle;
 };
 
 
 ModelStatesWatcher::ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_name )
-    : valid_mspose(false), model_name(nh.getNamespace()),
+    : valid_mspose(false), model_name(nh.getNamespace()), near_ego_vehicle(true),
       mssub(nh.subscribe( topic_name, 1, &ModelStatesWatcher::ms_cb, this ))
 {
     while (model_name[0] == '/')
@@ -71,16 +75,37 @@ ModelStatesWatcher::ModelStatesWatcher( ros::NodeHandle &nh, std::string topic_n
 
 void ModelStatesWatcher::ms_cb( const gazebo_msgs::ModelStates &ms )
 {
-    int idx;
-    for (idx = 0; idx < ms.name.size(); idx++)
-        if (ms.name[idx] == model_name)
-            break;
-    if (idx == ms.name.size())
+    int this_model_idx = -1;
+    int ego_model_idx = -1;
+    for (int idx = 0; idx < ms.name.size(); idx++) {
+        if (ms.name[idx] == model_name) {
+            this_model_idx = idx;
+            continue;
+        }
+        if (ms.name[idx] == "ego") {
+            ego_model_idx = idx;
+            continue;
+        }
+    }
+    if (this_model_idx < 0)
         return;
+
+    if (ego_model_idx >= 0
+        && std::sqrt( (ms.pose[this_model_idx].position.x - ms.pose[ego_model_idx].position.x)*(ms.pose[this_model_idx].position.x - ms.pose[ego_model_idx].position.x)
+                      + (ms.pose[this_model_idx].position.y - ms.pose[ego_model_idx].position.y)*(ms.pose[this_model_idx].position.y - ms.pose[ego_model_idx].position.y) ) > 1.0) {
+
+        near_ego_vehicle = false;
+
+    } else {
+
+        near_ego_vehicle = true;  // Be cautious
+
+    }
+
     valid_mspose = false;
-    last_mspose[0] = ms.pose[idx].position.x;
-    last_mspose[1] = ms.pose[idx].position.y;
-    last_mspose[2] = tf::getYaw( ms.pose[idx].orientation );
+    last_mspose[0] = ms.pose[this_model_idx].position.x;
+    last_mspose[1] = ms.pose[this_model_idx].position.y;
+    last_mspose[2] = tf::getYaw( ms.pose[this_model_idx].orientation );
     valid_mspose = true;
 }
 
@@ -289,6 +314,9 @@ int main( int argc, char **argv )
             }
 
         }
+
+        if (pose_watcher.is_near_ego_vehicle())
+            mot.linear.x = 0.0;
 
         action.publish( mot );
         ros::spinOnce();
