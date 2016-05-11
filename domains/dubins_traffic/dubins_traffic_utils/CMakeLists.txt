@@ -16,6 +16,9 @@ if (CATKIN_ENV)
   find_package (catkin REQUIRED roscpp geometry_msgs gazebo_msgs std_srvs integrator_chains_msgs dubins_traffic_msgs)
   catkin_package (INCLUDE_DIRS include)
 
+  add_dependencies (monitor integrator_chains_msgs_generate_messages_cpp dubins_traffic_msgs_generate_messages_cpp)
+  add_dependencies (maestro integrator_chains_msgs_generate_messages_cpp dubins_traffic_msgs_generate_messages_cpp)
+
   include_directories (include ${catkin_INCLUDE_DIRS})
   target_link_libraries (monitor ${catkin_LIBRARIES})
   target_link_libraries (maestro ${catkin_LIBRARIES})
