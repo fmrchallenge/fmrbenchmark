@@ -3,7 +3,7 @@ Problem domain: Traffic network of Dubins cars
 
 Often referred to as "the second domain," the basic setting is navigation in a
 small network of roads with vehicles that follow unicycle-like dynamics.
-Every road network is a 4-connected grid, subject to a rigid-body transformation: as such, the segments may not be axis-aligned. 
+Every road network is a 4-connected grid, subject to a rigid-body transformation: as such, the segments may not be axis-aligned.
 
 
 Preparations
@@ -139,4 +139,3 @@ For example, try
   analysis/plotp.py dubins_traffic_utils/examples/data/square.json
 
 from the directory ``$FMRBENCHMARK/domains/dubins_traffic/``.
-
