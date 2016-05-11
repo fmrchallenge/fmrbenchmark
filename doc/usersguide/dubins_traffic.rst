@@ -55,6 +55,12 @@ Supplementary prerequisites
 As for the :doc:`integrator_chains`, there is code that is relevant but not
 required for this benchmark.
 
+Teleoperation of the vehicle to be controlled can be achieved using
+`kobuki_keyop <http://wiki.ros.org/kobuki_keyop>`_ ROS package. An example
+demonstrating a configuration known to work in the simulation variant::
+
+  roslaunch dubins_traffic_utils teleop.launch
+
 
 Tutorials
 ---------
