@@ -123,7 +123,8 @@ in a separate terminal, run ::
 
   roslaunch your_controller foo.launch
 
-Support code for working with road network descriptions is available in ``roadnet.hpp`` and ``dubins_traffic.py``. 
+Support code for working with road network descriptions is available in
+``roadnet.hpp`` and ``dubins_traffic.py``.
 
 For example, try
 
