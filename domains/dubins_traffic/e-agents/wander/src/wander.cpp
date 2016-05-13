@@ -266,8 +266,8 @@ int main( int argc, char **argv )
             while (angle_diff < -M_PI)
                 angle_diff += 2*M_PI;
 
-            if (sqrt( (waypoints[current_index](0) - current_pose[0])*(waypoints[current_index](0) - current_pose[0])
-                      + (waypoints[current_index](1) - current_pose[1])*(waypoints[current_index](1) - current_pose[1]) ) < min_reach_err) {
+            if (std::sqrt( (waypoints[current_index](0) - current_pose[0])*(waypoints[current_index](0) - current_pose[0])
+                           + (waypoints[current_index](1) - current_pose[1])*(waypoints[current_index](1) - current_pose[1]) ) < min_reach_err) {
                 std::cout << "Reached waypoint " << waypoints[current_index].transpose() << std::endl;
                 // current_index = (current_index+1) % waypoints.size();
                 if (current_index < 1) {
