@@ -22,7 +22,7 @@ using namespace dubins_traffic;
 
 class Maestro {
 public:
-    Maestro( ros::NodeHandle &nh_, Problem &problem_ );
+    Maestro( ros::NodeHandle &nh_, const RoadNetwork rnd_ );
 
     bool mode_request( dubins_traffic_msgs::MMode::Request &req,
                        dubins_traffic_msgs::MMode::Response &res );
@@ -32,7 +32,8 @@ public:
 
 private:
     ros::NodeHandle &nh;
-    Problem &problem;
+    RoadNetwork rnd;
+    Problem probinstance;
     ros::Publisher problemJSONpub;
 
     ros::Publisher set_model_state;
@@ -73,8 +74,8 @@ bool Maestro::parse_range_str( const std::string param_name, Eigen::Vector2i &ra
     return true;
 }
 
-Maestro::Maestro( ros::NodeHandle &nh_, Problem &problem_ )
-    : nh(nh_), problem(problem_), gazebo_paused( true ), mmode(resetting)
+Maestro::Maestro( ros::NodeHandle &nh_, const RoadNetwork rnd_ )
+    : nh(nh_), rnd(rnd_), probinstance( rnd_ ), gazebo_paused( true ), mmode(resetting)
 {
     problemJSONpub = nh.advertise<integrator_chains_msgs::ProblemInstanceJSON>( "probleminstance_JSON", 1, true );
     mode_srv = nh.advertiseService( "mode", &Maestro::mode_request, this );
@@ -129,6 +130,14 @@ bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
 
 void Maestro::perform_trial()
 {
+    Eigen::Vector2i number_goals_bounds;
+    if (!parse_range_str( "number_goals_bounds", number_goals_bounds )) {
+        number_goals_bounds << 1, 4;
+    }
+    ROS_INFO( "dubins_traffic_maestro: Using [%d, %d] as sampling range "
+              "for number of goal polytopes.",
+              number_goals_bounds(0), number_goals_bounds(1) );
+
     Eigen::Vector2i duration_bounds;
     if (!parse_range_str( "duration_bounds", duration_bounds )) {
         duration_bounds << 30, 90;
@@ -140,6 +149,8 @@ void Maestro::perform_trial()
     int nominal_duration = duration_bounds(0);
     if (duration_bounds(0) != duration_bounds(1))
         nominal_duration += std::rand() % (1+duration_bounds(1)-duration_bounds(0));
+
+    probinstance = Problem::random( rnd, number_goals_bounds );
 
     ros::Duration trial_duration;
 
@@ -153,7 +164,7 @@ void Maestro::perform_trial()
 
     integrator_chains_msgs::ProblemInstanceJSON probinstance_msg;
     probinstance_msg.stamp = ros::Time::now();
-    probinstance_msg.problemjson = problem.dumpJSON();
+    probinstance_msg.problemjson = probinstance.dumpJSON();
     problemJSONpub.publish( probinstance_msg );
     ros::Time startt( probinstance_msg.stamp.sec,
                       probinstance_msg.stamp.nsec );
@@ -211,9 +222,8 @@ int main( int argc, char **argv )
             return 0;
     }
     RoadNetwork rnd( rndjson );
-    Problem problem( rnd );
+    Maestro maestro( nh, rnd );
 
-    Maestro maestro( nh, problem );
     maestro.main();
     nh.shutdown();
 
