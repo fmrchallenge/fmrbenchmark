@@ -38,6 +38,8 @@ public:
     RoadNetwork( std::istream &rndjson );
     RoadNetwork( const std::string &rndjson );
 
+    RoadNetwork( const RoadNetwork &to_be_copied );
+
     /** Output in RND format using JSON container to given stream. */
     friend std::ostream & operator<<( std::ostream &out, const RoadNetwork &rd );
 
@@ -87,6 +89,16 @@ private:
     std::vector<Eigen::Vector2i> intersections;
     std::vector<int> shape;
 };
+
+RoadNetwork::RoadNetwork( const RoadNetwork &to_be_copied )
+{
+    version = to_be_copied.version;
+    length = to_be_copied.length;
+    transform = to_be_copied.transform;
+    segments = to_be_copied.segments;
+    intersections = to_be_copied.intersections;
+    shape = to_be_copied.shape;
+}
 
 std::vector<size_t> RoadNetwork::segments_at_end( size_t idx, bool reverse ) const
 {

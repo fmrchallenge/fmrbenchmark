@@ -46,4 +46,5 @@ else (CATKIN_ENV)
 
   add_executable (helloroadnet examples/standalone/helloroadnet.cpp)
   add_executable (readrnd examples/standalone/readrnd.cpp)
+  add_executable (genproblem examples/standalone/genproblem.cpp)
 endif (CATKIN_ENV)
