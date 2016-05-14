@@ -98,6 +98,7 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
     }
     out << "]," << std::endl;
     out << "\"rnd\": " << prob.rnd << std::endl;
+    out << ", \"intersection_radius\": " << prob.intersection_radius;
     out << std::endl << "}";
     return out;
 }
