@@ -96,7 +96,8 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
         out << "\"ego_" << prob.rnd.get_intersection_str( prob.goals[i] ) << "\"";
         out << std::endl;
     }
-    out << "]";
+    out << "]," << std::endl;
+    out << "\"rnd\": " << prob.rnd << std::endl;
     out << std::endl << "}";
     return out;
 }
