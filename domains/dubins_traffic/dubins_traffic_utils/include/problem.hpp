@@ -6,6 +6,8 @@
 #include <vector>
 #include <string>
 
+#include <Eigen/Dense>
+
 #include "roadnet.hpp"
 
 
@@ -25,7 +27,8 @@ public:
     Problem( const Problem &to_be_copied );
     ~Problem() {}
 
-    static Problem random( const RoadNetwork &rnd_ );
+    static Problem random( const RoadNetwork &rnd_,
+                           const Eigen::Vector2i &number_goals_bounds );
 
     /** Create formula using SPIN LTL syntax <http://spinroot.com/spin/Man/ltl.html>.
        Support for other syntax is coming soon. */
@@ -52,13 +55,23 @@ Problem::Problem( const Problem &to_be_copied )
     assert( intersection_radius > 0 );
 }
 
-Problem Problem::random( const RoadNetwork &rnd_ )
+Problem Problem::random( const RoadNetwork &rnd_,
+                         const Eigen::Vector2i &number_goals_bounds )
 {
+    assert( number_goals_bounds(0) >= 0
+            && number_goals_bounds(0) <= number_goals_bounds(1) );
+
     Problem pinstance( rnd_ );
     pinstance.intersection_radius = 1.0;
 
-    for (size_t goal_idx = 0; goal_idx < 3; goal_idx++)
-        pinstance.goals.push_back( std::rand() % rnd_.number_of_segments() );
+    int number_goals = number_goals_bounds(0);
+    if (number_goals_bounds(1) != number_goals_bounds(0))
+        number_goals += (std::rand()
+                         % (1+number_goals_bounds(1)
+                            - number_goals_bounds(0)));
+
+    for (size_t goal_idx = 0; goal_idx < number_goals; goal_idx++)
+        pinstance.goals.push_back( std::rand() % rnd_.number_of_intersections() );
 
     return pinstance;
 }

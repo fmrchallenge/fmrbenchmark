@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <ctime>
 
+#include <Eigen/Dense>
+
 #include "roadnet.hpp"
 #include "problem.hpp"
 
@@ -24,8 +26,12 @@ int main( int argc, char *argv[] )
     }
 
     RoadNetwork rnd( infile );
+
+    Eigen::Vector2i number_goals_bounds( 1, 2 );
+
     std::srand( std::time( 0 ) );
-    Problem pinstance = Problem::random( rnd );
+    Problem pinstance = Problem::random( rnd,
+                                         number_goals_bounds );
 
     std::cout << pinstance << std::endl;
 
