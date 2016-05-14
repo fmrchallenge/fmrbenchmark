@@ -110,20 +110,28 @@ class RoadNetwork(object):
     def number_of_segments(self):
         return len(self.segments)
 
+    def map_point(self, x, y):
+        """Map point in local coordinates through transform and scaling.
+        """
+        costheta = math.cos(self.transform[2])
+        sintheta = math.sin(self.transform[2])
+        mapped_x = self.length*x
+        mapped_y = self.length*y
+        new_x = costheta*mapped_x - sintheta*mapped_y
+        new_y = sintheta*mapped_x + costheta*mapped_y
+        mapped_x = new_x + self.transform[0]
+        mapped_y = new_y + self.transform[1]
+        return (mapped_x, mapped_y)
+
     def get_mapped_segment(self, index):
         if index < 0 or index > len(self.segments)-1:
             raise ValueError('index out of bounds [0,'
                              +str(len(self.segments)-1)+']: '
                              +str(index))
-        mapped_segment = [self.segments[index][0]*self.length, self.segments[index][1]*self.length,
-                          self.segments[index][2]*self.length, self.segments[index][3]*self.length]
-        costheta = math.cos(self.transform[2])
-        sintheta = math.sin(self.transform[2])
+        mapped_segment = []
         for offset in [0, 2]:
-            new_x = costheta*mapped_segment[offset] - sintheta*mapped_segment[offset+1]
-            new_y = sintheta*mapped_segment[offset] + costheta*mapped_segment[offset+1]
-            mapped_segment[offset] = new_x + self.transform[0]
-            mapped_segment[offset+1] = new_y + self.transform[1]
+            mapped_segment += self.map_point(self.segments[index][offset],
+                                             self.segments[index][offset+1])
         return tuple(mapped_segment)
 
     def has_intersection_end(self, index, reverse=False):
