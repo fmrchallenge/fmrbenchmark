@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
 
 #include <Eigen/Dense>
 
@@ -24,7 +25,7 @@ int main()
     Eigen::Vector2i number_goals_bounds( 1, 2 );
     Eigen::Vector2i number_obstacles_bounds( 0, 1 );
 
-    srand(time(0));
+    std::srand( std::time( 0 ) );
     Problem *prob = Problem::random( numdim_output_bounds,
                                      num_integrators_bounds,
                                      Y_box, U_box,
