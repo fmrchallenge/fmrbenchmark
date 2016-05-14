@@ -7,6 +7,8 @@ import rospy
 from integrator_chains_msgs.msg import ProblemInstanceJSON
 from dubins_traffic_msgs.srv import MMode, MModeRequest
 
+from fmrb import dubins_traffic
+
 
 class InstanceMonitor:
     def __init__(self, problemJSON_topic='dubins_traffic_maestro/probleminstance_JSON'):
@@ -14,12 +16,12 @@ class InstanceMonitor:
                                                 ProblemInstanceJSON,
                                                 self.get_newinstance, queue_size=1)
         self.last_updated = None
-        self.probjson = None
+        self.prob = None
         self.busy = False
 
     def get_newinstance(self, pinst):
         self.busy = True
-        self.probjson = pinst.problemjson
+        self.prob = dubins_traffic.Problem.loadJSON(pinst.problemjson)
         self.last_updated = pinst.stamp
         self.busy = False
 
