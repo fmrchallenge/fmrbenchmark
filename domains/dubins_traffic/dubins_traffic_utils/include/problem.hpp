@@ -25,7 +25,6 @@ public:
 
     Problem( const RoadNetwork &rnd_ );
     Problem( const Problem &to_be_copied );
-    ~Problem() {}
 
     static Problem random( const RoadNetwork &rnd_,
                            const Eigen::Vector2i &number_goals_bounds );
