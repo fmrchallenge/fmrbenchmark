@@ -229,3 +229,25 @@ def gen_worldsdf(roads):
                                x2_intersection=roads.has_intersection_end(sindex))
     output += '</world></sdf>'
     return output
+
+
+class Problem(object):
+    """Problem instance of the domain: traffic network of Dubins cars
+    """
+    def __init__(self):
+        self.goals = []
+        self.rnd = None
+        self.intersection_radius = 0.0
+
+    @staticmethod
+    def loadJSONdict(probd):
+        prob = Problem()
+        assert probd['version'] == 0
+        prob.goals = probd['goals']
+        prob.rnd = RoadNetwork(probd['rnd'])
+        prob.intersection_radius = probd['intersection_radius']
+        return prob
+
+    @staticmethod
+    def loadJSON(probjs):
+        return Problem.loadJSONdict(json.loads(probjs))
