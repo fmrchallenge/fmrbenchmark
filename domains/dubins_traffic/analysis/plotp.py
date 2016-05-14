@@ -24,6 +24,9 @@ if __name__ == '__main__':
     if fp is not sys.stdin:
         fp.close()
 
+    print('intersection radius: ', probinstance.intersection_radius)
+    print('goals: ', probinstance.goals)
+
     ax = plt.axes()
     probinstance.rnd.plot(ax)
     plt.axis('equal')
