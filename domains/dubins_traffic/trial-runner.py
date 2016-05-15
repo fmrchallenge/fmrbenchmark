@@ -47,7 +47,7 @@ def gen_roslaunch(trialconf, worldsdf_filename, rnd_path, results_filename=None)
         pass
 
     output += idt+'<node pkg="dubins_traffic_utils" type="maestro" name="dubins_traffic_maestro" output="screen">'
-    for key in ['duration_bounds']:
+    for key in ['duration_bounds', 'number_goals_bounds']:
         try:
             output += 2*idt+'<param name="'+key+'" value="'+' '.join([str(x) for x in trialconf[key]])+'" />'+nl
         except KeyError:
