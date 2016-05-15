@@ -93,7 +93,8 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
     for (int i = 0; i < prob.goals.size(); i++) {
         if (i > 0)
             out << ", ";
-        out << "\"ego_" << prob.rnd.get_intersection_str( prob.goals[i] ) << "\"";
+        Eigen::Vector2i intersection = prob.rnd.get_intersection( prob.goals[i] );
+        out << "[" << intersection(0) << ", " << intersection(1) << "]";
         out << std::endl;
     }
     out << "]," << std::endl;

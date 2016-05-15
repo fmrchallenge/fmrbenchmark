@@ -77,6 +77,9 @@ public:
     std::string get_segment_str( size_t idx ) const;
     std::string get_intersection_str( size_t idx ) const;
 
+    /** Get intersection in canonical coordinates. */
+    Eigen::Vector2i get_intersection( size_t idx ) const;
+
 private:
     void populate_4grid( int shape0, int shape1 );
     void parse_json( const std::string &rndjson );
@@ -98,6 +101,12 @@ RoadNetwork::RoadNetwork( const RoadNetwork &to_be_copied )
     segments = to_be_copied.segments;
     intersections = to_be_copied.intersections;
     shape = to_be_copied.shape;
+}
+
+Eigen::Vector2i RoadNetwork::get_intersection( size_t idx ) const
+{
+    assert( idx >= 0 && idx < number_of_intersections() );
+    return intersections[idx];
 }
 
 std::vector<size_t> RoadNetwork::segments_at_end( size_t idx, bool reverse ) const
