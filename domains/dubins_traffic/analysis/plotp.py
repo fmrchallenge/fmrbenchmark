@@ -29,5 +29,8 @@ if __name__ == '__main__':
 
     ax = plt.axes()
     probinstance.rnd.plot(ax)
+    for goal in probinstance.goals:
+        mapped_goal = probinstance.rnd.map_point(goal[0], goal[1])
+        plt.plot(mapped_goal[0], mapped_goal[1], 'yd')
     plt.axis('equal')
     plt.show()
