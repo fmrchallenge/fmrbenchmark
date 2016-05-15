@@ -87,13 +87,7 @@ bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
 {
     switch (req.mode) {
     case dubins_traffic_msgs::MMode::Request::READY:
-        if (!gazebo_paused) {
-            gazebo_toggle = nh.serviceClient<std_srvs::Empty>( "/gazebo/pause_physics" );
-            std_srvs::Empty empty;
-            if (gazebo_toggle.call( empty ))
-                gazebo_paused = true;
-        }
-        if (mmode == ready && gazebo_paused) {
+        if (mmode == ready) {
             res.result = true;
         } else {
             res.result = false;
@@ -116,6 +110,12 @@ bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
         break;
 
     case dubins_traffic_msgs::MMode::Request::RESET:
+        if (!gazebo_paused) {
+            gazebo_toggle = nh.serviceClient<std_srvs::Empty>( "/gazebo/pause_physics" );
+            std_srvs::Empty empty;
+            if (gazebo_toggle.call( empty ))
+                gazebo_paused = true;
+        }
         mmode = resetting;
         ROS_INFO( "dubins_traffic_maestro: Stopping current trial and generating a new instance..." );
         res.result = true;
@@ -179,6 +179,16 @@ void Maestro::perform_trial()
         polling_rate.sleep();
     }
     mmode = resetting;
+
+    // Send empty instance description to indicate that trial has ended.
+    probinstance_msg.stamp = ros::Time::now();
+    probinstance_msg.problemjson = "";
+    problemJSONpub.publish( probinstance_msg );
+
+    gazebo_toggle = nh.serviceClient<std_srvs::Empty>( "/gazebo/pause_physics" );
+    std_srvs::Empty empty;
+    if (gazebo_toggle.call( empty ))
+        gazebo_paused = true;
 
     // Handle special cases of trial termination:
     if (ros::ok() && trial_duration.toSec() >= nominal_duration) {

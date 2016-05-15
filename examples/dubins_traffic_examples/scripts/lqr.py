@@ -18,26 +18,30 @@ class InstanceMonitor:
         self.last_updated = None
         self.prob = None
         self.busy = False
+        self.trial_ended = False
 
     def get_newinstance(self, pinst):
         self.busy = True
-        self.prob = dubins_traffic.Problem.loadJSON(pinst.problemjson)
         self.last_updated = pinst.stamp
+        if len(pinst.problemjson) == 0:
+            self.trial_ended = True
+            self.prob = None
+        else:
+            self.trial_ended = False
+            self.prob = dubins_traffic.Problem.loadJSON(pinst.problemjson)
         self.busy = False
 
 
 def main(imon):
+    imon.trial_ended = False
     start_time = rospy.Time.now()
     mmode = rospy.ServiceProxy("dubins_traffic_maestro/mode", MMode)
     while not mmode(MModeRequest.READY):
         time.sleep(0.5)
     assert mmode(MModeRequest.START)
 
-    while (not rospy.is_shutdown()
-           and (imon.last_updated is None or start_time > imon.last_updated)):
+    while not rospy.is_shutdown() and not imon.trial_ended:
         time.sleep(0.5)
-
-    assert mmode(MModeRequest.RESET)
 
 
 if __name__ == "__main__":
