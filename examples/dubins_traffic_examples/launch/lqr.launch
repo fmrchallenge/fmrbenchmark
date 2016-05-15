@@ -1,3 +1,3 @@
 <launch>
-  <node pkg="dubins_traffic_examples" name="$(anon lqr)" type="lqr.py" output="screen" />
+  <node pkg="dubins_traffic_examples" name="$(anon lqr)" type="lqr.py" ns="ego" output="screen" />
 </launch>
