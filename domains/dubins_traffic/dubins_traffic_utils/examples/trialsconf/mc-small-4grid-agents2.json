@@ -13,6 +13,7 @@
   "e-agents": [{"type": "wander/wander", "name": "agent0"},
                {"type": "wander/wander", "name": "agent1"}],
 
-  "number_trials": 1
-  "duration_bounds": [5, 10]
+  "number_trials": 1,
+  "duration_bounds": [5, 10],
+  "number_goals_bounds": [1, 3]
 }
