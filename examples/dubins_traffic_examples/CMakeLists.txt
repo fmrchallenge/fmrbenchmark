@@ -5,9 +5,9 @@ find_package (catkin REQUIRED COMPONENTS rospy integrator_chains_msgs dubins_tra
 
 catkin_package ()
 
-install (FILES launch/lqr.launch
+install (FILES launch/simple.launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
 )
-install (PROGRAMS scripts/lqr.py
+install (PROGRAMS scripts/simple.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
