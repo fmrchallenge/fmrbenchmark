@@ -302,8 +302,8 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
         case 0: {
 	  prob->obstacles.resize( number_obstacles );
-	  for (i = 0; i < number_obstacles; i++) {
-	    for (j = 0; j < prob->numdim_output; j++) {
+	  int encasing_obs = std::rand() % number_obstacles;
+          for (j = 0; j < prob->numdim_output; j++) {
 	      box_bounds(2*j) = prob->Xinit(2*j)
 		- (double(std::rand())/RAND_MAX)*(prob->Xinit(2*j) - Y_box(2*j));
 	      box_bounds(2*j+1) = prob->Xinit(2*j)
@@ -315,8 +315,28 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 	      }	
 	    }
 		  
+	    prob->obstacles[encasing_obs] = LabeledPolytope::box( box_bounds,
+							 std::string("obstacle_") + int_to_str(encasing_obs) );
+	
+	  prob->obstacles.resize( number_obstacles );
+	  for (i = 0; i < number_obstacles; i++) {
+	    if (i==encasing_obs) {
+	      continue;
+	    }
+	    for (j = 0; j < prob->numdim_output; j++) {
+	      box_bounds(2*j) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      box_bounds(2*j+1) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
+                double tmp = box_bounds(2*j+1);
+                box_bounds(2*j+1) = box_bounds(2*j);
+                box_bounds(2*j) = tmp;
+	      }
+	    }
 	    prob->obstacles[i] = LabeledPolytope::box( box_bounds,
-							 std::string("obstacle_") + int_to_str(i) );
+						       std::string("obstacle_") + int_to_str(i) );
+
 	  }
         }
       	
