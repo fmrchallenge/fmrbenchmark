@@ -294,6 +294,16 @@ the system, or empty to declare unrealizability.
 
 \end{itemize}
 
+\subsection{Evaluation}
+There will be a score computed as a weighted sum of the following criteria:
+
+\begin{enumerate}
+\item correctness of deciding realizability: wrong answer is worse than no answer.
+\item time between receiving problem instance and declaring answer to \#1.
+\item violation of task formula is worse than not trying to answer the problem instance.
+\item rate if increase in synthesis time for increasing number of integrators and
+increasing number of state dimensions
+\end{enumerate}
 
 \subsection{Implementation plan for the challenge}
 
@@ -436,6 +446,17 @@ the labeled output to \texttt{loutput}.
 
 \end{itemize}
 
+\subsection{Evaluation}
+There will be a score computed as a weighted sum of the following criteria:
+
+\begin{enumerate}
+\item time to begin, i.e., duration between being first given the problem instance description and requesting start of the play.
+\item number of collisions
+\item goals visited as a ratio of all goals
+\item time spent outside of correct lane as a ratio of total time
+\item time spent outside of road network as a ratio of total time
+\item all of the above with varying numbers of e-agents and size of the road net
+\end{enumerate}
 
 \subsection{Implementation plan for the challenge}
 
