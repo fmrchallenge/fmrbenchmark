@@ -89,6 +89,8 @@ required for this example.
   ln -s $FMRBENCHMARK/domains/dubins_traffic/dubins_traffic_utils
   ln -s $FMRBENCHMARK/domains/dubins_traffic/dub_sim
   ln -s $FMRBENCHMARK/domains/dubins_traffic/e-agents/wander
+  ln -s $FMRBENCHMARK/examples/dubins_traffic_examples
+
 
 Build and install it within the catkin workspace.
 
@@ -128,6 +130,12 @@ is contained in the package ``your_controller`` with launch file ``foo.launch``,
 in a separate terminal, run ::
 
   roslaunch your_controller foo.launch
+
+You can run an example controller using::
+
+  roslaunch dubins_traffic_examples simple.launch
+
+This is a simple controller that sets the ego vehicle's forward and angular velocity based on the next goal to be visited, and cycles through goals in this manner.
 
 Support code for working with road network descriptions is available in
 ``roadnet.hpp`` and ``dubins_traffic.py``.
