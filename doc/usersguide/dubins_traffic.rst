@@ -68,6 +68,32 @@ Tutorials
 In the below code, ``$FMRBENCHMARK`` is the absolute path to a copy of the
 fmrbenchmark repository on your machine.
 
+Demonstrations of components
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To build the "standalone" (i.e., independent of ROS) examples demonstrating
+various parts of this benchmark, go to the ``dubins_traffic_utils`` directory
+(``$FMRBENCHMARK/domains/dubins_traffic/dubins_traffic_utils``) and then follow the usual `CMake <http://www.cmake.org>`_ build instructions. On Unix without an
+IDE, usually these are
+
+.. code-block:: none
+
+  mkdir build
+  cd build
+  cmake ..
+  make
+
+One of the resulting programs is ``genproblem``, the source of which is
+``$FMRBENCHMARK/domains/dubins_traffic/dubins_traffic_utils/examples/standalone/genproblem.cpp``.
+The output is a problem instance in JSON. To visualize it, try
+
+.. code-block:: none
+
+  dubins_traffic_utils/build/genproblem dubins_traffic_utils/examples/trialsconf/mc-small-4grid-agents2.json | analysis/plotp.py -
+
+from the directory ``$FMRBENCHMARK/domains/``.
+
+
 Launching a problem instance of the simulation variant
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
