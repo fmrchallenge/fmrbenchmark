@@ -376,7 +376,7 @@ $\varphi_{\mathrm{sys}}$ and include
 \end{enumerate}
 The other cars will be assumed to follow the same road rules as listed above.
 However, exceptions (violations) may occur, and thus additional fairness
-assumptions will be provided, e.g.,
+assumptions will be provided. In particular,
 \begin{equation}\label{eq:freegoals}
 \bigwedge_i \Galways \Feventually \tt{free}(\mathrm{goal}_i)
 \end{equation}
@@ -388,6 +388,53 @@ radius, to simulate solving the associated vision problem.
 
 % \item reaching certain points within a time limit, e.g., as a model of deadlines
 %   for refueling, as in \eqref{eq:dinteg-timedreach};
+
+
+\subsection{Controller Execution}
+Controller execution has the following key components:
+
+\begin{itemize}
+\item A \emph{problem generation engine} produces random problem instances from a 
+configuration file that includes information about the e-agents, in particular their number
+and namespace. 
+
+Problem instances are in the following format:
+
+\begin{small}
+\begin{verbatim}
+{
+{
+"version": 0,
+"goals": [
+[2, 0]
+],
+"rnd": { "version": 0, "length": 3, "transform": [0, 0, 0], 
+"shape": [3, 4], "segments": [[0, 0, 1, 0], [0, 0, 0, 1], [0, 1, 1, 1], 
+[0, 1, 0, 2], [1, 0, 2, 0], [1, 0, 1, 1], [1, 1, 2, 1], [1, 1, 1, 2], 
+[2, 0, 3, 0], [2, 0, 2, 1], [2, 1, 3, 1], [2, 1, 2, 2], [0, 2, 1, 2], 
+[1, 2, 2, 2], [2, 2, 3, 2], [3, 0, 3, 1], [3, 1, 3, 2]] }
+, "intersection_radius": 1
+}
+\end{verbatim}
+\end{small}
+
+where $rnd$ is a road network description consisting of segments, and $intersection\_radius$
+is the distance from the end of a segment at which the vehicle is considered to be in the intersection. 
+
+\item A \emph{trial runner} runs the problem generation instance multiple times to generate
+several trials. The problem instances are published on the topic \texttt{probleminstance\_JSON}.
+The trial runner subcribes to the model states in topic \texttt{gazebo/model\_states} and publishes
+the labeled output to \texttt{loutput}. 
+
+\item The form of the controller is left flexible, but it must do the following:
+
+\begin{itemize}
+\item listen for problem instances by subscribing to the \texttt{probleminstance\_JSON} topic
+\item publish control inputs to the relevant topics for the kobuki, e.g. \\
+\texttt{/ego/mobile\_base/commands/velocity} or \texttt{/agent0/odom/}.
+\end{itemize}
+
+\end{itemize}
 
 
 \subsection{Implementation plan for the challenge}
