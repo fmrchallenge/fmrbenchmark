@@ -247,6 +247,51 @@ a time of initialization and rate of progression of the discrete counters is
 specified.  These are significant because they determine in what order and how
 quickly the goal regions must be reached.
 
+\subsection{Controller Execution}
+Controller execution has the following key components:
+
+\begin{itemize}
+\item A \emph{problem generation engine} produces random problem instances.
+These instances are published on the topic \texttt{dynamaestro/probleminstance\_JSON}
+in the following format:
+
+\begin{small}
+\begin{verbatim}
+{
+"version": 0,
+"Xinit": [0, 0, 0, 0],
+"goals": [
+{ "label": "goal_0", "H": [[-1, 0], [1, 0], [0, -1], [0, 1]], 
+                     "K": [-6.3594, 9.66338, -2.61279, 3.93709] }
+],
+"obstacles": [],
+"Y": { "H": [[-1, 0], [1, 0], [0, -1], [0, 1]], "K": [1, 10, 2, 10] },
+"U": { "H": [[-1, 0], [1, 0], [0, -1], [0, 1]], "K": [1, 1, 1, 1] },
+"period": 0.0800622
+ }
+([]<> goal_0)
+\end{verbatim}
+\end{small}
+
+where $XInit$ is the initial position, the goals and obstacle polytopes are defined by intersections
+of half-spaces, i.e. $Hx \le K$, and ``period'' is the interval (in seconds) used to discretize time.
+
+\item A \emph{trial runner} runs the problem generation instance multiple times to generate
+several trials. It subscribes to a topic called \texttt{input}, on which it expects inputs. It
+generates trajectories as solutions of a linear time-invariant control system, where control
+input is applied using a zero-order hold, i.e., applied constantly during the duration
+corresponding to the time-discretization specified in the problem instance.
+
+\item The form of the controller is left flexible, but it must do the following:
+
+\begin{itemize}
+\item listen for problem instances on the \texttt{dynamaestro/probleminstance\_JSON} topic
+\item publish control inputs to the \texttt{input} and subscribe to the \texttt{state} and/or \texttt{loutput}
+topics. These control inputs are vectors of non-zero length corresponding to the input dimension of
+the system, or empty to declare unrealizability.
+\end{itemize}
+
+\end{itemize}
 
 
 \subsection{Implementation plan for the challenge}
