@@ -28,7 +28,7 @@ class Polytope(object):
     def getVrep(self, force=False):
         """
 
-v        If force is True, then do not use cached result if
+        If force is True, then do not use cached result if
         available. This option provides a way to skip memoization and
         is equivalent to calling cache_clear() and then getVrep().
         """
