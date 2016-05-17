@@ -100,6 +100,10 @@ class Problem(object):
                                           np.array(obsdict['K']),
                                           label=obsdict['label'])
                           for obsdict in probd['obstacles']]
+        if 'realizable' in probd:
+            prob.realizable = probd['realizable']==1
+        else:
+            prob.realizable = None
         if 'period' in probd:
             prob.period = probd['period']
         else:

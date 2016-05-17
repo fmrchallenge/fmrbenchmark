@@ -26,6 +26,7 @@ public:
     Polytope *U;
     std::vector<LabeledPolytope *> goals;
     std::vector<LabeledPolytope *> obstacles;
+    int realizable;
 
     double period;
 
@@ -51,8 +52,8 @@ public:
     /** Output description of problem in JSON to a stream */
     friend std::ostream & operator<<( std::ostream &out, const Problem &prob );
 
-    /** Get description of problem in JSON. */
-    std::string dumpJSON() const;
+    /** Get description of problem except for realizability in JSON. */
+    std::string dumpJSON();
 
     /** Generate a random problem instance.
 
@@ -181,15 +182,24 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
     out << "\"U\": ";
     out << *prob.U;
     out << "," << std::endl;
+    if (prob.realizable!=-1) {
+      out << "\"realizable\": " << prob.realizable;
+      out << "," << std::endl;
+
+    }
     out << "\"period\": " << prob.period;
     out << std::endl << " }";
     return out;
 }
 
-std::string Problem::dumpJSON() const
+std::string Problem::dumpJSON() 
 {
+  // When dumpling JSON, don't reveal realizability
+    int temp = realizable; 
+    realizable = -1;
     std::ostringstream out;
     out << *this;
+    realizable = temp;
     return out.str();
 }
 
@@ -281,10 +291,9 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 
 
     // randomly decide whether this problem is going to be realizable
-    bool realizable;
-    realizable = (std::rand()%2);
+    prob->realizable = (std::rand()%2);
 
-    if (!realizable) {
+    if (prob->realizable==0) {
 
       // generate obstacles accordingly, choose between the following 
       // 5 types of unrealizable specs:
@@ -318,7 +327,6 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 	    prob->obstacles[encasing_obs] = LabeledPolytope::box( box_bounds,
 							 std::string("obstacle_") + int_to_str(encasing_obs) );
 	
-	  prob->obstacles.resize( number_obstacles );
 	  for (i = 0; i < number_obstacles; i++) {
 	    if (i==encasing_obs) {
 	      continue;
@@ -395,8 +403,6 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
       }
     }
 
-
-        
     return prob;
 }
 
