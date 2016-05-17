@@ -287,8 +287,7 @@ states to a topic called \texttt{state}: an empty state message indicates that t
 
 \begin{itemize}
 \item listen for problem instances on the \texttt{dynamaestro/probleminstance\_JSON} topic
-\item publish control inputs to the \texttt{input} and subscribe to the \texttt{state} and/or \texttt{loutput}
-topics. These control inputs are vectors of non-zero length corresponding to the input dimension of
+\item publish control inputs to the \texttt{input} ROS topic. These control inputs are vectors of non-zero length corresponding to the input dimension of
 the system, or empty to declare unrealizability.
 \end{itemize}
 
