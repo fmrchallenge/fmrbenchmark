@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>wander</name>
-  <version>0.0.3</version>
+  <version>0.0.4</version>
   <description>package for running adversarial cars that wander about the
   network of roads. based on code by SCL originally developed for the course
   ME132a at Caltech.</description>
