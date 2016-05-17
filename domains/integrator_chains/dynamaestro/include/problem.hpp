@@ -267,7 +267,7 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
             prob->Xinit(i) += (double(std::rand())/RAND_MAX)*(Xinit_bounds(2*i+1) - Xinit_bounds(2*i));
     }
 
-   Eigen::VectorXd box_bounds(2*prob->numdim_output);
+    Eigen::VectorXd box_bounds(2*prob->numdim_output);
     prob->goals.resize( number_goals );
     for (i = 0; i < number_goals; i++) {
         for (j = 0; j < prob->numdim_output; j++) {
@@ -395,14 +395,15 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
 	      }
 	    }
 	  }
-	
+
 	  prob->obstacles[i] = LabeledPolytope::box( box_bounds,
 						     std::string("obstacle_") + int_to_str(i) );
-	  if (!prob->obstacles[i]->is_in((prob->Xinit))) init_in_obs=false; 
-	}     
+
+          if (!prob->obstacles[i]->is_in((prob->Xinit.topRows(prob->numdim_output)))) init_in_obs=false; 
+
+	}
       }
     }
-
     return prob;
 }
 
