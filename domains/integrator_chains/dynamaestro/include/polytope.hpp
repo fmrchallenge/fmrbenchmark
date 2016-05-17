@@ -26,6 +26,12 @@ class Polytope {
        N.B., this check does not occur during instantiation of Polytope. */
     bool is_consistent() const;
 
+    
+    /** if this polytope is a cuboid, return bounds
+     */
+
+  Eigen::VectorXd get_bounds() const;
+
     /** Is X contained in this polytope?
 
        The polytope is a closed set. No numerical tolerance is used. */
@@ -135,6 +141,17 @@ Polytope * Polytope::box( const Eigen::VectorXd &bounds )
         K(2*i+1) = bounds(2*i+1);
     }
     return new Polytope( H, K );
+}
+
+Eigen::VectorXd Polytope::get_bounds() const
+{
+    int n = K.rows()/2;   
+    Eigen::VectorXd bounds(2*n);
+    for (int i = 0; i < n; i++) {
+        bounds(2*i)=-K(2*i);
+        bounds(2*i+1)=K(2*i+1);
+    }
+    return bounds;
 }
 
 bool Polytope::is_consistent() const

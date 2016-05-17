@@ -88,7 +88,6 @@ private:
     double t;  // Current time
     int highest_order_deriv;
     int numdim_output;
-
     Eigen::VectorXd Xinit;
 };
 
@@ -249,6 +248,14 @@ public:
 
     /* No-op if no scribe is active. */
     void stop_monitoring();
+    std::pair<int,Problem *> random_known(const Eigen::Vector2i &numdim_output_bounds,
+                           const Eigen::Vector2i &highest_order_deriv_bounds,
+                           const Eigen::VectorXd &Y_box,
+                           const Eigen::VectorXd &U_box,
+                           const Eigen::Vector2i &number_goals_bounds,
+                           const Eigen::Vector2i &number_obstacles_bounds,
+                           const Eigen::Vector2d &period_bounds,
+                           const Eigen::VectorXd &Xinit_bounds );
 
 private:
     boost::mutex trial_mtx_;
@@ -287,7 +294,7 @@ private:
                           int expected_length=-1 );
 
     Queue<ros::Time> times_recording;
-    Queue<Problem *> instances_recording;
+    Queue<std::pair<int,Problem *>> instances_recording;
     Queue<Eigen::VectorXd> inputs_recording;
     Queue<integrator_chains_msgs::VectorStamped *> states_recording;
     boost::thread *scribethread;
@@ -301,7 +308,7 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
                         | (append_mode ?
                            std::ios_base::app : std::ios_base::trunc) );
     bool first_trial = true;
-    std::pair<int, Problem *> tp( -1, nullptr );
+    std::pair<int, std::pair<int,Problem *>> tp;//(-1, (-1, nullptr) );
 
     ros::Rate polling_rate( 1000 );
     while (get_trial_number() < 0 && ros::ok())
@@ -320,9 +327,9 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
             continue;
         }
 
-        if (tp.second)
-            delete tp.second;
-        std::pair<int, Problem *> tp = instances_recording.dequeue();
+        if (tp.second.second)
+	  delete tp.second.second;
+        std::pair<int, std::pair<int,Problem *>> tp = instances_recording.dequeue();
         std::pair<int, ros::Time> tdurationt = times_recording.dequeue();
         assert( tdurationt.first == tp.first && tdurationt.second.nsec == 0 );
 
@@ -347,7 +354,8 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
         outf << "{\n  \"duration\": " << tdurationt.second.sec << ",\n"
              << "  \"start_time\": [" << tstartt.second.sec
              << ", " << tstartt.second.nsec << "],\n"
-             << "  \"problem_instance\": " << *tp.second;
+             << "  \"problem_instance\": " << *tp.second.second << "],\n"
+             << "  \"is_realizable\": " << tp.second.first;
 
         // Wait for first input to get realizability declaration
         while (ros::ok() && get_trial_number() >= 0
@@ -418,8 +426,9 @@ void TGThread::tgt_scribe( std::string filename, bool append_mode )
     }
     outf << "\n]" << std::endl;
     outf.close();
-    if (tp.second)
-        delete tp.second;
+ 
+    if (tp.second.second)
+      delete tp.second.second;
 }
 
 void TGThread::start_monitoring( std::string filename, bool append_mode )
@@ -817,13 +826,14 @@ void TGThread::run()
               "discretization period.",
               period_bounds(0), period_bounds(1) );
 
-    probinstance = Problem::random( numdim_output_bounds,
+    std::pair<int, Problem *> prob =TGThread::random_known( numdim_output_bounds,
                                     num_integrators_bounds,
                                     Y_box, U_box,
                                     number_goals_bounds,
                                     number_obstacles_bounds,
                                     period_bounds,
                                     Y_box );
+    probinstance = prob.second;
     if (probinstance->get_highest_order_deriv() > 1)
         probinstance->Xinit.tail( (probinstance->get_highest_order_deriv()-1)*probinstance->get_numdim_output() ).setZero();
     labeler.importProblem( *probinstance );
@@ -841,7 +851,7 @@ void TGThread::run()
     if (scribethread) {
         times_recording.enqueue( get_trial_number(),
                                  ros::Time( nominal_duration, 0 ) );
-        instances_recording.enqueue( get_trial_number(), probinstance );
+        instances_recording.enqueue( get_trial_number(), prob);
     }
 
     ros::Duration trial_duration;
@@ -966,6 +976,324 @@ void TGThread::run()
         delete probinstance;
     probinstance = nullptr;
 }
+
+
+std::pair<int,Problem *>  TGThread::random_known( const Eigen::Vector2i &numdim_output_bounds,
+                           const Eigen::Vector2i &highest_order_deriv_bounds,
+                           const Eigen::VectorXd &Y_box,
+                           const Eigen::VectorXd &U_box,
+                           const Eigen::Vector2i &number_goals_bounds,
+                           const Eigen::Vector2i &number_obstacles_bounds,
+                           const Eigen::Vector2d &period_bounds,
+                           const Eigen::VectorXd &Xinit_bounds )
+{
+    assert( numdim_output_bounds(0) >= 1
+            && numdim_output_bounds(0) <= numdim_output_bounds(1)
+            && highest_order_deriv_bounds(0) >= 1
+            && highest_order_deriv_bounds(0) <= highest_order_deriv_bounds(1)
+            && number_goals_bounds(0) >= 0
+            && number_goals_bounds(0) <= number_goals_bounds(1)
+            && number_obstacles_bounds(0) >= 0
+            && number_obstacles_bounds(0) <= number_obstacles_bounds(1)
+            && Y_box.size() >= 2*numdim_output_bounds(1)
+            && U_box.size() >= 2*numdim_output_bounds(1)
+            && period_bounds(0) >= 0 && period_bounds(1) >= period_bounds(0) );
+
+    int i, j, k;
+    Problem *prob = new Problem;
+    int numdim_output, highest_order_deriv;
+ 
+    prob->set_numdim_output(numdim_output_bounds(0));
+    numdim_output = prob->get_numdim_output();
+    if (numdim_output_bounds(1) != numdim_output_bounds(0))
+      prob->set_numdim_output(numdim_output + (std::rand()
+                                % (1+numdim_output_bounds(1)
+                                   - numdim_output_bounds(0))));
+    numdim_output - prob->get_numdim_output();
+
+    prob->set_highest_order_deriv(highest_order_deriv_bounds(0));
+    if (highest_order_deriv_bounds(1) != highest_order_deriv_bounds(0))
+      highest_order_deriv = prob->get_highest_order_deriv();
+      prob->set_highest_order_deriv(highest_order_deriv + (std::rand()
+                                      % (1+highest_order_deriv_bounds(1)
+                                         - highest_order_deriv_bounds(0))));
+      highest_order_deriv = prob->get_highest_order_deriv();
+
+    int number_goals = number_goals_bounds(0);
+    if (number_goals_bounds(1) != number_goals_bounds(0))
+        number_goals += (std::rand()
+                         % (1+number_goals_bounds(1)
+                            - number_goals_bounds(0)));
+
+    int number_obstacles = number_obstacles_bounds(0);
+    if (number_obstacles_bounds(1) != number_obstacles_bounds(0))
+        number_obstacles += (std::rand()
+                         % (1+number_obstacles_bounds(1)
+                            - number_obstacles_bounds(0)));
+
+
+    prob->Y = Polytope::box( Y_box.head( 2*numdim_output ) );
+    prob->U = Polytope::box( U_box.head( 2*numdim_output ) );
+
+    prob->Xinit.setZero( numdim_output*highest_order_deriv );
+    int largest_dim = numdim_output*highest_order_deriv;
+    if (largest_dim > Xinit_bounds.size()/2)
+        largest_dim = Xinit_bounds.size()/2;
+    for (i = 0; i < largest_dim; i++) {
+        assert( Xinit_bounds(2*i+1) >= Xinit_bounds(2*i) );
+        prob->Xinit(i) = Xinit_bounds(2*i);
+        if (Xinit_bounds(2*i+1) != Xinit_bounds(2*i))
+            prob->Xinit(i) += (double(std::rand())/RAND_MAX)*(Xinit_bounds(2*i+1) - Xinit_bounds(2*i));
+    }
+
+    Eigen::VectorXd box_bounds(2*numdim_output);
+    prob->goals.resize( number_goals );
+    for (i = 0; i < number_goals; i++) {
+        for (j = 0; j < numdim_output; j++) {
+            box_bounds(2*j) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+            box_bounds(2*j+1) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+            if (box_bounds(2*j+1) < box_bounds(2*j)) {
+                double tmp = box_bounds(2*j+1);
+                box_bounds(2*j+1) = box_bounds(2*j);
+                box_bounds(2*j) = tmp;
+            }
+        }
+        prob->goals[i] = LabeledPolytope::box( box_bounds,
+                                               std::string("goal_") + Problem::get_int_to_str(i) );
+    }
+
+    prob->period = period_bounds(0);
+    if (period_bounds(1) != period_bounds(0))
+        prob->period += double(std::rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
+
+
+    // randomly decide whether this problem is going to be realizable
+    int realizable = (std::rand()%2);
+    if (number_goals==1 && prob->goals[0]->is_in(prob->Xinit.topRows(numdim_output))) {
+	    realizable = 1;
+    }
+    if (realizable==0) {
+
+      /** generate obstacles accordingly, choose between the following 
+          5 types of unrealizable specs:
+
+          0. initial state contained in obstacle
+          1. goal contained in obstacle
+          2. union of obstacles covers some dimension
+          3. initial state encased by 4 obstacles
+          4. goal encased by 4 obstacles
+
+	  So far only 0-2 are implemented. */
+
+      int unreal_case;
+      unreal_case = (std::rand() % 5);
+      
+      switch(unreal_case){
+
+        case 0: {
+	  prob->obstacles.resize( number_obstacles );
+	  int encasing_obs = std::rand() % number_obstacles;
+          for (j = 0; j < numdim_output; j++) {
+	      box_bounds(2*j) = prob->Xinit(j)
+		- (double(std::rand())/RAND_MAX)*(prob->Xinit(j) - Y_box(2*j));
+	      box_bounds(2*j+1) = prob->Xinit(j)
+		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - prob->Xinit(j)) ;
+              if (box_bounds(2*j+1) < box_bounds(2*j)) {
+                double tmp = box_bounds(2*j+1);
+                box_bounds(2*j+1) = box_bounds(2*j);
+                box_bounds(2*j) = tmp;
+	      }
+
+	    }
+		  
+	    prob->obstacles[encasing_obs] = LabeledPolytope::box( box_bounds,
+							 std::string("obstacle_") + Problem::get_int_to_str(encasing_obs) );
+	
+	  for (i = 0; i < number_obstacles; i++) {
+	    if (i==encasing_obs) {
+	      continue;
+	    }
+	    for (j = 0; j < numdim_output; j++) {
+	      box_bounds(2*j) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      box_bounds(2*j+1) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
+                double tmp = box_bounds(2*j+1);
+                box_bounds(2*j+1) = box_bounds(2*j);
+                box_bounds(2*j) = tmp;
+	      }
+	    }
+	    prob->obstacles[i] = LabeledPolytope::box( box_bounds,
+						       std::string("obstacle_") + Problem::get_int_to_str(i) );
+
+	  }
+        }
+      	
+        case 1: {
+
+	  Eigen::VectorXd last_goal_bounds = box_bounds;
+
+	  prob->obstacles.resize( number_obstacles );
+
+          int encasing_obs = std::rand() % number_obstacles;
+          for (j = 0; j < numdim_output; j++) {
+	      box_bounds(2*j) = last_goal_bounds(2*j)
+		- (double(std::rand())/RAND_MAX)*(last_goal_bounds(2*j) - Y_box(2*j));
+	      box_bounds(2*j+1) = last_goal_bounds(2*j+1)
+		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - last_goal_bounds(2*j+1)) ;
+	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
+		double tmp = box_bounds(2*j+1);
+		box_bounds(2*j+1) = box_bounds(2*j);
+		box_bounds(2*j) = tmp;
+	      }	
+	    }
+		  
+	    prob->obstacles[encasing_obs] = LabeledPolytope::box( box_bounds,
+							 std::string("obstacle_") + Problem::get_int_to_str(encasing_obs) );
+	
+	  for (i = 0; i < number_obstacles; i++) {
+	    if (i==encasing_obs) {
+	      continue;
+	    }
+	    for (j = 0; j < numdim_output; j++) {
+	      box_bounds(2*j) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      box_bounds(2*j+1) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
+                double tmp = box_bounds(2*j+1);
+                box_bounds(2*j+1) = box_bounds(2*j);
+                box_bounds(2*j) = tmp;
+	      }
+	    }
+	    prob->obstacles[i] = LabeledPolytope::box( box_bounds,
+						       std::string("obstacle_") + Problem::get_int_to_str(i) );
+
+	  }
+        }
+
+        case 2: {
+	  prob->obstacles.resize( number_obstacles );
+
+          int cut_obs = std::rand() % number_obstacles;
+       
+          int cut_dim1 = std::rand() % numdim_output;
+          int cut_dim2 = std::rand() % numdim_output;
+
+	  while (numdim_output!=1 && cut_dim1==cut_dim2) {
+            cut_dim2 = std::rand() % numdim_output;
+	  }
+          int cut_goal = std::rand() % number_goals;
+          Eigen::VectorXd goal_bounds = prob->goals[cut_goal]->get_bounds();
+	  int split = (prob->Xinit(cut_dim1)+goal_bounds(2*cut_dim1))/2;
+	  box_bounds(2*cut_dim1) = split 
+	    - (double(std::rand())/RAND_MAX) *std::abs(split-prob->Xinit(cut_dim1));
+	  box_bounds(2*cut_dim1+1) = split 
+	    + (double(std::rand())/RAND_MAX)*std::abs(split-prob->Xinit(cut_dim1));
+
+	  box_bounds(2*cut_dim2) = Y_box(2*cut_dim2);
+	  box_bounds(2*cut_dim2+1) = Y_box(2*cut_dim2+1);
+
+	  for (j = 0; j < numdim_output; j++) {
+	    if (j==cut_dim1 || j==cut_dim2) {
+	      continue;
+	    }
+	    box_bounds(2*j) = Y_box(2*j)
+	      + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	    box_bounds(2*j+1) = Y_box(2*j)
+	      + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	    if (box_bounds(2*j+1) < box_bounds(2*j)) {
+	      double tmp = box_bounds(2*j+1);
+	      box_bounds(2*j+1) = box_bounds(2*j);
+	      box_bounds(2*j) = tmp;
+	    }
+	  }
+	    
+	  
+	  prob->obstacles[cut_obs] = LabeledPolytope::box( box_bounds,
+							   std::string("obstacle_") + Problem::get_int_to_str(cut_obs) );
+	
+	  for (i = 0; i < number_obstacles; i++) {
+	    if (i==cut_obs) {
+	      continue;
+	    }
+	    for (j = 0; j < numdim_output; j++) {
+	      box_bounds(2*j) = Y_box(2*j)
+		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      box_bounds(2*j+1) = Y_box(2*j)
+		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
+		double tmp = box_bounds(2*j+1);
+		box_bounds(2*j+1) = box_bounds(2*j);
+		box_bounds(2*j) = tmp;
+	      }
+	    }
+	    prob->obstacles[i] = LabeledPolytope::box( box_bounds,
+						       std::string("obstacle_") + Problem::get_int_to_str(i) );
+	    
+	  }
+	}
+
+        case 3: {
+        }
+
+        case 4: {
+        }
+
+      }
+   
+    } else {
+
+      // generate obstacles that do not overlap with one another
+      // in any dimension
+
+      bool overlap,init_in_obs;
+      int max_min, max_max, min_min, min_max;
+      Eigen::VectorXd prev_bounds;
+      prob->obstacles.resize( number_obstacles );
+      for (i = 0; i < number_obstacles; i++) {
+        init_in_obs=true;
+        while (init_in_obs) {
+	  for (j = 0; j < numdim_output; j++) {
+	    overlap = true;
+	    while (overlap) {
+	      box_bounds(2*j) = Y_box(2*j)
+		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      box_bounds(2*j+1) = Y_box(2*j)
+		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
+		double tmp = box_bounds(2*j+1);
+		box_bounds(2*j+1) = box_bounds(2*j);
+		box_bounds(2*j) = tmp;
+	      }	
+	      for (k = 0; k < i; k++) {
+                prev_bounds = prob->obstacles[k]->get_bounds();
+		max_min = std::max(box_bounds(2*j),prev_bounds(2*j));
+		min_max = std::min(box_bounds(2*j+1),prev_bounds(2*j+1));
+		if (max_min <= min_max) {
+		  break;
+		}
+	      }
+	      if (k==i) {
+		overlap = false;
+	      }
+	    }
+	  }
+
+	  prob->obstacles[i] = LabeledPolytope::box( box_bounds,
+						     std::string("obstacle_") + Problem::get_int_to_str(i) );
+
+          if (!prob->obstacles[i]->is_in((prob->Xinit.topRows(numdim_output)))) init_in_obs=false; 
+
+	}
+      }
+    }
+    return std::pair<int,Problem*>(realizable,prob);
+}
+
 
 void tgthread( ros::NodeHandle &nhp )
 {
