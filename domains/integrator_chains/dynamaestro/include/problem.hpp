@@ -26,7 +26,6 @@ public:
     Polytope *U;
     std::vector<LabeledPolytope *> goals;
     std::vector<LabeledPolytope *> obstacles;
-    int realizable;
 
     double period;
 
@@ -52,8 +51,8 @@ public:
     /** Output description of problem in JSON to a stream */
     friend std::ostream & operator<<( std::ostream &out, const Problem &prob );
 
-    /** Get description of problem except for realizability in JSON. */
-    std::string dumpJSON();
+    /** Get description of problem in JSON. */
+    std::string dumpJSON() const;
 
     /** Generate a random problem instance.
 
@@ -182,24 +181,15 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
     out << "\"U\": ";
     out << *prob.U;
     out << "," << std::endl;
-    if (prob.realizable!=-1) {
-      out << "\"realizable\": " << prob.realizable;
-      out << "," << std::endl;
-
-    }
     out << "\"period\": " << prob.period;
     out << std::endl << " }";
     return out;
 }
 
-std::string Problem::dumpJSON() 
+std::string Problem::dumpJSON() const
 {
-  // When dumpling JSON, don't reveal realizability
-    int temp = realizable; 
-    realizable = -1;
     std::ostringstream out;
     out << *this;
-    realizable = temp;
     return out.str();
 }
 
@@ -225,9 +215,9 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
             && U_box.size() >= 2*numdim_output_bounds(1)
             && period_bounds(0) >= 0 && period_bounds(1) >= period_bounds(0) );
 
-    int i, j, k;
+    int i, j;
     Problem *prob = new Problem;
- 
+
     prob->numdim_output = numdim_output_bounds(0);
     if (numdim_output_bounds(1) != numdim_output_bounds(0))
         prob->numdim_output += (std::rand()
@@ -251,7 +241,6 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
         number_obstacles += (std::rand()
                          % (1+number_obstacles_bounds(1)
                             - number_obstacles_bounds(0)));
-
 
     prob->Y = Polytope::box( Y_box.head( 2*prob->numdim_output ) );
     prob->U = Polytope::box( U_box.head( 2*prob->numdim_output ) );
@@ -284,166 +273,27 @@ Problem * Problem::random( const Eigen::Vector2i &numdim_output_bounds,
         prob->goals[i] = LabeledPolytope::box( box_bounds,
                                                std::string("goal_") + int_to_str(i) );
     }
+    prob->obstacles.resize( number_obstacles );
+    for (i = 0; i < number_obstacles; i++) {
+        for (j = 0; j < prob->numdim_output; j++) {
+            box_bounds(2*j) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+            box_bounds(2*j+1) = Y_box(2*j)
+                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
+            if (box_bounds(2*j+1) < box_bounds(2*j)) {
+                double tmp = box_bounds(2*j+1);
+                box_bounds(2*j+1) = box_bounds(2*j);
+                box_bounds(2*j) = tmp;
+            }
+        }
+        prob->obstacles[i] = LabeledPolytope::box( box_bounds,
+                                                   std::string("obstacle_") + int_to_str(i) );
+    }
 
     prob->period = period_bounds(0);
     if (period_bounds(1) != period_bounds(0))
         prob->period += double(std::rand())/RAND_MAX*(period_bounds(1) - period_bounds(0));
 
-
-    // randomly decide whether this problem is going to be realizable
-    prob->realizable = (std::rand()%2);
-
-    if (prob->realizable==0) {
-
-      // generate obstacles accordingly, choose between the following 
-      // 5 types of unrealizable specs:
-      // 0. initial state contained in obstacle
-      // 1. goal contained in obstacle
-      // 2. initial state encased by 4 obstacles
-      // 3. goal encased by 4 obstacles
-      // 4. union of obstacles covers some dimension
- 
-      int unreal_case;
-      //unreal_case = (std::rand() % 5);
-      unreal_case = 0;
-        
-      switch(unreal_case){
-
-        case 0: {
-	  prob->obstacles.resize( number_obstacles );
-	  int encasing_obs = std::rand() % number_obstacles;
-          for (j = 0; j < prob->numdim_output; j++) {
-	      box_bounds(2*j) = prob->Xinit(2*j)
-		- (double(std::rand())/RAND_MAX)*(prob->Xinit(2*j) - Y_box(2*j));
-	      box_bounds(2*j+1) = prob->Xinit(2*j)
-		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - prob->Xinit(2*j)) ;
-	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
-		double tmp = box_bounds(2*j+1);
-		box_bounds(2*j+1) = box_bounds(2*j);
-		box_bounds(2*j) = tmp;
-	      }	
-	    }
-		  
-	    prob->obstacles[encasing_obs] = LabeledPolytope::box( box_bounds,
-							 std::string("obstacle_") + int_to_str(encasing_obs) );
-	
-	  for (i = 0; i < number_obstacles; i++) {
-	    if (i==encasing_obs) {
-	      continue;
-	    }
-	    for (j = 0; j < prob->numdim_output; j++) {
-	      box_bounds(2*j) = Y_box(2*j)
-                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
-	      box_bounds(2*j+1) = Y_box(2*j)
-                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
-	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
-                double tmp = box_bounds(2*j+1);
-                box_bounds(2*j+1) = box_bounds(2*j);
-                box_bounds(2*j) = tmp;
-	      }
-	    }
-	    prob->obstacles[i] = LabeledPolytope::box( box_bounds,
-						       std::string("obstacle_") + int_to_str(i) );
-
-	  }
-        }
-      	
-        case 1: {
-
-	  Eigen::VectorXd last_goal_bounds = box_bounds;
-
-	  prob->obstacles.resize( number_obstacles );
-
-          int encasing_obs = std::rand() % number_obstacles;
-          for (j = 0; j < prob->numdim_output; j++) {
-	      box_bounds(2*j) = last_goal_bounds(2*j)
-		- (double(std::rand())/RAND_MAX)*(last_goal_bounds(2*j) - Y_box(2*j));
-	      box_bounds(2*j+1) = last_goal_bounds(2*j+1)
-		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - last_goal_bounds(2*j+1)) ;
-	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
-		double tmp = box_bounds(2*j+1);
-		box_bounds(2*j+1) = box_bounds(2*j);
-		box_bounds(2*j) = tmp;
-	      }	
-	    }
-		  
-	    prob->obstacles[encasing_obs] = LabeledPolytope::box( box_bounds,
-							 std::string("obstacle_") + int_to_str(encasing_obs) );
-	
-	  for (i = 0; i < number_obstacles; i++) {
-	    if (i==encasing_obs) {
-	      continue;
-	    }
-	    for (j = 0; j < prob->numdim_output; j++) {
-	      box_bounds(2*j) = Y_box(2*j)
-                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
-	      box_bounds(2*j+1) = Y_box(2*j)
-                + (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
-	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
-                double tmp = box_bounds(2*j+1);
-                box_bounds(2*j+1) = box_bounds(2*j);
-                box_bounds(2*j) = tmp;
-	      }
-	    }
-	    prob->obstacles[i] = LabeledPolytope::box( box_bounds,
-						       std::string("obstacle_") + int_to_str(i) );
-
-	  }
-        }
-
-        case 2: {
-        }
-
-        case 3: {
-        }
-
-        case 4: {
-        }
-      }
-    } else {
-
-      // generate obstacles that do not overlap with one another
-      // in any dimension
-
-      bool nonoverlap,init_in_obs;
-      int max_min, max_max, min_min, min_max;
-      prob->obstacles.resize( number_obstacles );
-      for (i = 0; i < number_obstacles; i++) {
-        init_in_obs=true;
-        while (init_in_obs) {
-	  for (j = 0; j < prob->numdim_output; j++) {
-	    nonoverlap = false;
-	    while (!nonoverlap) {
-	      box_bounds(2*j) = Y_box(2*j)
-		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
-	      box_bounds(2*j+1) = Y_box(2*j)
-		+ (double(std::rand())/RAND_MAX)*(Y_box(2*j+1) - Y_box(2*j));
-	      if (box_bounds(2*j+1) < box_bounds(2*j)) {
-		double tmp = box_bounds(2*j+1);
-		box_bounds(2*j+1) = box_bounds(2*j);
-		box_bounds(2*j) = tmp;
-	      }	
-	      for (k = 0; k < j; k++) {
-		max_min = std::max(box_bounds(2*j),box_bounds(2*k));
-		min_max = std::min(box_bounds(2*j+1),box_bounds(2*k+1));
-		if (max_min <= min_max) {
-		  break;
-		}
-	      }
-	      if (k==j) {
-		nonoverlap = true;
-	      }
-	    }
-	  }
-
-	  prob->obstacles[i] = LabeledPolytope::box( box_bounds,
-						     std::string("obstacle_") + int_to_str(i) );
-
-          if (!prob->obstacles[i]->is_in((prob->Xinit.topRows(prob->numdim_output)))) init_in_obs=false; 
-
-	}
-      }
-    }
     return prob;
 }
 
