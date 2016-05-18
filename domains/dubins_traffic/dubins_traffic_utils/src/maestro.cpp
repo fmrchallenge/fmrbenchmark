@@ -3,6 +3,10 @@
  * SCL; 2016
  */
 
+#include <iostream>
+#include <fstream>
+#include <string>
+
 #include <ros/ros.h>
 #include "std_srvs/Empty.h"
 #include "gazebo_msgs/ModelState.h"
@@ -27,7 +31,7 @@ public:
     bool mode_request( dubins_traffic_msgs::MMode::Request &req,
                        dubins_traffic_msgs::MMode::Response &res );
 
-    void perform_trial();
+    void perform_trial( std::ofstream &outf );
     void main();
 
 private:
@@ -128,7 +132,7 @@ bool Maestro::mode_request( dubins_traffic_msgs::MMode::Request &req,
     return true;
 }
 
-void Maestro::perform_trial()
+void Maestro::perform_trial( std::ofstream &outf )
 {
     Eigen::Vector2i number_goals_bounds;
     if (!parse_range_str( "number_goals_bounds", number_goals_bounds )) {
@@ -170,6 +174,8 @@ void Maestro::perform_trial()
                       probinstance_msg.stamp.nsec );
     ros::spinOnce();
 
+    outf << probinstance << std::endl;
+
     ros::Rate polling_rate( 1000 );
     while (ros::ok() && mmode != resetting && (trial_duration = ros::Time::now() - startt).toSec() < nominal_duration) {
         if (mmode == waiting) {
@@ -205,13 +211,25 @@ void Maestro::main()
     if (counting_trials)
         ROS_INFO( "dubins_traffic_maestro: Initiated with request for %d trials.",
                   number_trials );
+
+    std::string filename;
+    nh.getParam( "/dubins_traffic/results_file", filename );
+    std::ofstream outf( filename.c_str(),
+                        std::ios_base::out | std::ios_base::app );
+    outf << "\"instances\": [";
+
     int trial_counter = 0;
     while ((!counting_trials || trial_counter < number_trials)
            && ros::ok()) {
-        perform_trial();
+        if (trial_counter > 0)
+            outf << ", ";
+        perform_trial( outf );
         if (counting_trials)
             trial_counter++;
     }
+
+    outf << "]}";
+    outf.close();
 
     if (counting_trials && ros::ok()) {
         ROS_INFO( "dubins_traffic_maestro: Completed %d trials.", trial_counter );

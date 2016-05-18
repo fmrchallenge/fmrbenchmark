@@ -172,7 +172,3 @@ if __name__ == '__main__':
     launchfile.close()
     os.unlink(tempfname)
     os.unlink(tempfname_sdf)
-
-    if args.DATAFILE is not None:
-        with open(args.DATAFILE, 'a') as f:
-            f.write('}')
