@@ -1,6 +1,9 @@
 import math
 import json
 
+import numpy as np
+import numpy.linalg as la
+
 # inline:
 #   matplotlib
 
@@ -163,9 +166,29 @@ class RoadNetwork(object):
             ax.plot([road[0], road[2]],
                     [road[1], road[3]], 'ko-')
 
+    def on_road(self, x, y):
+        """Return True if point (x,y) is on road, i.e., on some segment
+        """
+        lane_width = 0.6
+        pt = np.array([x,y])
+        on_at_least_one = False
+        for idx in range(len(self.segments)):
+            S = self.get_mapped_segment(idx)
+            x1 = np.array(S[:2])
+            x2 = np.array(S[2:])
+            projecteddist = np.dot(x2-x1, pt-x1)/la.norm(x2-x1)
+            orthdist = np.sqrt(la.norm(pt-x1)**2 - projecteddist**2)
+            if (orthdist <= lane_width
+                and projecteddist >= 0 and projecteddist <= la.norm(x2-x1)):
+                on_at_least_one = True
+                break
+        return on_at_least_one
+
 
 def road_segment(x1, x2, prefix='straightroad',
                  x1_intersection=False, x2_intersection=False):
+    """Make road segment SDF model
+    """
     assert len(x1) == 2 and len(x2) == 2
 
     center = ((x1[0] + x2[0])/2.0, (x1[1] + x2[1])/2.0)
