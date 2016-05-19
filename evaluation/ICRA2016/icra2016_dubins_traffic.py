@@ -43,14 +43,16 @@ for agentname in agents:
 
 
 ego_positions = np.array(ego_positions)
-min_dist = dict()
-for agentname in agents:
-    agents[agentname] = np.array(agents[agentname])
-    min_dist[agentname] = np.min(la.norm(ego_positions - agents[agentname], axis=1))
 
-if np.min(min_dist.values()) < 0.36:
-    print(-1)  # Collision
-    sys.exit()
+if len(agents) > 0:
+    min_dist = dict()
+    for agentname in agents:
+        agents[agentname] = np.array(agents[agentname])
+        min_dist[agentname] = np.min(la.norm(ego_positions - agents[agentname], axis=1))
+
+    if np.min(min_dist.values()) < 0.36:
+        print(-1)  # Collision
+        sys.exit()
 
 counting = False
 start_idx = None
@@ -71,8 +73,23 @@ if duration_off_road is None:
 else:
     duration_off_road = duration_off_road.to_sec()
 
+goal_visits = set()
+cycle_counts = 0
+for idx, position in enumerate(ego_positions):
+    for goal_idx, goal in enumerate(trialdata['instances'][0]['goals']):
+        mapped_goal = np.array(rnd.map_point(goal[0], goal[1]))
+        if la.norm(position - mapped_goal) < trialdata['instances'][0]['intersection_radius']:
+            goal_visits.add(goal_idx)
+
+    if goal_visits == set(range(len(trialdata['instances'][0]['goals']))):
+        cycle_counts += 1
+        goal_visits = set()
+
+print('cycle count: ', cycle_counts)
+
 score = len(agents.keys())
 score *= rnd.shape[0] * rnd.shape[1]
+score *= cycle_counts
 score /= max(1, duration_off_road)
 
 print(score)
