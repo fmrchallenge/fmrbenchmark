@@ -5,7 +5,7 @@ exists---for a chain of integrators so that resulting trajectories satisfy a
 reach-and-avoid specification.
 
 Our treatment here focuses on the programming interface. The notation and
-relevant theory is developed in the <a href="http://fmrchallenge.org/norm">benchmark specification</a>,
+relevant theory is developed in the <a href="https://fmrchallenge.org/norm">benchmark specification</a>,
 and a tutorial introduction is given in the <a href="http://docs.fmrchallenge.org">User's Guide</a>.
 
 */

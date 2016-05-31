@@ -1,7 +1,7 @@
 /** \mainpage
 
 This is the API manual for the <a href="https://github.com/fmrchallenge/fmrbenchmark">fmrbenchmark repository</a>,
- which is part of a <a href="http://fmrchallenge.org">project</a> to develop benchmark problems for research in
+ which is part of a <a href="https://fmrchallenge.org">project</a> to develop benchmark problems for research in
 so-called "formal methods for robotics." This API manual is of interest if you
 will extend, modify, or in general, work directly with the source code of the
 various benchmarks and supporting infrastructure. For installation instructions,

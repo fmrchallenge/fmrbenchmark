@@ -1,7 +1,7 @@
 The [fmrbenchmark repository](https://github.com/fmrchallenge/fmrbenchmark) is
 part of a project to develop benchmark problems for research in so-called formal
 methods for robotics.  This effort is stimulated by competitions, and the main
-website is http://fmrchallenge.org
+website is https://fmrchallenge.org
 
 Topical README files are provided in some directories.  For example,
 `domains/dubins_traffic/README.md`.  In the documentation, `$FMRBENCHMARK`
@@ -34,7 +34,7 @@ The directory `doc/` contains sources for several components of documentation.
 
 * `doc/norm/` : Normative problem domain descriptions and competition rules.
   Building requires [LaTeX](http://www.latex-project.org). Releases are
-  available at http://fmrchallenge.org/norm
+  available at https://fmrchallenge.org/norm
 
 * `doc/api/` : API manual. Building requires [Doxygen](http://www.doxygen.org).
   Releases are available at http://api.fmrchallenge.org

@@ -17,7 +17,7 @@ setup(name='fmrb',
       version=fmrb_version,
       author='Scott C. Livingston',
       author_email='slivingston@cds.caltech.edu',
-      url = 'http://fmrchallenge.org',
+      url = 'https://fmrchallenge.org',
       license = 'BSD',
       packages=['fmrb']
       )
