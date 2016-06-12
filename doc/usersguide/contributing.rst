@@ -3,9 +3,10 @@ Contributing
 
 There are many ways to contribute. Major concerns to keep in mind:
 
-* Participants should adhere to `the Debian Code of Conduct
-  <https://www.debian.org/code_of_conduct>`_. (Replace references to "Debian"
-  with "fmrbenchmark" and "fmrchallenge" as appropriate.)
+* Participants should adhere to our `code of conduct
+  <https://github.com/fmrchallenge/fmrbenchmark/blob/001b41dd0a841162bffd23b27d00092fa236aaf6/CODE_OF_CONDUCT.md>`_,
+  which is CODE_OF_CONDUCT.md in the `fmrbenchmark repository
+  <https://github.com/fmrchallenge/fmrbenchmark>`_.
 
 * Our mailing list is `fmrbenchmark-users@googlegroups.com
   <https://groups.google.com/forum/#!forum/fmrbenchmark-users>`_.
