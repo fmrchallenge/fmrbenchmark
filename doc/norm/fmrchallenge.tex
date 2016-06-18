@@ -292,34 +292,53 @@ the system, or empty to declare unrealizability.
 \end{itemize}
 
 \subsection{Evaluation}
-There will be a score computed as a weighted sum of the following criteria:
+%There will be a score computed as a weighted sum of the following criteria:
+%
+%\begin{enumerate}
+%
+%\item correctness of deciding realizability: wrong answer is worse than no answer.
+%
+%\item time between receiving problem instance and declaring answer to \#1.
+%
+%\item any violation of task formula is worse than not trying to answer the
+%problem instance.
+%
+%\item provided all of the above are successfully met (and provided that the
+%problem instance is realizable), synthesis times for increasing:
+%
+%\begin{enumerate}
+% \item number of integrators;
+% \item number of state dimensions;
+% \item~[NOT USED 2016] number of goal regions;
+% \item~[NOT USED 2016] number of obstacle regions.
+%\end{enumerate}
+%
+%Each of (a) and (b) above will be increased and the time to reach a
+%correct decision will be measured for each controller.
+%
+%\item~[NOT USED 2016] let the cycle-time be the time required to visit
+%every goal region at least once. The minimum and maximum cycle-times in
+%a trial are recorded.
+%\end{enumerate}
 
-\begin{enumerate}
+The score for each trial is:
 
-\item correctness of deciding realizability: wrong answer is worse than no answer.
+\begin{itemize}
+\item 0 if the trial is skipped;
+\item -1 if the trial is attempted but a collision with an obstacle occurs
+or there is some goal region not reached;
+\item scaled by:
+\[
+\frac{(\#\text{output dimensions})*(\#\text{integrators})}{(\text{time between
+receiving problem instances and beginning execution})}.
+\]
+\end{itemize}
 
-\item time between receiving problem instance and declaring answer to \#1.
+The number of trials, and parameters like the number of output dimensions 
+will be the same for each team/controller.
 
-\item any violation of task formula is worse than not trying to answer the
-problem instance.
+A team's final score is the sum across all trials.
 
-\item provided all of the above are successfully met (and provided that the
-problem instance is realizable), synthesis times for increasing:
-
-\begin{enumerate}
- \item number of integrators;
- \item number of state dimensions;
- \item~[NOT USED 2016] number of goal regions;
- \item~[NOT USED 2016] number of obstacle regions.
-\end{enumerate}
-
-Each of (a) and (b) above will be increased and the time to reach a
-correct decision will be measured for each controller.
-
-\item~[NOT USED 2016] let the cycle-time be the time required to visit
-every goal region at least once. The minimum and maximum cycle-times in
-a trial are recorded.
-\end{enumerate}
 
 \subsection{Implementation plan for the challenge}
 
@@ -456,37 +475,56 @@ the labeled output to \texttt{loutput}.
 \end{itemize}
 
 \subsection{Evaluation}
-There will be a score computed as a weighted sum of the following criteria:
+%There will be a score computed as a weighted sum of the following criteria:
+%
+%\begin{enumerate}
+%
+%\item time to begin, i.e., duration between being first given the problem
+%instance description and requesting start of the play.
+%
+%\item number of collisions.
+%
+%\item fraction of goals visited
+%
+%\item number of departures from lane when other vehicles are moving with
+%positive speed.
+%
+%\item fraction of trial duration not on any road.
+%
+%\item fraction of trial duration outside of correct lane (moving against the flow of traffic)
+% when doing so is not necessary to continue to progress (i.e. no e-agent is blocking
+% the lane).
+%
+%\item~[NOT USED 2016] cycle-time as defined for the problem domain
+%integrator\_chains.
+%
+%\item all of the above with varying:
+%\begin{enumerate}
+%  \item numbers of e-agents;
+%  \item size of the road net;
+%  \item~[NOT USED 2016] lane width.
+%\end{enumerate}
+% 
+%\end{enumerate}
+
+The score for each trial is:
 
 \begin{enumerate}
-
-\item time to begin, i.e., duration between being first given the problem
-instance description and requesting start of the play.
-
-\item number of collisions.
-
-\item fraction of goals visited
-
-\item number of departures from lane when other vehicles are moving with
-positive speed.
-
-\item fraction of trial duration not on any road.
-
-\item fraction of trial duration outside of correct lane (moving against the flow of traffic)
- when doing so is not necessary to continue to progress (i.e. no e-agent is blocking
- the lane).
-
-\item~[NOT USED 2016] cycle-time as defined for the problem domain
-integrator\_chains.
-
-\item all of the above with varying:
-\begin{enumerate}
-  \item numbers of e-agents;
-  \item size of the road net;
-  \item~[NOT USED 2016] lane width.
+\item -1 if a collision occurs between the ego vehicle and any other
+vehicle;
+\item otherwise,
+\[
+\frac{(\text{\#e-agents})*(\text{\#road grid rows})*(\text{\#cols})*X}{\max\{1, (\text{\#seconds ego vehicle not on
+some road})\}},
+\]
+where $X=\#\text{unique visits to all goal intersections}$. 
 \end{enumerate}
- 
-\end{enumerate}
+
+\bigskip
+The number of trials, and parameters like the size of the road network
+will be the same for each team/controller.
+
+A team's final score is the sum across all trials.
 
 \subsection{Implementation plan for the challenge}
 
