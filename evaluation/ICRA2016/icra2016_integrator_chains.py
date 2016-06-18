@@ -30,7 +30,12 @@ def check_sat(td, trial_index):
             lpolytope = prob.goals[i]
             if lpolytope.contains(y):
                 goals_satisfied[i] = 1
-    return all(goals_satisfied)
+                
+    if all(goals_satisfied):
+        return 1
+    else:
+        return -1
+                
 
 
 def get_integrator_chains_score(trialfile, bagfile=None):
@@ -48,6 +53,10 @@ def get_integrator_chains_score(trialfile, bagfile=None):
             realizable = trialdata['trials'][k]['realizable']
         except KeyError:
             realizable = None
+            
+        if realizable is None:
+           # trial is skipped
+           continue;         
 
         is_sat = check_sat(trialdata, k)
         
@@ -74,8 +83,8 @@ def get_integrator_chains_score(trialfile, bagfile=None):
             traj_discrete_length = None
 
 
-        score = 1/decision_diff
         score += is_sat
+        score /= decision_diff
         score *= prob.output_dim
         score *= prob.number_integrators
 
