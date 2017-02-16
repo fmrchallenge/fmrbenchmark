@@ -4,7 +4,7 @@ Problems in this domain involve navigation in a small network of two-lane roads
 with vehicles that have Dubins car dynamics.
 
 Our treatment here focuses on the programming interface. The notation and
-relevant theory is developed in the <a href="http://fmrchallenge.org/norm">benchmark specification</a>,
+relevant theory is developed in the <a href="https://fmrchallenge.org/norm">benchmark specification</a>,
 and a tutorial introduction is given in the <a href="http://docs.fmrchallenge.org">User's Guide</a>.
 
 */

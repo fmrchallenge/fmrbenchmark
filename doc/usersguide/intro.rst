@@ -37,7 +37,7 @@ Formulation
 -----------
 
 A normative description of benchmarks as well as a development of notation and
-problem formulation is given in the `Challenge Document <http://fmrchallenge.org/norm>`_.
+problem formulation is given in the `Challenge Document <https://fmrchallenge.org/norm>`_.
 Below is a summary.
 
 Benchmarks are organized into *problem domains* (sometimes also called "problem

@@ -3,9 +3,10 @@ Contributing
 
 There are many ways to contribute. Major concerns to keep in mind:
 
-* Participants should adhere to `the Debian Code of Conduct
-  <https://www.debian.org/code_of_conduct>`_. (Replace references to "Debian"
-  with "fmrbenchmark" and "fmrchallenge" as appropriate.)
+* Participants should adhere to our `code of conduct
+  <https://github.com/fmrchallenge/fmrbenchmark/blob/001b41dd0a841162bffd23b27d00092fa236aaf6/CODE_OF_CONDUCT.md>`_,
+  which is CODE_OF_CONDUCT.md in the `fmrbenchmark repository
+  <https://github.com/fmrchallenge/fmrbenchmark>`_.
 
 * Our mailing list is `fmrbenchmark-users@googlegroups.com
   <https://groups.google.com/forum/#!forum/fmrbenchmark-users>`_.
@@ -36,7 +37,7 @@ original intent and can be a basis for porting, e.g., to C++ or Python. In most
 cases, there are three parts involved in the inclusion of a benchmark:
 
 1. a normative description about the problem and methods of evaluation in the
-   `Challenge Document <http://fmrchallenge.org/norm>`_;
+   `Challenge Document <https://fmrchallenge.org/norm>`_;
 2. introductory and tutorial treatment in the `User's Guide <http://docs.fmrchallenge.org>`_,
    and relevant additions to the `API manual <http://api.fmrchallenge.org>`_;
 3. details and practical considerations for using it as part of a competition.
@@ -63,7 +64,7 @@ manner of contribution is to realize physical variants of the benchmarks in your
 own lab and then give feedback about missing details, subtle considerations,
 etc. Any of the venues listed above (at the beginning of :doc:`contributing`)
 can be used to provide comments. Also, the authors can be `emailed directly
-<http://fmrchallenge.org/#contact>`_.
+<https://fmrchallenge.org/#contact>`_.
 
 
 Providing computing resources

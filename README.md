@@ -1,7 +1,7 @@
 The [fmrbenchmark repository](https://github.com/fmrchallenge/fmrbenchmark) is
 part of a project to develop benchmark problems for research in so-called formal
 methods for robotics.  This effort is stimulated by competitions, and the main
-website is http://fmrchallenge.org
+website is https://fmrchallenge.org
 
 Topical README files are provided in some directories.  For example,
 `domains/dubins_traffic/README.md`.  In the documentation, `$FMRBENCHMARK`
@@ -34,7 +34,7 @@ The directory `doc/` contains sources for several components of documentation.
 
 * `doc/norm/` : Normative problem domain descriptions and competition rules.
   Building requires [LaTeX](http://www.latex-project.org). Releases are
-  available at http://fmrchallenge.org/norm
+  available at https://fmrchallenge.org/norm
 
 * `doc/api/` : API manual. Building requires [Doxygen](http://www.doxygen.org).
   Releases are available at http://api.fmrchallenge.org
@@ -61,3 +61,25 @@ This is free software released under the terms of [the BSD 3-Clause License]
 (http://opensource.org/licenses/BSD-3-Clause).  There is no warranty; not even
 for merchantability or fitness for a particular purpose.  Consult LICENSE for
 copying conditions.
+
+
+Contributing
+------------
+
+There are many ways to contribute. Below is a summary. There is also a more
+[detailed page](http://docs.fmrchallenge.org/en/latest/contributing.html) in
+[the User's Guide](http://docs.fmrchallenge.org). All participation should
+follow our [code of conduct](CODE_OF_CONDUCT.md).
+
+* Join our mailing list, [fmrbenchmark-users@googlegroups.com](https://groups.google.com/forum/#!forum/fmrbenchmark-users)
+
+* Find unassigned tasks or recommend solution methods in the
+  [issue tracker](https://github.com/fmrchallenge/fmrbenchmark/issues).
+
+Outside contributions should be submitted according to the fork-and-pull-request
+workflow to facilitate a public record of review and discussion.  When doing so
+is not appropriate or not easily possible, other media are welcome, e.g.,
+sending patches via email.
+
+All contributions must be under the standard "BSD 3-clause license" or a
+comparable open-source license.
