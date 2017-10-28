@@ -19,5 +19,9 @@ setup(name='fmrb',
       author_email='slivingston@cds.caltech.edu',
       url = 'https://fmrchallenge.org',
       license = 'BSD',
-      packages=['fmrb']
+      packages=['fmrb'],
+      install_requires = [
+          'pycddlib',
+          'numpy'
+      ]
       )
