@@ -8,7 +8,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 project = u'fmrbenchmark'
-copyright = u'2015-2016, Scott C. Livingston'
+copyright = u'2015-2016, Caltech et al.'
 
 version = '0.0.4'
 release = version  # To appease Sphinx
