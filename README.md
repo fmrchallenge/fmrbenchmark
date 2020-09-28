@@ -33,10 +33,10 @@ Documentation
 The directory `doc/` contains sources for several components of documentation.
 
 * `doc/norm/` : Normative problem domain descriptions and competition rules.
-  Building requires [LaTeX](http://www.latex-project.org). Releases are
+  Building requires [LaTeX](https://www.latex-project.org/). Releases are
   available at https://fmrchallenge.org/norm
 
-* `doc/api/` : API manual. Building requires [Doxygen](http://www.doxygen.org).
+* `doc/api/` : API manual. Building requires [Doxygen](https://www.doxygen.nl/index.html).
   Releases are available at http://api.fmrchallenge.org
 
 * `doc/usersguide/` : User's Guide. Building requires [Sphinx](http://sphinx-doc.org).
