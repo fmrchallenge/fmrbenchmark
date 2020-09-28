@@ -81,5 +81,4 @@ workflow to facilitate a public record of review and discussion.  When doing so
 is not appropriate or not easily possible, other media are welcome, e.g.,
 sending patches via email.
 
-All contributions must be under the standard "BSD 3-clause license" or a
-comparable open-source license.
+All contributions must be under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
