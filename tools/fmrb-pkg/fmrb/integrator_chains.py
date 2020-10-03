@@ -52,7 +52,7 @@ class Polytope(object):
         V = self.getVrep()
         mins = np.min(V, axis=0)
         maxs = np.max(V, axis=0)
-        return np.array(zip(mins, maxs)).flatten()
+        return np.array(list(zip(mins, maxs))).flatten()
 
     def plot(self, ax, alpha=1.0, color=None):
         """
@@ -116,7 +116,6 @@ class Problem(object):
         if outdims is None:
             outdims = [0, 1]
         self.Y.plot(ax, color=(1,1,1))
-        ax.hold(True)
         for lpoly in self.goals+self.obstacles:
             lpoly.plot(ax, alpha=0.8)
             xc = np.mean(lpoly.getVrep(), axis=0)
