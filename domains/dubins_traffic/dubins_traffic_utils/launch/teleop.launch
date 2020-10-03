@@ -4,8 +4,6 @@ This launch file requires the kobuki_keyop ROS package to be installed. However,
 manual steering is not a part of the benchmark and is provided primarily for
 low-level debugging. Thus, kobuki_keyop is not listed as a dependency in
 package.xml of dubins_traffic_utils.
-
-SCL; 30 Apr 2016
 -->
 <launch>
   <node pkg="kobuki_keyop" type="keyop" name="keyop" output="screen">

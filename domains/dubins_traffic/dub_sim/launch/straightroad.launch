@@ -1,4 +1,4 @@
-<!-- SCL; 2014, 2015 -->
+<!-- part of https://fmrchallenge.org -->
 <launch>
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find dub_sim)/models/straightroad.world" />
