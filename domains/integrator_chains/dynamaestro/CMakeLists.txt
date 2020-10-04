@@ -10,6 +10,15 @@ include_directories (${Boost_INCLUDE_DIRS})
 find_package (Eigen3 REQUIRED)
 include_directories (${EIGEN3_INCLUDE_DIR})
 
+option(FMRBENCHMARK_ENABLE_TESTS "Build tests" ON)
+if (FMRBENCHMARK_ENABLE_TESTS)
+  enable_testing()
+  add_executable (problem_unittest tests/problem_unittest.cpp)
+  target_link_libraries (problem_unittest gtest_main gtest)
+  add_test (NAME problem_unittest COMMAND problem_unittest)
+endif (FMRBENCHMARK_ENABLE_TESTS)
+
+
 if (CATKIN_ENV)
   message (STATUS "Building for ROS")
 

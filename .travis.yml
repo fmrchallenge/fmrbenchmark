@@ -10,6 +10,7 @@ addons:
       - pkg-config
       - libboost-all-dev
       - libeigen3-dev
+      - googletest
 
 language: cpp
 compiler:
@@ -21,7 +22,8 @@ install:
 
 script:
   - cd domains/integrator_chains/dynamaestro
-  - mkdir build && cd build && cmake .. && make && cd ..
+  - mkdir build && cd build && cmake .. && make
+  - ctest -V
 
 notifications:
   email: false
