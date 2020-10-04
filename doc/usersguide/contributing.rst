@@ -14,11 +14,9 @@ There are many ways to contribute. Major concerns to keep in mind:
 
 * You must hold the copyright or have explicit permission from the copyright
   holder for anything that you contribute. Furthermore, to be included in this
-  project, your contributed works must be under the standard "BSD 3-clause
-  license" or a comparable open-source license (including public domain
-  dedication). You can find a copy at ``LICENSE`` in the root of the
-  repository. A license is "comparable" if it is no more restrictive than the
-  `Apache License, Version 2.0 <http://opensource.org/licenses/Apache-2.0>`_.
+  project, your contributed works must be under the `Apache 2.0 license`_.
+  You can find a copy at ``LICENSE`` in the root of the
+  repository.
 
 Please report potential bugs or request features using the `issue tracker
 <https://github.com/fmrchallenge/fmrbenchmark/issues>`_. Guidelines for
@@ -76,3 +74,6 @@ be arbitrarily large, e.g., :doc:`integrator_chains`. To support these
 ambitions, we accept donations of hardware as well as of remote access to
 computing resources, e.g., university-managed clusters or cloud computing
 services.
+
+
+.. _Apache 2.0 license: https://www.apache.org/licenses/LICENSE-2.0.html

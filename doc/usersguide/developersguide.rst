@@ -20,9 +20,9 @@ the benchmarks per se.
 
 Examples can be expressed in any programming language or depend on any tool,
 including dependencies that have restrictive licenses. However, as with
-everything else in the repository, the example itself must be under the standard
-"BSD 3-clause license" or a comparable open-source license (including public
-domain dedication). If you are going to contribute examples having dependencies
+everything else in the repository, the example itself must be under the `Apache
+2.0 license`_.
+If you are going to contribute examples having dependencies
 that are not free as in freedom, please carefully document the special
 requirements for running the example controller.
 
@@ -41,3 +41,6 @@ Checklist for making releases
 2. post fmrb Python package to PyPI.
 3. post releases of documentation: User's Guide, API manual, and the Challenge Document.
 4. update website.
+
+
+.. _Apache 2.0 license: https://www.apache.org/licenses/LICENSE-2.0.html
