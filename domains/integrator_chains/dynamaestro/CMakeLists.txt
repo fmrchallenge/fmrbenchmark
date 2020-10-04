@@ -14,7 +14,7 @@ option(FMRBENCHMARK_ENABLE_TESTS "Build tests" ON)
 if (FMRBENCHMARK_ENABLE_TESTS)
   enable_testing()
   add_executable (problem_unittest tests/problem_unittest.cpp)
-  target_link_libraries (problem_unittest gtest_main gtest)
+  target_link_libraries (problem_unittest gtest_main gtest pthread)
   add_test (NAME problem_unittest COMMAND problem_unittest)
 endif (FMRBENCHMARK_ENABLE_TESTS)
 

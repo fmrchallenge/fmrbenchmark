@@ -17,6 +17,7 @@ compiler:
   - gcc
 
 install:
+  - ./ci/ubuntu-build-gtest.sh
   - pip3 install -U pip && pip3 install setuptools
   - cd tools/fmrb-pkg && pip3 install -r requirements.txt && pip3 install . && cd ../..
 
