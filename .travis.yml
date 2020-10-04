@@ -1,0 +1,27 @@
+sudo: false
+dist: bionic
+addons:
+  apt:
+    packages:
+      - cmake-data
+      - cmake
+      - python3
+      - python3-pip
+      - pkg-config
+      - libboost-all-dev
+      - libeigen3-dev
+
+language: cpp
+compiler:
+  - gcc
+
+install:
+  - pip3 install -U pip && pip3 install setuptools
+  - cd tools/fmrb-pkg && pip3 install -r requirements.txt && pip3 install . && cd ../..
+
+script:
+  - cd domains/integrator_chains/dynamaestro
+  - mkdir build && cd build && cmake .. && make && cd ..
+
+notifications:
+  email: false
