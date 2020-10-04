@@ -176,10 +176,18 @@ std::ostream & operator<<( std::ostream &out, const Problem &prob )
     }
     out << "]," << std::endl;
     out << "\"Y\": ";
-    out << *prob.Y;
+    if (prob.Y) {
+        out << *prob.Y;
+    } else {
+        out << "null";
+    }
     out << "," << std::endl;
     out << "\"U\": ";
-    out << *prob.U;
+    if (prob.U) {
+        out << *prob.U;
+    } else {
+        out << "null";
+    }
     out << "," << std::endl;
     out << "\"period\": " << prob.period;
     out << std::endl << " }";
