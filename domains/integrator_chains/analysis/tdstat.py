@@ -223,7 +223,7 @@ def get_summary(td, include_trials=False):
                 summary += 'no decision time included.'
             summary += nl
 
-            if td['trials'][k].has_key('trajectory'):
+            if 'trajectory' in td['trials'][k]:
                 second_state_time = td['trials'][k]['trajectory'][0][0]+td['trials'][k]['trajectory'][0][1]*1e-9
                 end_state_time = td['trials'][k]['trajectory'][-1][0]+td['trials'][k]['trajectory'][-1][1]*1e-9
                 trajectory_duration = end_state_time - second_state_time
