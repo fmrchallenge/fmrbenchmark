@@ -10,8 +10,8 @@
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>std_msgs</build_depend>
   <run_depend>std_msgs</run_depend>
-  <build_depend>dynamaestro</build_depend>
-  <run_depend>dynamaestro</run_depend>
+  <build_depend>integrator_chains_msgs</build_depend>
+  <run_depend>integrator_chains_msgs</run_depend>
   <build_depend>rospy</build_depend>
   <run_depend>rospy</run_depend>
 </package>
