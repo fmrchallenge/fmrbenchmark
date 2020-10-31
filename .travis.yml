@@ -15,6 +15,7 @@ addons:
 language: cpp
 compiler:
   - gcc
+  - clang
 
 install:
   - ./ci/ubuntu-build-gtest.sh
