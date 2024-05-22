@@ -45,7 +45,7 @@ dependencies and, accordingly, better support for a variety of platforms.
 
 ### Common Python dependencies
 
-* numpy, which is part of the [standard scientific Python stack](http://www.scipy.org/stackspec.html)
+* numpy, which is a [Scientific Python Core Project](https://scientific-python.org/specs/core-projects/)
 * Matplotlib, also part of the standard stack
 
 ### analysis/plotp.py
