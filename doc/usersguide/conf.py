@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import os
+
+html_baseurl = os.environ.get('READTHEDOCS_CANONICAL_URL', '')
+
 extensions = ['sphinx.ext.mathjax']
 templates_path = ['_templates']
 pygments_style = 'sphinx'
