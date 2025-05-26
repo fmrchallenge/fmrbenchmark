@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8.3)
 project (dubins_traffic_utils)
-add_compile_options (-std=c++11)
+add_compile_options (-std=c++17)
 
 include_directories (include)
 
